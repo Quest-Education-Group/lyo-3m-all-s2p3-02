@@ -3,7 +3,7 @@ project(Foundry)
 find_package(unofficial-enet CONFIG REQUIRED)
 find_package(ReactPhysics3D REQUIRED)
 
-file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED
     ${SOURCES}

@@ -24,9 +24,8 @@ else()
 endif()
 
 
-add_subdirectory(Game)
-add_subdirectory(Foundry)
-add_subdirectory(Ore)
-add_subdirectory(testLib)
 add_subdirectory(RHI)
-
+add_subdirectory(Ore)
+add_subdirectory(Foundry)
+add_subdirectory(testLib)
+add_subdirectory(Game)

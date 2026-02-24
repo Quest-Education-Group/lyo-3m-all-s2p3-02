@@ -1,0 +1,40 @@
+#include "Servers/EngineServer.h"
+#include "Multithreading/TaskGraph.h"
+
+#include <memory>
+
+void EngineServer::QueueAttach(std::unique_ptr<Node>& node, Node* const To)
+{
+    Instance().m_commands.push({CommandType::ATTACH, std::move(node), To});
+}
+
+void EngineServer::QueueFree(std::unique_ptr<Node>& node)
+{
+    Instance().m_commands.push({CommandType::FREE, std::move(node)});
+}
+
+void EngineServer::BuildTasksImpl(TaskGraph& graph)
+{
+    Task t;
+    t.TaskFunction = [this]{ TestFunct(); };
+    t.Name = "Dummy task";
+    graph.AddTask(t);
+}
+
+void EngineServer::FlushCommandsImpl()
+{
+    while (m_commands.empty() == false)
+    {
+        Command<EngineServer>& command = m_commands.front();
+        switch (command.Type)
+        {
+        case CommandType::ATTACH:
+            command.To->AttachChildImmediate(command.Child);
+            m_commands.pop();
+            break;
+        case CommandType::FREE:
+            m_commands.pop();
+            break;
+        }
+    }
+}

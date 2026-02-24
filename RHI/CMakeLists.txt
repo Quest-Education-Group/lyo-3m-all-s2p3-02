@@ -1,6 +1,6 @@
 project(RHI)
 
-file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED
     ${SOURCES}
