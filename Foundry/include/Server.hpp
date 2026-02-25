@@ -11,7 +11,6 @@ template <typename T>
 struct Command {};
 
 
-
 /*
  * Servers are singleton interface to lower level tasks like opening a window or physics, for instance.
  * Servers are independant. Please avoid including other server in your server header file.

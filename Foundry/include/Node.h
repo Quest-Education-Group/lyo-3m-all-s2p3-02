@@ -4,6 +4,7 @@
 #include "Debug.h"
 #include "Define.h"
 #include "Event.hpp"
+#include "Logger.hpp"
 
 #include <functional>
 #include <memory>
@@ -56,7 +57,7 @@ public:
 	OptionalRef<T> FindChild(); //recursive children search
 	OptionalRef<Node> FindChild(std::string const& name); //recursive children search
 
-	Node& GetChild(int32 index);
+	Node& GetChild(uint32 index);
 	std::vector<std::reference_wrapper<Node>> GetChildren();
 	int32 GetChildCount();
 

@@ -87,8 +87,6 @@ void Node::RemoveChild(std::string const& childName)
 	child->OnSceneLeave(*child);
 	child->m_pOwner = nullptr;
 	child->m_pSceneTree = nullptr;
-	//TODO IMPORTANT HERE YOU MUST TRANSFER OWNERSHIP OF NODE IN THE DELETION QUEUE ELSE KABOOM
-	//deletionQueue().push_back(std::move(m_children[child.m_name]))
 	EngineServer::QueueFree(m_children[childName]);
 	std::erase(m_childrenOrder, childName);
 	m_children.erase(childName);
@@ -104,7 +102,7 @@ OptionalRef<Node> Node::FindChild(std::string const& name)
 	return {};
 }
 
-Node& Node::GetChild(int32 index)
+Node& Node::GetChild(uint32 index)
 {
     if (m_children.empty()) throw std::exception();
 	return *m_children[m_childrenOrder[index]];
@@ -128,7 +126,7 @@ int32 Node::GetChildCount()
 
 void Node::Destroy()
 {
-	//TODO make that work in all case
+	//TODO make that work in all case (maybe ?)
     if (m_pOwner)
     {
         m_pOwner->RemoveChild(*this);
