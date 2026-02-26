@@ -16,6 +16,7 @@ file(COPY ${PROJECT_SOURCE_DIR}/res/
      DESTINATION ${PROJECT_BINARY_DIR}/res  
 )  
 
+
 # Indication to the code that this is a debug build
 if (${IS_DEBUG_BUILD})
     add_compile_definitions(DEBUG_BUILD)
@@ -23,6 +24,7 @@ else()
     add_compile_definitions(RELEASE_BUILD)
 endif()
 
+include_directories("Core/")
 
 add_subdirectory(RHI)
 add_subdirectory(Ore)

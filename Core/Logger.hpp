@@ -1,0 +1,61 @@
+#ifndef LOGGING__HPP_
+#define LOGGING__HPP_
+
+#include "Define.h"
+
+#include <csignal>
+#include <fstream>
+#include <memory>
+#include <string>
+#include <filesystem>
+#include <mutex>
+#include <format>
+#include <chrono>
+
+#define ENGINE_NAME "FOUNDRY"
+
+namespace ch = std::chrono;
+
+enum class LogLevel
+{
+	DEBUG = 0, 
+	WARNING = 38, 
+	ERROR = 31
+};
+
+class Logger
+{
+public:
+	inline static const std::filesystem::path LogDir{"logs"};
+
+	template <typename ... Params>
+	static void LogWithLevel(LogLevel level, Params... params);
+	
+	template <typename ... Params>
+	static void Log(Params... params);
+
+	~Logger() = default; 
+
+private:
+	Logger() = default;
+
+	void CreateLogFile();
+	void PurgeOldFiles();
+
+	static Logger& Instance();
+	static void SignalHandler(int32 signal);
+
+private:
+
+	inline static std::unique_ptr<Logger> pInstance;
+    inline static std::mutex s_mutex;
+
+	std::fstream m_file {};
+};
+
+
+
+#include "Logger.inl"
+
+
+#endif // !LOGGING__H_

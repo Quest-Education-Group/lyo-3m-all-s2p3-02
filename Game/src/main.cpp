@@ -6,7 +6,6 @@
 #include <Node.h>
 #include "Logger.hpp"
 #include "Define.h"
-#include "Debug.h"
 
 enum class Test
 {
@@ -18,8 +17,6 @@ ENUM_CLASS_FLAGS(Test);
 int main()
 {
 	int32 width = 10_mo;
-	Logger::Log("Hello logging system !");
-	Logger::LogWithLevel(Logger::LogLevel::WARNING, "Log line 2");
-
-	UNIMPLEMENTED;
+	Logger::Log("Hello logging system !", 39, "efwefe");
+	Logger::LogWithLevel(LogLevel::WARNING, "Log line 2");
 }

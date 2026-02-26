@@ -18,6 +18,18 @@ using uint16 = std::uint16_t;
 using uint32 = std::uint32_t;
 using uint64 = std::uint64_t;
 
+//=== ANSI ESCAPE CODE ========
+#define ESC "\x1B"
+#define ANSI_RED      ESC"[31m"
+#define ANSI_GREEN    ESC"[32m"
+#define ANSI_GOLD     ESC"[38;5;178m"
+
+#define ANSI_ITALIC   ESC"[3m"
+#define ANSI_BOLD     ESC"[1m"
+
+#define ANSI_RESET    ESC"[0m"
+//=============================
+
 template <typename T>
 constexpr T pi_t = std::numbers::pi_v<T>;
 
