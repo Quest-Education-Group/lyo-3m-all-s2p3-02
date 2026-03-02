@@ -3,11 +3,11 @@
 
 #include "json.hpp"
 
-#include <vector>
+#include <Define.h>
 #include <string>
 #include <map>
+#include <Node.h>
 
-class Node;
 using json = nlohmann::json;
 
 /*
@@ -34,11 +34,11 @@ public:
 	static uptr<Node> LoadFromJson(std::string path);
 
 private:
-	json ParseNodeToJson(uptr<Node>& pNode, json jsonData);
-	Type GetTypeFromNode(uptr<Node>& pNode);
+	static json ParseNodeToJson(Node& pNode, json jsonData);
+	static Type GetTypeFromNode(Node* pNode);
 
-	uptr<Node> ParseNodeData(json jsonData);
-	uptr<Node> CreateNodeFromType(Type nodeType);
+	static uptr<Node> ParseNodeData(json jsonData);
+	static uptr<Node> CreateNodeFromType(Type nodeType);
 };
 
 #endif
