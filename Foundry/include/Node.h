@@ -5,6 +5,7 @@
 #include "Define.h"
 #include "Event.hpp"
 #include "Scripting/Lua/LuaScriptInstance.hpp"
+#include "ISerializable.h"
 
 #include <functional>
 #include <memory>
@@ -25,7 +26,7 @@ template <typename T>
 using OptionalRef = std::optional<std::reference_wrapper<T>>;
 
 //Base class off every node in the tree
-class Node 
+class Node : public ISerializable
 {
 public:
 
