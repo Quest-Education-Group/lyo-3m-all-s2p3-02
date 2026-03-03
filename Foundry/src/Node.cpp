@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-Node::Node(std::string const& name) : m_name(name)
+Node::Node(std::string const& name) :  m_name(name)
 {
     DEBUG("Node : " << m_name << " has been " << ANSI_GREEN << "created !" << ANSI_RESET << std::endl);
 }
@@ -25,6 +25,7 @@ Node::~Node()
 void Node::Update(float const delta)
 {
     OnUpdate(delta);
+	OnNodeUpdated(*this, delta);
     for (auto& name : m_childrenOrder)
     {
         m_children[name]->Update(delta);
@@ -119,7 +120,7 @@ std::vector<std::reference_wrapper<Node>> Node::GetChildren()
 	return res;
 }
 
-int32 Node::GetChildCount()
+uint32 Node::GetChildCount()
 {
     return m_children.size();
 }
@@ -145,7 +146,7 @@ void Node::Reparent(Node& newParent, bool keepGlobalTransform)
     m_pOwner = &newParent;
 }
 
-void Node::MoveChild(Node const& child, int32 to)
+void Node::MoveChild(Node const& child, uint32 to)
 {
     if (m_children.contains(child.m_name) == false) return;
 
