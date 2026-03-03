@@ -16,11 +16,10 @@ Transform3D::Transform3D() :
 
 Transform3D::~Transform3D()
 {
-	//if(m_pParent)
-	//{
-	//	delete m_pParent;
-	//	m_pParent = nullptr;
-	//}
+	if(m_pParent)
+	{
+		m_pParent = nullptr;
+	}
 }
 
 void Transform3D::UpdateTransform()
