@@ -15,4 +15,5 @@ file(COPY ${PROJECT_SOURCE_DIR}/../res/
 )  
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Foundry::library)
+target_link_libraries(${PROJECT_NAME} PRIVATE Ore::library)
 
