@@ -6,6 +6,8 @@
     "glad",
     "glfw3",
     "glm",
-    "reactphysics3d"
+    "reactphysics3d",
+    "raylib",
+    "imgui"
   ]
 }
