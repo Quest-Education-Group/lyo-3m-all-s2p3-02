@@ -5,6 +5,7 @@
 #include "Define.h"
 #include "Event.hpp"
 #include "Scripting/Lua/LuaScriptInstance.hpp"
+#include "ISerializable.h"
 
 #include <functional>
 #include <memory>
@@ -25,7 +26,7 @@ template <typename T>
 using OptionalRef = std::optional<std::reference_wrapper<T>>;
 
 //Base class off every node in the tree
-class Node 
+class Node : public ISerializable
 {
 public:
 
@@ -62,6 +63,8 @@ public:
 
 	//override this method if the inherited node is not trivially copyable
 	virtual std::unique_ptr<Node> Clone();
+	std::map<std::string, std::string> const& Serialize() { return {}; }
+	void Deserialize(std::map<std::string, std::string> const& object) {}
 
 	std::string GetName();
 	Node* GetParent();

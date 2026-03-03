@@ -1,7 +1,5 @@
 project(Game)
 
-find_package(lua REQUIRED)
-
 set(MAIN "main" CACHE STRING "Select the program entry point")
 
 set(SOURCE
@@ -17,5 +15,4 @@ file(COPY ${PROJECT_SOURCE_DIR}/../res/
 )  
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Foundry::library)
-target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::lua::lua)
 
