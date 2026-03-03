@@ -112,7 +112,7 @@ Transform2D& Transform2D::operator-=(Transform2D const& other)
 
 	m_position -= other.m_position;
 	m_scale    -= other.m_scale;
-	m_theta    -= other.m_theta;
+	m_theta -= other.m_theta;
 
 	return *this;
 }
@@ -155,6 +155,24 @@ void Transform2D::SetPosition(float _x, float _y)
 vec2 Transform2D::GetPosition() const
 {
 	return m_position;
+}
+
+void Transform2D::SetDimensions(vec2 _dim)
+{
+	if (m_isStatic) return;
+
+	m_position = _dim;
+}
+void Transform2D::SetDimensions(float _width, float _height)
+{
+	if (m_isStatic) return;
+
+	m_dimensions.x = _width;
+	m_dimensions.y = _height;
+}
+uvec2 Transform2D::GetDimensions() const
+{
+	return m_dimensions;
 }
 
 void Transform2D::SetScale(vec2 _scale)
@@ -221,4 +239,11 @@ void Transform2D::SetParent(Transform2D& _parent)
 Transform2D* Transform2D::GetParent()
 {
 	return m_pParent;
+}
+
+void Transform2D::UpdateRotation()
+{
+	if (!m_pParent) return;
+
+
 }

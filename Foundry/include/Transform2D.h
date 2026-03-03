@@ -44,6 +44,10 @@ public:
 	void  SetPosition(vec2 _pos);
 	void  SetPosition(float _x, float _y);
 	vec2  GetPosition() const;
+
+	void  SetDimensions(vec2 _dim);
+	void  SetDimensions(float _width, float _height);
+	uvec2  GetDimensions() const;
 		  
 	void  SetScale(vec2 _scale);
 	void  SetScale(float _width, float _height);
@@ -61,11 +65,14 @@ public:
 
 private:
 	vec2		 m_position;
+	uvec2		 m_dimensions;
 	uvec2		 m_scale;
 	float		 m_theta;
 	bool		 m_isStatic;
 
 	Transform2D* m_pParent;
+
+	void UpdateRotation();
 };
 
 
