@@ -68,6 +68,7 @@ public:
 	void Deserialize(std::map<std::string, std::string> const& object);
 
 	std::string GetName();
+	void SetName(std::string const& name);
 	Node* GetParent();
 	SceneTree* GetSceneTree();
 

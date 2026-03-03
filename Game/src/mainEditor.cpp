@@ -3,21 +3,14 @@
 // https://github.com/AlexandreGlatz/cmake-generator
 ////////////////////////////////////////////////////
 
-#include <Editor.h>
-#include <iostream>
+#include "Editor.h"
 
-bool Quit = false;
-
-
-int main() {
+int main()
+{
 	Editor editor;
-	editor.init();
-
-	while (!WindowShouldClose() && !Quit)    // Detect window close button or ESC key
-	{
-		std::cout << "yes" << std::endl;
-	}
-
-
-
+	editor.Init();
+	editor.Run();
+	editor.Shutdown();
+	
+	return 0;
 }

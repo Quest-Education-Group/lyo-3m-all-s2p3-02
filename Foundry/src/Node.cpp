@@ -180,5 +180,6 @@ void Node::Deserialize(std::map<std::string, std::string> const& object)
 }
 
 std::string Node::GetName() { return m_name; }
+void Node::SetName(std::string const& name) { m_name = name; }
 Node* Node::GetParent() { return m_pOwner; }
 SceneTree* Node::GetSceneTree() { return m_pSceneTree; }
