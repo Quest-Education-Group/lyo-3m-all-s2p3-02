@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0...4.0)
 
 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-set(CMAKE_C_COMPILER "clang" CACHE STRING "C compiler" FORCE)
-set(CMAKE_CXX_COMPILER "clang++" CACHE STRING "C++ compiler" FORCE)
+#set(CMAKE_C_COMPILER "clang" CACHE STRING "C compiler" FORCE)
+#set(CMAKE_CXX_COMPILER "clang++" CACHE STRING "C++ compiler" FORCE)
 set(VCPKG_OVERLAY_PORTS "${CMAKE_SOURCE_DIR}/vcpkg-ports")
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
