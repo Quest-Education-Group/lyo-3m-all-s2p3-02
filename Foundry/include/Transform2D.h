@@ -1,44 +1,72 @@
-#ifndef TRANSFORM2D__H_
-#define TRANSFORM2D__H_
+#ifndef ENGINE_TRANSFORM2D__H_
+#define ENGINE_TRANSFORM2D__H_
 
-#include <glm/vec2.hpp>
-#include <glm/mat3x3.hpp>
+#include <glm/glm.hpp>
+using namespace glm;
 
+/// <summary>
+/// Describes a 2D element in a 2D space world.
+/// Handles positionning, scaling, rotation and statism (parameters locked or unlocked).
+/// </summary>
 class Transform2D
 {
 public:
-	Transform2D() = default;
+	Transform2D(
+		float _x = 0.0f, 
+		float _y = 0.0f, 
+		float _scaleX = 1.0f, 
+		float _scaleY = 1.0f, 
+		float _theta = 0.0f, 
+		bool _statism = false
+	);
+	~Transform2D();
+
 	Transform2D(Transform2D const& other);
+	Transform2D& operator=(Transform2D const& other);
+
 	Transform2D(Transform2D&& other) noexcept;
-	Transform2D(glm::vec2 const& position, float rotation);
-	Transform2D(glm::vec2 const& positon, float rotation, glm::vec2 const& scale);
+	Transform2D& operator=(Transform2D&& other) noexcept;
 
-	void Identity();
 
-	void SetPosition(glm::vec2 const& position); 
-	void SetRotation(float rotation);
-	void SetScale(glm::vec2 const& scale);
+	Transform2D  operator*(Transform2D const& other) const;
+	Transform2D& operator*=(Transform2D const& other);
+
+	Transform2D  operator+(Transform2D const& other) const;
+	Transform2D& operator+=(Transform2D const& other);
 	
-	//dont forget to update the dirty flag
-	glm::vec2 GetPosition() const;
-	float GetRotation() const;
-	glm::vec2 GetScale() const;
+	Transform2D  operator-(Transform2D const& other) const;
+	Transform2D& operator-=(Transform2D const& other);
 
-	//multiply matrices of transforms
-	Transform2D operator*(Transform2D const& right);
-	Transform2D operator*=(Transform2D const& right);
+	Transform2D  operator/(Transform2D const& other) const;
+	Transform2D& operator/=(Transform2D const& other);
 
+
+	void  SetPosition(vec2 _pos);
+	void  SetPosition(float _x, float _y);
+	vec2  GetPosition() const;
+		  
+	void  SetScale(vec2 _scale);
+	void  SetScale(float _width, float _height);
+	uvec2 GetScale() const;
+
+	void  AddTheta(float _theta);
+	void  SetTheta(float _theta);
+	float GetTheta() const;	
+
+	void  SetStatism(bool _statism);
+	bool  IsStatic() const;
+
+	void SetParent(Transform2D& _parent);
+	Transform2D* GetParent();
 
 private:
-	void UpdateMatrix();
+	vec2		 m_position;
+	uvec2		 m_scale;
+	float		 m_theta;
+	bool		 m_isStatic;
 
-private:
-	float m_x;
-	float m_y;
-	float rotation;
-	glm::mat3 m_matrix {};
-
-	bool m_needUpdate = false;
+	Transform2D* m_pParent;
 };
 
-#endif // !TRANSFORM2D__H_
+
+#endif
