@@ -45,7 +45,7 @@ uptr<Node> SerializeObject::LoadFromJson(std::string path)
 	// Read File nlhoman aled
 
 	std::fstream file;
-	file.open(path, std::ios::out);
+	file.open("../res/" + path, std::ios::in);
 	json jsonFile{ json::parse(file) };
 
 	uptr<Node> firstNode = Node::CreateNode<Node>("Node");
@@ -55,7 +55,8 @@ uptr<Node> SerializeObject::LoadFromJson(std::string path)
 	json childrenList = jsonFile["Root"]["Children"];
 	for (uint8 i = 0; i < childrenList.size(); i++)
 	{
-		firstNode.get()->AddChild(ParseNodeData(childrenList[i]));
+		json child = childrenList[i];
+		firstNode.get()->AddChild(ParseNodeData(child));
 	}
 
 	file.close();
@@ -65,9 +66,11 @@ uptr<Node> SerializeObject::LoadFromJson(std::string path)
 
 uptr<Node> SerializeObject::ParseNodeData(json data)
 {
-	uptr<Node> newNode = CreateNodeFromType(data["Type"]);
+	int nodeType = data["TYPE"];
 	std::map<std::string, std::string> tempMap;
 	data["Datas"].get_to(tempMap);
+
+	uptr<Node> newNode = CreateNodeFromType((Type)nodeType,tempMap["m_name"]);
 	newNode.get()->Deserialize(tempMap);
 	json childrenList = data["Children"];
 	for (uint8 i = 0; i < childrenList.size(); i++)
@@ -77,13 +80,13 @@ uptr<Node> SerializeObject::ParseNodeData(json data)
 	return std::move(newNode);
 }
 
-uptr<Node> SerializeObject::CreateNodeFromType(Type nodeType)
+uptr<Node> SerializeObject::CreateNodeFromType(Type nodeType, std::string const& name)
 {
 	
 	switch (nodeType)
 	{
 	case Type::NODE:
-		return std::move(Node::CreateNode<Node>("Node"));
+		return std::move(Node::CreateNode<Node>(name));
 		break;
 	default:
 		break;

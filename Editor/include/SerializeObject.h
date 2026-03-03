@@ -38,7 +38,7 @@ private:
 	static Type GetTypeFromNode(Node* pNode);
 
 	static uptr<Node> ParseNodeData(json jsonData);
-	static uptr<Node> CreateNodeFromType(Type nodeType);
+	static uptr<Node> CreateNodeFromType(Type nodeType, std::string const& name);
 };
 
 #endif
