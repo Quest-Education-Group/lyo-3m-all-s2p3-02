@@ -8,10 +8,18 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(rlimgui)
 
+FetchContent_Declare(
+  rlgizmo
+  GIT_REPOSITORY https://github.com/cloudofoz/raylib-gizmo.git
+  GIT_TAG        origin/main
+)
+
+FetchContent_MakeAvailable(rlgizmo)
+
 find_package(imgui CONFIG REQUIRED)
 find_package(raylib CONFIG REQUIRED)
 
-file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_BINARY_DIR}/../_deps/rlimgui-src/*.cpp")
+file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_BINARY_DIR}/../_deps/rlimgui-src/src/*.cpp" "${PROJECT_BINARY_DIR}/../_deps/rlgizmo-src/*.c")
 
 add_library(${PROJECT_NAME} STATIC
     ${SOURCES}
@@ -23,6 +31,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include/
         ${PROJECT_BINARY_DIR}/../_deps/rlimgui-src/
+        ${PROJECT_BINARY_DIR}/../_deps/rlgizmo-src/src/
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Foundry::library)
