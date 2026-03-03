@@ -1,4 +1,3 @@
-#include "Servers/LuaServer.h"
 #include <sol/types.hpp>
 
 inline unsigned Binder::GarbageCollect = static_cast<unsigned>(sol::meta_function::garbage_collect);
@@ -6,12 +5,11 @@ inline unsigned Binder::GarbageCollect = static_cast<unsigned>(sol::meta_functio
 template <typename T, typename ... Args> 
 void Binder::BindClass(std::string const& name, Args&& ... params)
 {
-	LuaServer::GetLuaState().new_usertype<T>(name, std::forward<Args>(params)...);
+	m_scriptEngine.new_usertype<T>(name, std::forward<Args>(params)...);
 }
-
 
 template <typename T>
 void Binder::BindFunction(std::string const& name, T&& function)
 {
-	LuaServer::GetLuaState()[name] = function;
+	m_scriptEngine[name] = function;
 }
