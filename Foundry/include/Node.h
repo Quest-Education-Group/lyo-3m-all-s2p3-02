@@ -4,6 +4,7 @@
 #include "Debug.h"
 #include "Define.h"
 #include "Event.hpp"
+#include "SceneTree.h"
 #include "Scripting/Lua/LuaScriptInstance.hpp"
 #include "ISerializable.h"
 
@@ -51,7 +52,7 @@ public:
 
 	Node& GetChild(uint32 index);
 	std::vector<std::reference_wrapper<Node>> GetChildren();
-	int32 GetChildCount();
+	uint32 GetChildCount();
 
 	template <NodeType T>
 	T& GetNode(std::string const& path);
@@ -59,7 +60,7 @@ public:
 	//Only destroy the node if it has a parent
 	void Destroy();
 	virtual void Reparent(Node& newParent, bool keepGlobalTransform = true);
-	void MoveChild(Node const& child, int32 to);
+	void MoveChild(Node const& child, uint32 to);
 
 	//override this method if the inherited node is not trivially copyable
 	virtual std::unique_ptr<Node> Clone();
