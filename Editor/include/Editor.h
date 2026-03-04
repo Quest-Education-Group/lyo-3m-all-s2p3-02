@@ -5,6 +5,8 @@
 #include <raymath.h>
 
 #include <imgui.h>
+#include <imfilebrowser.h>
+
 #include <rlImGui.h>
 #include <rlImGuiColors.h>
 
@@ -56,6 +58,7 @@ private:
 	void ShowCreateSiblingPopup(Node* sibling);
 
 	// Popup for save/load
+
 	void ShowSaveScenePopup();
 	void ShowLoadScenePopup();
 
@@ -83,6 +86,9 @@ private:
 	bool m_showLoadPopup = false;
 	char m_sceneNameBuffer[256] = "scene.json";
 	char m_scenePathBuffer[512] = "";
+
+	ImGui::FileBrowser m_saveBrowser;
+	ImGui::FileBrowser m_loadBrowser;
 
 	// 3D Camera
 	Camera3D m_camera = {};

@@ -40,6 +40,8 @@ void Editor::Init()
 	
 	// Path after res/
 	strcpy_s(m_scenePathBuffer, "");
+	ImGui::FileBrowser SaveBrowseWindow(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
+	m_saveBrowser = SaveBrowseWindow;
 	
 	m_running = true;
 	std::cout << "[Editor] Initialized successfully!" << std::endl;
@@ -370,8 +372,12 @@ void Editor::DrawInspectorPanel()
 		// editable node name
 		char nameBuffer[128];
 		strncpy_s(nameBuffer, m_selectedNode->GetName().c_str(), sizeof(nameBuffer));
-		
-		if (ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer)))
+
+		ImGui::Spacing();
+		ImGui::Text("Name :");
+
+		ImGui::SameLine();
+		if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
 		{
 			m_selectedNode->SetName(nameBuffer);
 			std::cout << "[Editor] Node renamed to: " << nameBuffer << std::endl;
@@ -651,56 +657,23 @@ void Editor::ShowSaveScenePopup()
 {
 	if (m_showSavePopup)
 	{
-		ImGui::OpenPopup("Save Scene");
+		m_saveBrowser.Open();
 		m_showSavePopup = false;
 	}
 
-	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	m_saveBrowser.SetTitle("Save scene to Json file");
 
-	if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	m_saveBrowser.SetTypeFilters({ ".json" });
+	m_saveBrowser.Display();
+
+	if (m_saveBrowser.HasSelected())
 	{
-		ImGui::Text("Save scene to file");
-		ImGui::Spacing();
-
-		ImGui::Text("Filename:");
-		bool enterPressed = ImGui::InputText("##SaveFilename", m_sceneNameBuffer, sizeof(m_sceneNameBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
-		ImGui::Spacing();
-		
-		ImGui::Text("Subfolder after res/ :");
-		ImGui::InputText("##SavePath", m_scenePathBuffer, sizeof(m_scenePathBuffer));
-		
-		ImGui::Spacing();
-		
-		// Preview of the full path
-		std::string fullPath = m_scenePathBuffer;
-		if (fullPath.length() > 0 && fullPath.back() != '/' && fullPath.back() != '\\')
-			fullPath += "/";
-		fullPath += m_sceneNameBuffer;
-		
-		ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Save to: res/%s", fullPath.c_str());
-		
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
-
-		if (ImGui::Button("Save", ImVec2(120, 0)) || enterPressed)
+		if (strlen(m_sceneNameBuffer) > 0)
 		{
-			if (strlen(m_sceneNameBuffer) > 0)
-			{
-				SaveScene(fullPath);
-				ImGui::CloseCurrentPopup();
-			}
+			SaveScene(m_saveBrowser.GetSelected().string());
 		}
-
-		ImGui::SameLine();
-
-		if (ImGui::Button("Cancel", ImVec2(120, 0)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::EndPopup();
+		m_saveBrowser.ClearSelected();
+		m_saveBrowser.Close();
 	}
 }
 
@@ -708,56 +681,23 @@ void Editor::ShowLoadScenePopup()
 {
 	if (m_showLoadPopup)
 	{
-		ImGui::OpenPopup("Load Scene");
+		m_loadBrowser.Open();
 		m_showLoadPopup = false;
 	}
 
-	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	m_loadBrowser.SetTitle("Load scene from Json file");
 
-	if (ImGui::BeginPopupModal("Load Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	m_loadBrowser.SetTypeFilters({ ".json" });
+	m_loadBrowser.Display();
+
+	if (m_loadBrowser.HasSelected())
 	{
-		ImGui::Text("Load scene from file");
-		ImGui::Spacing();
-
-		ImGui::Text("Filename:");
-		bool enterPressed = ImGui::InputText("##LoadFilename", m_sceneNameBuffer, sizeof(m_sceneNameBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
-		
-		ImGui::Spacing();
-		
-		ImGui::Text("Subfolder after res/ :");
-		ImGui::InputText("##LoadPath", m_scenePathBuffer, sizeof(m_scenePathBuffer));
-		
-		ImGui::Spacing();
-		
-		std::string fullPath = m_scenePathBuffer;
-		if (fullPath.length() > 0 && fullPath.back() != '/' && fullPath.back() != '\\')
-			fullPath += "/";
-		fullPath += m_sceneNameBuffer;
-		
-		ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Load from: res/%s", fullPath.c_str());
-		
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
-
-		if (ImGui::Button("Load", ImVec2(120, 0)) || enterPressed)
+		if (strlen(m_sceneNameBuffer) > 0)
 		{
-			if (strlen(m_sceneNameBuffer) > 0)
-			{
-				LoadScene(fullPath);
-				ImGui::CloseCurrentPopup();
-			}
+			LoadScene(m_loadBrowser.GetSelected().string());
 		}
-
-		ImGui::SameLine();
-
-		if (ImGui::Button("Cancel", ImVec2(120, 0)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::EndPopup();
+		m_loadBrowser.ClearSelected();
+		m_loadBrowser.Close();
 	}
 }
 

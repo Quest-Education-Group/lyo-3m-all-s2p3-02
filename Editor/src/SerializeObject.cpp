@@ -19,7 +19,7 @@ void SerializeObject::Save(std::string outPath, uptr<Node>& root)
 	jsonRoot["Root"]["TYPE"] = 0;
 
 	std::fstream File;
-	File.open("../res/" + outPath, std::ios::out);
+	File.open(outPath, std::ios::out);
 	File << jsonRoot;
 	File.close();
 }
@@ -45,7 +45,7 @@ uptr<Node> SerializeObject::LoadFromJson(std::string path)
 	// Read File nlhoman aled
 
 	std::fstream file;
-	file.open("../res/" + path, std::ios::in);
+	file.open( path, std::ios::in);
 	json jsonFile{ json::parse(file) };
 
 	uptr<Node> firstNode = Node::CreateNode<Node>("Node");

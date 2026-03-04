@@ -16,6 +16,14 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(rlgizmo)
 
+FetchContent_Declare(
+  imgui-filebrowser
+  GIT_REPOSITORY https://github.com/AirGuanZ/imgui-filebrowser.git
+  GIT_TAG        master
+)
+
+FetchContent_MakeAvailable(imgui-filebrowser)
+
 find_package(imgui CONFIG REQUIRED)
 find_package(raylib CONFIG REQUIRED)
 
@@ -32,6 +40,7 @@ target_include_directories(${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/include/
         ${PROJECT_BINARY_DIR}/../_deps/rlimgui-src/
         ${PROJECT_BINARY_DIR}/../_deps/rlgizmo-src/src/
+        ${PROJECT_BINARY_DIR}/../_deps/imgui-filebrowser-src/
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Foundry::library)
