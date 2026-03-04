@@ -1,9 +1,9 @@
 #include "Window.h"
 #include "Logger.hpp"
 #include "Define.h"
-
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "EventManager.h"
+
 
 Window::Window(int width, int height, std::string name)
 {
@@ -58,6 +58,7 @@ void Window::Open()
 	}
 
 	glfwSetFramebufferSizeCallback(m_pWindow, FrameBufferSizeCallback);
+	glfwSetJoystickCallback(EventManager::JoystickCallback);
 
 	onOpenEvent();
 }
@@ -66,6 +67,11 @@ void Window::Present()
 {
 	glfwSwapBuffers(m_pWindow);
 	glfwPollEvents();
+}
+
+GLFWwindow* Window::GetWindow()
+{
+	return m_pWindow;
 }
 
 void FrameBufferSizeCallback(GLFWwindow* pWindow, int width, int height)

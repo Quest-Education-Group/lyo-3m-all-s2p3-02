@@ -14,6 +14,7 @@ public:
     virtual void Close() override;
     virtual bool IsOpen() override;
     virtual void Present() override;
+    GLFWwindow* GetWindow();
 
 protected:
     virtual void Open() override;
