@@ -1,6 +1,7 @@
 
 #include "SerializeObject.h"
 
+#include <ISerializable.h>
 #include <fstream>
 #include <map>
 
@@ -9,13 +10,14 @@ void SerializeObject::Save(std::string outPath, uptr<Node>& root)
 {
 	json jsonRoot;
 	jsonRoot["Root"] = json::object();
-	std::map<std::string, std::string> mapDatas = root.get()->Serialize();
+	SerializeData datas = SerializeData();
+	root.get()->Serialize(datas);
 	jsonRoot["Root"]["Children"] = json::array();
 	for (uint8 i = 0; i < root.get()->GetChildCount();i++)
 	{
 		jsonRoot["Root"]["Children"][i] = ParseNodeToJson(root.get()->GetChild(i));
 	}
-	jsonRoot["Root"]["Datas"] = mapDatas;
+	jsonRoot["Root"]["Datas"] = datas.m_datas;
 	jsonRoot["Root"]["TYPE"] = 0;
 
 	std::fstream File;
@@ -27,9 +29,9 @@ void SerializeObject::Save(std::string outPath, uptr<Node>& root)
 json SerializeObject::ParseNodeToJson(Node& pNode)
 {
 	json objectChildren = json::object();
-	objectChildren["TYPE"] = GetTypeFromNode(&pNode);
-	std::map<std::string, std::string> mapDatas = pNode.Serialize();
-	objectChildren["Datas"] = mapDatas;
+	SerializeData datas = SerializeData();
+	pNode.Serialize(datas);
+	objectChildren["Datas"] = datas.m_datas;
 	objectChildren["Children"] = json::array();
 	for (uint8 i = 0; i < pNode.GetChildCount(); i++)
 	{
@@ -51,7 +53,9 @@ uptr<Node> SerializeObject::LoadFromJson(std::string path)
 	uptr<Node> firstNode = Node::CreateNode<Node>("Node");
 	std::map<std::string, std::string> tempMap;
 	jsonFile["Root"]["Datas"].get_to(tempMap);
-	firstNode.get()->Deserialize(tempMap);
+	SerializeData datas = SerializeData();
+	datas.m_datas = tempMap;
+	firstNode.get()->Deserialize(datas);
 	json childrenList = jsonFile["Root"]["Children"];
 	for (uint8 i = 0; i < childrenList.size(); i++)
 	{
@@ -69,9 +73,11 @@ uptr<Node> SerializeObject::ParseNodeData(json data)
 	int nodeType = data["TYPE"];
 	std::map<std::string, std::string> tempMap;
 	data["Datas"].get_to(tempMap);
+	SerializeData datas = SerializeData();
+	datas.m_datas = tempMap;
 
 	uptr<Node> newNode = CreateNodeFromType((Type)nodeType,tempMap["m_name"]);
-	newNode.get()->Deserialize(tempMap);
+	newNode.get()->Deserialize(datas);
 	json childrenList = data["Children"];
 	for (uint8 i = 0; i < childrenList.size(); i++)
 	{

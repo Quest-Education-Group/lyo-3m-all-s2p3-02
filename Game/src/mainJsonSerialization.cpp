@@ -4,8 +4,12 @@
 ////////////////////////////////////////////////////
 
 #include <SerializeObject.h>
+#include <ISerializable.h>
 #include <Servers/EngineServer.h>
 #include <iostream>
+
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 int main() {
     //std::cout << "MAIN EDITOR" << std::endl;
@@ -20,6 +24,8 @@ int main() {
 
     SerializeObject json;
     uptr<Node> rootNode = json.LoadFromJson("test.json");
+    bool b = true;
+    bool c = false;
 
     EngineServer::FlushCommands();
 

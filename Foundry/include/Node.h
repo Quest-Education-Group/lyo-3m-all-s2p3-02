@@ -18,6 +18,7 @@
 
 class Node;
 class SceneTree;
+class SerializeData;
 
 template <typename T>
 concept NodeType = std::is_base_of_v<Node, T>;
@@ -64,8 +65,8 @@ public:
 
 	//override this method if the inherited node is not trivially copyable
 	virtual std::unique_ptr<Node> Clone();
-	std::map<std::string, std::string> Serialize();
-	void Deserialize(std::map<std::string, std::string> const& object);
+	void Serialize(SerializeData& datas);
+	void Deserialize(SerializeData const& datas);
 
 	std::string GetName();
 	Node* GetParent();

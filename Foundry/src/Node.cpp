@@ -167,16 +167,14 @@ std::unique_ptr<Node> Node::Clone()
     return copy;
 }
 
-std::map<std::string, std::string> Node::Serialize()
+void Node::Serialize(SerializeData& datas)
 {
-	std::map<std::string, std::string> mapVariables = {};
-	mapVariables.insert(std::pair<std::string, std::string>("m_name", m_name));
-	return mapVariables;
+	datas.AddVariable("m_name", m_name);
 }
 
-void Node::Deserialize(std::map<std::string, std::string> const& object)
+void Node::Deserialize(SerializeData const& datas)
 {
-	m_name = object.at("m_name");
+	datas.GetVariable("m_name",m_name);
 }
 
 std::string Node::GetName() { return m_name; }
