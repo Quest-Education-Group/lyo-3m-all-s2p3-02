@@ -23,7 +23,7 @@ void Editor::Init()
 
 	// Setup ImGui
 	rlImGuiSetup(true);
-
+	
 	ImGui::GetIO().FontGlobalScale = 1.0f;
 	ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
 
@@ -38,9 +38,10 @@ void Editor::Init()
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
 	m_viewRoot = m_sceneRoot.get(); // Default view on the root
 	
-	strcpy_s(m_scenePathBuffer, "");
 	ImGui::FileBrowser SaveBrowseWindow(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
 	m_saveBrowser = SaveBrowseWindow;
+	m_saveBrowser.SetDirectory("../res");
+	m_loadBrowser.SetDirectory("../res");
 	
 	m_running = true;
 	std::cout << "[Editor] Initialized successfully!" << std::endl;
@@ -75,13 +76,25 @@ void Editor::Shutdown()
 }
 
 void Editor::Update(float deltaTime)
-{
-	// Flush engine commands
+{//update de la camera.		
+	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_S)) {
+		if (m_haveFileSelected && m_scenePathBuffer.length() != 0 ) {
+			SaveScene(m_scenePathBuffer);
+		}
+		else
+			m_showSaveAsPopup = true;
+	}
+
+	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_S)) {
+		m_showSaveAsPopup = true;
+	}
+
 	EngineServer::FlushCommands();
 }
 
 void Editor::Render3D()
 {
+	// switch 2d/32
 	DrawViewport3D();
 }
 
@@ -99,7 +112,7 @@ void Editor::RenderUI()
 	ShowCreateSiblingPopup(m_pendingSibling);
 
 	// File Browse 
-	ShowSaveSceneBrowsing();
+	ShowSaveAsSceneBrowsing();
 	ShowLoadSceneBrowsing();
 
 	ImGui::SetNextWindowPos(ImVec2(m_screenWidth - 120.0f, m_screenHeight - 40.0f));
@@ -117,6 +130,14 @@ void Editor::RenderUI()
 
 	rlImGuiEnd();
 }
+void Editor::CreateNewScene() {
+	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
+	m_viewRoot = m_sceneRoot.get();
+	m_selectedNode = nullptr;
+	m_scenePathBuffer = "";
+	m_haveFileSelected = false;
+	std::cout << "[Editor] New scene created" << std::endl;
+}
 
 void Editor::DrawMenuBar()
 {
@@ -126,22 +147,28 @@ void Editor::DrawMenuBar()
 		{
 			if (ImGui::MenuItem("New Scene", "Ctrl+N")) 
 			{
-				m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
-				m_viewRoot = m_sceneRoot.get();
-				m_selectedNode = nullptr;
-				std::cout << "[Editor] New scene created" << std::endl;
+				CreateNewScene();
 			}
 			
 			if (ImGui::MenuItem("Load Scene", "Ctrl+O")) 
 			{
 				m_showLoadPopup = true;
-				strcpy_s(m_sceneNameBuffer, "scene.json");
 			}
+
+			ImGui::Separator();
 			
 			if (ImGui::MenuItem("Save Scene", "Ctrl+S")) 
 			{
-				m_showSavePopup = true;
-				strcpy_s(m_sceneNameBuffer, "scene.json");
+				if (m_haveFileSelected && m_scenePathBuffer.length() != 0) {
+					SaveScene(m_scenePathBuffer);
+				}
+				else {
+					m_showSaveAsPopup = true;
+				}
+			}
+			if (ImGui::MenuItem("Save Scene As", "Ctrl+Shift+S"))
+			{
+				m_showSaveAsPopup = true;
 			}
 			
 			ImGui::Separator();
@@ -426,16 +453,29 @@ void Editor::DrawInspectorPanel()
 	ImGui::End();
 }
 
+
 void Editor::DrawViewport3D()
 {
+
 	if (!m_showViewport) return;
+
+	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+		UpdateCamera(&m_camera, CAMERA_FREE);
+	}
+	if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
+		UpdateCamera(&m_camera, CAMERA_ORBITAL);
+	}
+
 
 	BeginMode3D(m_camera);
 
-	//DrawGrid(20, 1.0f);
-	//DrawLine3D({ 0, 0, 0 }, { 5, 0, 0 }, RED);    // X axis
-	//DrawLine3D({ 0, 0, 0 }, { 0, 5, 0 }, GREEN);  // Y axis
-	//DrawLine3D({ 0, 0, 0 }, { 0, 0, 5 }, BLUE);   // Z axis
+	DrawGrid(20, 1.0f);
+	DrawLine3D({ 0, 0, 0 }, { 500, 0, 0 }, RED);
+	DrawLine3D({ 0, 0, 0 }, { 0, 500, 0 }, GREEN);
+	DrawLine3D({ 0, 0, 0 }, { 0, 0, 500 }, BLUE);
+	DrawLine3D({ 0, 0, 0 }, { -500, 0, 0 }, RED);
+	DrawLine3D({ 0, 0, 0 }, { 0, -500, 0 }, GREEN);
+	DrawLine3D({ 0, 0, 0 }, { 0, 0,-500 }, BLUE);
 
 
 	EndMode3D();
@@ -515,7 +555,14 @@ void Editor::ResetViewRoot()
 	m_viewRoot = m_sceneRoot.get();
 	std::cout << "[Editor] View root reset to scene root" << std::endl;
 }
-
+/*
+Todo:
+add a research bar for all possible Nodes
+add a tree to see all possible Nodes
+-> Maybe use the DrawNodeTree with a node tree made in advance ? jsp
+  
+-> Wait for the Big Enum planned to be added
+*/
 void Editor::ShowCreateNodePopup()
 {
 	if (m_showCreatePopup)
@@ -652,12 +699,12 @@ void Editor::ShowCreateSiblingPopup(Node* sibling)
 	}
 }
 
-void Editor::ShowSaveSceneBrowsing()
+void Editor::ShowSaveAsSceneBrowsing()
 {
-	if (m_showSavePopup)
+	if (m_showSaveAsPopup)
 	{
 		m_saveBrowser.Open();
-		m_showSavePopup = false;
+		m_showSaveAsPopup = false;
 	}
 
 	m_saveBrowser.SetTitle("Save scene to Json file");
@@ -667,9 +714,11 @@ void Editor::ShowSaveSceneBrowsing()
 
 	if (m_saveBrowser.HasSelected())
 	{
-		if (strlen(m_sceneNameBuffer) > 0)
+		m_scenePathBuffer = m_saveBrowser.GetSelected().string();
+		if (m_scenePathBuffer.length() > 0)
 		{
-			SaveScene(m_saveBrowser.GetSelected().string());
+			m_haveFileSelected = true;
+			SaveScene(m_scenePathBuffer);
 		}
 		m_saveBrowser.ClearSelected();
 		m_saveBrowser.Close();
@@ -691,9 +740,11 @@ void Editor::ShowLoadSceneBrowsing()
 
 	if (m_loadBrowser.HasSelected())
 	{
-		if (strlen(m_sceneNameBuffer) > 0)
+		m_scenePathBuffer = m_loadBrowser.GetSelected().string();
+		if (m_scenePathBuffer.length() > 0)
 		{
-			LoadScene(m_loadBrowser.GetSelected().string());
+			m_haveFileSelected = true;
+			LoadScene(m_scenePathBuffer);
 		}
 		m_loadBrowser.ClearSelected();
 		m_loadBrowser.Close();

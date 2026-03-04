@@ -39,11 +39,15 @@ private:
 	void DrawInspectorPanel();
 	void DrawMenuBar();
 	void DrawViewport3D();
+	// 
+	//void UpdateCam();
 
 	// Scene Management
 	void CreateNode(std::string const& name, Node* parent = nullptr);
 	void DeleteNode(Node* node);
 	void SelectNode(Node* node);
+	
+	void CreateNewScene();
 
 	// Recursive helpers for hierarchy
 	void DrawNodeTree(Node& node);
@@ -64,8 +68,8 @@ private:
 	void ShowCreateSiblingPopup(Node* sibling);
 
 	// Popup for save/load
-
-	void ShowSaveSceneBrowsing();
+	//void ShowSaveSceneBrowsing();
+	void ShowSaveAsSceneBrowsing();
 	void ShowLoadSceneBrowsing();
 
 private:
@@ -73,6 +77,9 @@ private:
 	bool m_running = false;
 	int m_screenWidth = 1900;
 	int m_screenHeight = 900;
+
+	// int m_viewportWidth
+	// int m_viewportHeight
 
 	// Scene
 	uptr<Node> m_sceneRoot = nullptr;
@@ -88,10 +95,12 @@ private:
 	char m_nodeNameBuffer[128] = "";
 
 	// Popup save/load
-	bool m_showSavePopup = false;
+	bool m_showSaveAsPopup = false;
 	bool m_showLoadPopup = false;
-	char m_sceneNameBuffer[256] = "scene.json";
-	char m_scenePathBuffer[512] = "";
+
+	std::string m_scenePathBuffer;
+
+	bool m_haveFileSelected = false;
 
 	ImGui::FileBrowser m_saveBrowser;
 	ImGui::FileBrowser m_loadBrowser;
