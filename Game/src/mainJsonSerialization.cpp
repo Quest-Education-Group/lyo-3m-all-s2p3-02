@@ -3,13 +3,11 @@
 // https://github.com/AlexandreGlatz/cmake-generator
 ////////////////////////////////////////////////////
 
-#include <SerializeObject.h>
-#include <ISerializable.h>
+#include <EditorSerializer.h>
 #include <Servers/EngineServer.h>
 #include <iostream>
+#include <Node.h>
 
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 
 int main() {
     //std::cout << "MAIN EDITOR" << std::endl;
@@ -22,9 +20,17 @@ int main() {
     //node.get()->AddChild(node4);
 
 
-    SerializeObject json;
+    std::string t;
     uptr<Node> rootNode = Node::CreateNode<Node>("Root");
-    SerializeObject::Save("testJson.json", rootNode);
+    uptr<Node> rootNode1 = Node::CreateNode<Node>("Root1");
+    uptr<Node> rootNode2 = Node::CreateNode<Node>("Root2");
+    uptr<Node> rootNode3 = Node::CreateNode<Node>("Root3");
+
+    rootNode1.get()->AddChild(rootNode3);
+    rootNode.get()->AddChild(rootNode1);
+    rootNode.get()->AddChild(rootNode2);
+
     EngineServer::FlushCommands();
+    EditorSerializer::Save("testJson.json", rootNode);
 
 }

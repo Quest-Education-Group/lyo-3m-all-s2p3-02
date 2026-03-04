@@ -18,7 +18,7 @@ int main() {
     //node.get()->AddChild(node4);
 
 
-    SerializeObject json;
+    EditorSerializer json;
     uptr<Node> rootNode = json.LoadFromJson("test.json");
 
     EngineServer::FlushCommands();

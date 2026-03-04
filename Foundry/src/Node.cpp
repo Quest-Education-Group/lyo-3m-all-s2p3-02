@@ -1,6 +1,7 @@
 #include "Node.h"
 #include "Debug.h"
 #include "Servers/EngineServer.h"
+#include "SerializeObject.h"
 
 #include <algorithm>
 #include <exception>
@@ -167,14 +168,24 @@ std::unique_ptr<Node> Node::Clone()
     return copy;
 }
 
-void Node::Serialize(SerializeData& datas)
+void Node::Serialize(SerializedObject& datas) const
 {
-	datas.AddVariable("m_name", m_name);
+	// Serialize Parent
+	datas.SetType("Node");
+	datas.AddElement("m_name", m_name);
+	datas.AddDictionnary("Children");
+	for (uint32 i = 0; i < m_children.size(); i++)
+	{
+		datas.AddElementInDictionnary("Children", "Child" + std::to_string(i), *m_children.at(m_childrenOrder[i]));
+	}
+	// Serialize Childrens
 }
 
-void Node::Deserialize(SerializeData const& datas)
+void Node::Deserialize(SerializedObject const& datas)
 {
-	datas.GetVariable("m_name",m_name);
+	std::string t;
+	datas.GetType(t);
+	datas.GetElement("m_name",m_name);
 }
 
 std::string Node::GetName() { return m_name; }
