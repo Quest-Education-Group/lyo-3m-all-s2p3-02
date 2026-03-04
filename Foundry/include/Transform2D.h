@@ -12,13 +12,10 @@ class Transform2D
 {
 public:
 	Transform2D(
-		float _x = 0.0f, 
-		float _y = 0.0f, 
-		float _width = 0.0f,
-		float _height = 0.0f,
-		float _scaleX = 1.0f, 
-		float _scaleY = 1.0f, 
-		float _theta = 0.0f, 
+		float _x = 0.0f, float _y = 0.0f,
+		float _scaleX = 1.0f, float _scaleY = 1.0f,
+		float _theta = 0.0f,
+		float _translationX = 0.0f, float _translationY = 0.0f,
 		bool _statism = false
 	);
 	~Transform2D();
@@ -46,33 +43,36 @@ public:
 	void  SetPosition(vec2 _pos);
 	void  SetPosition(float _x, float _y);
 	vec2  GetPosition() const;
-
-	void  SetDimensions(vec2 _dim);
-	void  SetDimensions(float _width, float _height);
-	uvec2  GetDimensions() const;
 		  
 	void  SetScale(vec2 _scale);
 	void  SetScale(float _width, float _height);
 	uvec2 GetScale() const;
 
-	void  AddTheta(float _theta);
-	void  SetTheta(float _theta);
-	float GetTheta() const;	
+	void  SetRotation(float _theta);
+	mat2  GetRotationMatrix() const;
+
+	void SetTranslation(float _u, float _v);
+	void SetTranslation(vec2 _translation);
+	vec2 GetTranslation() const;
 
 	void  SetStatism(bool _statism);
 	bool  IsStatic() const;
 
-	void SetParent(Transform2D& _parent);
-	Transform2D* GetParent();
-
 private:
-	vec2		 m_position;
-	uvec2		 m_dimensions;
-	uvec2		 m_scale;
-	float		 m_theta;
-	bool		 m_isStatic;
-	
-	Transform2D* m_pParent;
+	vec2 m_position;
+
+	mat3 m_scale;
+	mat3 m_rotation;
+	mat3 m_translation;
+
+	mat3 m_transformationMatrix;
+
+	bool m_isDirty;
+
+	bool m_isStatic;
+
+
+	void Update();
 };
 
 
