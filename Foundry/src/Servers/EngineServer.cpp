@@ -15,9 +15,9 @@ void EngineServer::QueueFree(std::unique_ptr<Node>& node)
 
 void EngineServer::BuildTasksImpl(TaskGraph& graph)
 {
-    Task t;
-    t.TaskFunction = [this]{ TestFunct(); };
-    t.Name = "Dummy task";
+    uptr<Task> t = std::make_unique<Task>();
+    t->TaskFunction = [this]{ TestFunct(); };
+    t->Name = "Dummy task";
     graph.AddTask(t);
 }
 

@@ -4,7 +4,6 @@
 #include "Debug.h"
 #include "Define.h"
 #include "Event.hpp"
-#include "SceneTree.h"
 #include "Scripting/Lua/LuaScriptInstance.hpp"
 #include "ISerializable.h"
 
@@ -16,8 +15,8 @@
 #include <type_traits>
 #include <vector>
 
-class Node;
 class SceneTree;
+class Node;
 
 template <typename T>
 concept NodeType = std::is_base_of_v<Node, T>;
@@ -35,8 +34,10 @@ public:
 
 	virtual ~Node();
 
-	virtual void OnUpdate(float delta) { DEBUG("Node : " << m_name << ANSI_GOLD << " is updated" << ANSI_RESET << std::endl); };
-	void Update(float delta);
+	void Update(double delta);
+	virtual void OnUpdate(double delta) { DEBUG("Node : " << m_name << ANSI_GOLD << " is updated" << ANSI_RESET << std::endl); };
+	void PhysicsUpdate(double delta);
+	virtual void OnPhysicsUpdate(double delta) { DEBUG("Node : " << m_name << ANSI_GOLD << " physics update" << ANSI_RESET << std::endl); };
 
 	void AddChild(std::unique_ptr<Node>&& child);
 	void AddChild(std::unique_ptr<Node>& child);
@@ -80,7 +81,8 @@ public:
 
 	//====Event======
 	Event<void(Node&)> OnSceneEnter;
-	Event<void(Node&, float)> OnNodeUpdated;
+	Event<void(Node&, double)> OnNodeUpdated;
+	Event<void(Node&, double)> OnNodePhysicsUpdated;
 	Event<void(Node&)> OnSceneLeave;
 
 protected:
