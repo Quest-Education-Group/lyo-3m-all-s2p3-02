@@ -299,3 +299,8 @@ Transform3D Transform3D::operator*(Transform3D& other)
 
 	return newTransform;
 }
+
+void Transform3D::operator*=(Transform3D& other)
+{
+	ApplyTransform(other);
+}

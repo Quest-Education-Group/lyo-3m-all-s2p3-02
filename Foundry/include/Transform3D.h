@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FOUNDRY_TRANSFORM3D__H_
+#define FOUNDRY_TRANSFORM3D__H_
+
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -16,6 +18,7 @@ public:
 	~Transform3D();
 
 	Transform3D operator*(Transform3D& other);
+	void operator*=(Transform3D& other);
 
 	const glm::vec3& GetPosition() const;
 	float GetX() const;
@@ -85,3 +88,6 @@ private:
 	void UpdateTransform();
 	void UpdateInvTransform();
 };
+
+
+#endif //FOUNDRY_TRANSFORM3D__H_

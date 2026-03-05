@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+
 Node::Node(std::string const& name) :  m_name(name)
 {
     DEBUG("Node : " << m_name << " has been " << ANSI_GREEN << "created !" << ANSI_RESET << std::endl);
@@ -52,6 +53,7 @@ void Node::AttachChildImmediate(std::unique_ptr<Node>& child)
 	m_childrenOrder.push_back(childName);
 
 	m_children[childName]->OnSceneEnter(*m_children[childName]);
+	m_children[childName]->OnParentChange(*this);
 
 	DEBUG("Node : " << childName << " is now a child of : " << m_name << std::endl);
 }
@@ -144,6 +146,10 @@ void Node::Reparent(Node& newParent, bool keepGlobalTransform)
     std::erase(m_pOwner->m_childrenOrder, m_name);
     m_pOwner->m_children.erase(m_name);
     m_pOwner = &newParent;
+
+	DEBUG(m_name << " reparented to " << newParent.m_name);
+
+	OnParentChange(*this);
 }
 
 void Node::MoveChild(Node const& child, uint32 to)

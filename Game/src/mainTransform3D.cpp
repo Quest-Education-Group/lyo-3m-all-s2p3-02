@@ -11,11 +11,12 @@
 #include <memory>
 #include "raylib.h"
 #include "Transform3D.h"
+#include "Nodes/Node3D.h"
 
-struct Node3D
-{
-	Transform3D transform;
-};
+//struct Node3D
+//{
+//	Transform3D transform;
+//};
 
 int main()
 {
@@ -38,19 +39,34 @@ int main()
 	Mesh cubeMesh = GenMeshCube(2.0f, 2.0f, 2.0f);
 	Material cubeMaterial = LoadMaterialDefault();
 
-	Node3D cube1;
-	Node3D cube2;
-	Node3D cube3;
-	Node3D cube4;
-	auto& tr1 = cube1.transform;
-	auto& tr2 = cube2.transform;
-	auto& tr3 = cube3.transform;
-	auto& tr4 = cube4.transform;
+	//Node3D cube1("f");
+	//Node3D cube2("b");
+	//Node3D cube3("c");
+	//Node3D cube4("v");
 
-	tr2.SetPosition({ 4.0,0.0,2.0 });
-	tr3.SetPosition({ -4.0,0.0,-2.0 });
-	tr4.SetPosition({ -2.0,2.0,-2.0 });
-	tr2.SetScale({ 3.0,0.5,2.0 });
+	auto cube1 = Node::CreateNode<Node3D>("a");
+	auto cube2 = Node::CreateNode<Node3D>("b");
+	auto cube3 = Node::CreateNode<Node3D>("c");
+	auto cube4 = Node::CreateNode<Node3D>("");
+
+	cube2->SetPosition({ 4.0,0.0,2.0 });
+	cube3->SetPosition({ -4.0,0.0,-2.0 });
+	cube4->SetPosition({ -2.0,2.0,-2.0 });
+
+	cube2->SetScale({ 3.0,0.5,2.0 });
+
+	cube1->AddChild(std::move(cube2));
+	cube1->AddChild(std::move(cube3));
+
+	EngineServer::FlushCommands();
+	Node3D& cube1ref = *cube1.get();
+	Node3D& cube2ref =  static_cast<Node3D&>(cube1->GetChild(0));
+	Node3D& cube3ref =  static_cast<Node3D&>(cube1->GetChild(1));
+
+	cube3ref.AddChild(std::move(cube4));
+	EngineServer::FlushCommands();
+	Node3D& cube4ref =  static_cast<Node3D&>(cube3ref.GetChild(0));
+
 
 	DisableCursor();                    // Limit cursor to relative movement inside the window
 
@@ -64,30 +80,27 @@ int main()
 		if (IsKeyPressed(KEY_Z)) camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
 
 		// move cube
-		if (IsKeyDown(KEY_I)) tr1.AddPosition({ 0.0, 0.0, 1.0 });
-		if (IsKeyDown(KEY_K)) tr1.AddPosition({ 0.0, 0.0, -1.0 });
-		if (IsKeyDown(KEY_J)) tr1.AddPosition({ -1.0, 0.0, 0.0 });
-		if (IsKeyDown(KEY_L)) tr1.AddPosition({ 1.0, 0.0, 0.0 });
-		if (IsKeyDown(KEY_G)) tr2.AddPosition({ 1.0, 0.0, 0.0 });
+		if (IsKeyDown(KEY_I)) cube1ref.AddPosition({ 0.0, 0.0, 1.0 });
+		if (IsKeyDown(KEY_K)) cube1ref.AddPosition({ 0.0, 0.0, -1.0 });
+		if (IsKeyDown(KEY_J)) cube1ref.AddPosition({ -1.0, 0.0, 0.0 });
+		if (IsKeyDown(KEY_L)) cube1ref.AddPosition({ 1.0, 0.0, 0.0 });
+		if (IsKeyDown(KEY_G)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
 
-		if (IsKeyDown(KEY_N)) tr1.AddYaw(0.2);
-		if (IsKeyDown(KEY_B)) tr1.AddPitch(0.2);
-		if (IsKeyDown(KEY_V)) tr1.AddRoll(0.2);
+		if (IsKeyDown(KEY_N)) cube1ref.AddYaw(0.2);
+		if (IsKeyDown(KEY_B)) cube1ref.AddPitch(0.2);
+		if (IsKeyDown(KEY_V)) cube1ref.AddRoll(0.2);
 
-		if (IsKeyDown(KEY_C)) tr1.AddScale({ 1.0, 1.0, 1.0});
-		if (IsKeyDown(KEY_X)) tr1.AddScale({ -1.0, -1.0, -1.0});
+		if (IsKeyDown(KEY_C)) cube1ref.AddScale({ 1.0, 1.0, 1.0});
+		if (IsKeyDown(KEY_X)) cube1ref.AddScale({ -1.0, -1.0, -1.0});
+
+		if (IsKeyDown(KEY_Y)) cube4ref.Reparent(cube1->GetChild(0));
 
 		// Update
 		//----------------------------------------------------------------------------------
 		UpdateCamera(&camera, CAMERA_FREE);
-		tr1.Update();
-		tr2.Update();
-		tr3.Update();
-		tr4.Update();
 
-		tr2 = tr2 * tr1;
-		tr3 = tr3 * tr1;
-		tr4 = tr4 * tr3;
+		cube1->Update(0.016f);
+
 
 		//----------------------------------------------------------------------------------
 
@@ -99,10 +112,13 @@ int main()
 
 		BeginMode3D(camera);
 
-		glm::mat4& m1 = tr1.GetMatrix();
-		glm::mat4& m2 = tr2.GetMatrix();
-		glm::mat4& m3 = tr3.GetMatrix();
-		glm::mat4& m4 = tr4.GetMatrix();
+		glm::mat4& m1 = cube1->GetMatrix();
+		glm::mat4 m2 = static_cast<Node3D&>(cube1->GetChild(0)).GetMatrix();
+		glm::mat4& m3 = static_cast<Node3D&>(cube1->GetChild(1)).GetMatrix();
+		glm::mat4& m4 = static_cast<Node3D&>(cube3ref.GetChild(0)).GetMatrix();
+
+
+		DEBUG(m2[0][0]);
 
 		Matrix rlMat1 = {
 			m1[0][0], m1[1][0], m1[2][0], m1[3][0],

@@ -35,7 +35,7 @@ public:
 
 	virtual ~Node();
 
-	virtual void OnUpdate(float delta) { DEBUG("Node : " << m_name << ANSI_GOLD << " is updated" << ANSI_RESET << std::endl); };
+	virtual void OnUpdate(float delta) { };
 	void Update(float delta);
 
 	void AddChild(std::unique_ptr<Node>&& child);
@@ -82,11 +82,12 @@ public:
 	Event<void(Node&)> OnSceneEnter;
 	Event<void(Node&, float)> OnNodeUpdated;
 	Event<void(Node&)> OnSceneLeave;
+	Event<void(Node&)> OnParentChange;
 
 protected:
 	//private constructor for in-class initialization
 	//====Constructors======
-	Node();
+	Node() = delete;
 	Node(std::string const& name);
 	Node(Node const& other) = delete;
 	Node(Node&& other) noexcept = delete;
@@ -94,12 +95,6 @@ protected:
 	Node& operator=(Node const& other) = delete;
 	Node& operator=(Node&& other) noexcept = delete;
 
-private:
-    void AttachChildImmediate(std::unique_ptr<Node>& child);
-
-    friend class EngineServer;
-
-private:
 	std::string m_name; //unique among siblings
 	Node* m_pOwner = nullptr;
 	SceneTree* m_pSceneTree = nullptr;
@@ -108,9 +103,13 @@ private:
 	uptr<LuaScriptInstance> m_pScriptInstance;
 
 
-	std::unordered_map<std::string, std::unique_ptr<Node>> m_children {};
-	std::vector<std::string> m_childrenOrder {};
+	std::unordered_map<std::string, std::unique_ptr<Node>> m_children{};
+	std::vector<std::string> m_childrenOrder{};
 
+private:
+    void AttachChildImmediate(std::unique_ptr<Node>& child);
+
+    friend class EngineServer;
 	friend class unique_ptr;
 };
 
