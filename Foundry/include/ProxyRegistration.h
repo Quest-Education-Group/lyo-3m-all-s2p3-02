@@ -2,6 +2,7 @@
 #define FOUNDRY_PROXY_REG__H_
 
 #include "Node.h"
+#include "Nodes/Node2D.h"
 #include "Scripting/Binder.h"
 
 #define BIND_PROXY(B, X) X::Proxy::ProxyBinding __##X##__; __##X##__.Bind(B)
@@ -11,6 +12,7 @@ static void REGISTER_PROXY(Binder& binder)
 	binder.BindFunction("CreateNode", &Node::Proxy::CreateNodeProxy);
 
 	BIND_PROXY(binder, Node);
+	BIND_PROXY(binder, Node2D);
 }
 
 #endif // !FOUNDRY_PROXY_REG__H_
