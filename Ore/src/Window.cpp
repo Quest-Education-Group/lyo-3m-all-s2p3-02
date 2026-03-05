@@ -6,12 +6,13 @@
 #include <GLFW/glfw3.h>
 
 std::unordered_map<GLFWwindow*, Window*> Window::s_windows = {};
-Window::Window(int width, int height, std::string name)
+Window::Window(int width, int height, std::string name, bool enableTransparency)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, enableTransparency);
 
 	m_width = width;
 	m_height = height;
@@ -76,4 +77,9 @@ void Window::FrameBufferResizeCallback(GLFWwindow* pWindow, int width, int heigh
 {
     Window* pCurrentWindow = s_windows[pWindow];
     pCurrentWindow->onResizeEvent();
+}
+
+void Window::SetDecoration(bool hasDecoration)
+{
+    glfwWindowHint(GLFW_DECORATED, hasDecoration);
 }

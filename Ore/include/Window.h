@@ -9,13 +9,14 @@ class GLFWwindow;
 class Window : public IWindow
 {
 public:
-    Window(int width, int height, std::string name);
+    Window(int width, int height, std::string name, bool enableTransparency = false);
     ~Window() override;
 
     void Close() override;
     bool IsOpen() override;
     void Present() override;
 
+    void SetDecoration(bool hasDecoration) override;
     void SetSize(uint16 width, uint16 height) override;
     static void FrameBufferResizeCallback(GLFWwindow* pWindow, int width, int height);
 
