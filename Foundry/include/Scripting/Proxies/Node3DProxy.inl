@@ -6,42 +6,42 @@ public:
 
 	Proxy(Node& node) : Node::Proxy(node) {}
 	
-	const glm::vec3& GetPosition() const		{ return m_pNode->GetPosition(); }
+	const glm::vec4& GetPosition() const		{ return m_pNode->GetPosition(); }
 	float GetX() const							{ return m_pNode->GetX(); }
 	float GetY() const							{ return m_pNode->GetY(); }
 	float GetZ() const							{ return m_pNode->GetZ(); }
 	const glm::mat4& GetMatrixRotation()		{ return m_pNode->GetMatrixRotation(); }
 	//const glm::mat4& GetInverseMatrixRotation() { return m_pNode->GetInverseMatrixRotation(); }
-	const glm::vec3& GetRotation() const		{ return m_pNode->GetRotation(); }
+	const glm::vec4& GetRotation() const		{ return m_pNode->GetRotation(); }
 	float GetYaw() const						{ return m_pNode->GetYaw(); }
 	float GetPitch() const						{ return m_pNode->GetPitch(); }
 	float GetRoll() const						{ return m_pNode->GetRoll(); }
 	float GetMaxScale() const					{ return m_pNode->GetMaxScale(); }
 	float GetMinScale() const					{ return m_pNode->GetMinScale(); }
-	const glm::vec3& GetScale() const			{ return m_pNode->GetScale(); }
-	const glm::vec3& GetRight()					{ return m_pNode->GetRight(); }
-	const glm::vec3& GetUp()					{ return m_pNode->GetUp(); }
-	const glm::vec3& GetForward()				{ return m_pNode->GetForward(); }
+	const glm::vec4& GetScale() const			{ return m_pNode->GetScale(); }
+	const glm::vec4& GetRight()					{ return m_pNode->GetRight(); }
+	const glm::vec4& GetUp()					{ return m_pNode->GetUp(); }
+	const glm::vec4& GetForward()				{ return m_pNode->GetForward(); }
 
-	void SetPosition(glm::vec3 pos)				{ m_pNode->SetPosition(pos); }
+	void SetPosition(glm::vec4 pos)				{ m_pNode->SetPosition(pos); }
 	void SetX(float x)							{ m_pNode->SetX(x); }
 	void SetY(float y)							{ m_pNode->SetY(y); }
 	void SetZ(float z)							{ m_pNode->SetZ(z); }
-	void SetRotation(glm::vec3 rot)				{ m_pNode->SetRotation(rot); }
+	void SetRotation(glm::vec4 rot)				{ m_pNode->SetRotation(rot); }
 	void SetYaw(float yaw)						{ m_pNode->SetYaw(yaw); }
 	void SetPitch(float pitch)					{ m_pNode->SetPitch(pitch); }
 	void SetRoll(float roll)					{ m_pNode->SetRoll(roll); }
-	void SetScale(glm::vec3 scale)				{ m_pNode->SetScale(scale); }
+	void SetScale(glm::vec4 scale)				{ m_pNode->SetScale(scale); }
 
-	void AddPosition(glm::vec3 pos)				{ m_pNode->AddPosition(pos); }
+	void AddPosition(glm::vec4 pos)				{ m_pNode->AddPosition(pos); }
 	void AddX(float x)							{ m_pNode->AddX(x); }
 	void AddY(float y)							{ m_pNode->AddY(y); }
 	void AddZ(float z)							{ m_pNode->AddZ(z); }
-	void AddRotation(glm::vec3 rot)				{ m_pNode->AddRotation(rot); }
+	void AddRotation(glm::vec4 rot)				{ m_pNode->AddRotation(rot); }
 	void AddYaw(float yaw)						{ m_pNode->AddYaw(yaw); }
 	void AddPitch(float pitch)					{ m_pNode->AddPitch(pitch); }
 	void AddRoll(float roll)					{ m_pNode->AddRoll(roll); }
-	void AddScale(glm::vec3 scale)				{ m_pNode->AddScale(scale); }
+	void AddScale(glm::vec4 scale)				{ m_pNode->AddScale(scale); }
 
 private:
 	Node3D* m_pNode;

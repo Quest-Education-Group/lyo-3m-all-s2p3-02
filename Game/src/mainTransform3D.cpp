@@ -47,13 +47,13 @@ int main()
 	auto cube1 = Node::CreateNode<Node3D>("a");
 	auto cube2 = Node::CreateNode<Node3D>("b");
 	auto cube3 = Node::CreateNode<Node3D>("c");
-	auto cube4 = Node::CreateNode<Node3D>("");
+	auto cube4 = Node::CreateNode<Node3D>("y");
 
-	cube2->SetPosition({ 4.0,0.0,2.0 });
-	cube3->SetPosition({ -4.0,0.0,-2.0 });
-	cube4->SetPosition({ -2.0,2.0,-2.0 });
+	cube2->SetPosition({ 4.0,0.0,2.0,1.0f });
+	cube3->SetPosition({ -6.0,5.0,-2.0,1.0f });
+	cube4->SetPosition({ -2.0,2.0,-2.0,1.0f });
 
-	cube2->SetScale({ 3.0,0.5,2.0 });
+	cube2->SetScale({ 3.0,0.5,2.0,1.0f });
 
 	cube1->AddChild(std::move(cube2));
 	cube1->AddChild(std::move(cube3));
@@ -80,20 +80,23 @@ int main()
 		if (IsKeyPressed(KEY_Z)) camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
 
 		// move cube
-		if (IsKeyDown(KEY_I)) cube1ref.AddPosition({ 0.0, 0.0, 1.0 });
-		if (IsKeyDown(KEY_K)) cube1ref.AddPosition({ 0.0, 0.0, -1.0 });
-		if (IsKeyDown(KEY_J)) cube1ref.AddPosition({ -1.0, 0.0, 0.0 });
-		if (IsKeyDown(KEY_L)) cube1ref.AddPosition({ 1.0, 0.0, 0.0 });
-		if (IsKeyDown(KEY_G)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
+		if (IsKeyDown(KEY_I)) cube1ref.AddPosition({ 0.0, 0.0, 1.0,1.0f });
+		if (IsKeyDown(KEY_K)) cube1ref.AddPosition({ 0.0, 0.0, -1.0,1.0f });
+		if (IsKeyDown(KEY_J)) cube1ref.AddPosition({ -1.0, 0.0, 0.0,1.0f });
+		if (IsKeyDown(KEY_L)) cube1ref.AddPosition({ 1.0, 0.0, 0.0,1.0f });
+		if (IsKeyDown(KEY_G)) cube2ref.AddPosition({ 1.0, 0.0, 0.0,1.0f });
 
 		if (IsKeyDown(KEY_N)) cube1ref.AddYaw(0.2);
 		if (IsKeyDown(KEY_B)) cube1ref.AddPitch(0.2);
 		if (IsKeyDown(KEY_V)) cube1ref.AddRoll(0.2);
 
-		if (IsKeyDown(KEY_C)) cube1ref.AddScale({ 1.0, 1.0, 1.0});
-		if (IsKeyDown(KEY_X)) cube1ref.AddScale({ -1.0, -1.0, -1.0});
+		if (IsKeyDown(KEY_C)) cube1ref.AddScale({ 1.0, 1.0, 1.0,1.0f});
+		if (IsKeyDown(KEY_X)) cube1ref.AddScale({ -1.0, -1.0, -1.0,1.0f});
 
-		if (IsKeyDown(KEY_Y)) cube4ref.Reparent(cube1->GetChild(0));
+		if (IsKeyPressed(KEY_Y))
+		{
+			cube4ref.Reparent(cube1ref.GetChild(0));
+		}
 
 		// Update
 		//----------------------------------------------------------------------------------
@@ -112,13 +115,12 @@ int main()
 
 		BeginMode3D(camera);
 
-		glm::mat4& m1 = cube1->GetMatrix();
-		glm::mat4 m2 = static_cast<Node3D&>(cube1->GetChild(0)).GetMatrix();
-		glm::mat4& m3 = static_cast<Node3D&>(cube1->GetChild(1)).GetMatrix();
-		glm::mat4& m4 = static_cast<Node3D&>(cube3ref.GetChild(0)).GetMatrix();
+		glm::mat4 m1 = cube1->GetWorldMatrice();
+		glm::mat4 m2 = static_cast<Node3D&>(cube2ref).GetWorldMatrice();
+		glm::mat4 m3 = static_cast<Node3D&>(cube3ref).GetWorldMatrice();
+		glm::mat4 m4 = static_cast<Node3D&>(cube4ref).GetWorldMatrice();
 
-
-		DEBUG(m2[0][0]);
+		//DEBUG(m4[0][])
 
 		Matrix rlMat1 = {
 			m1[0][0], m1[1][0], m1[2][0], m1[3][0],
