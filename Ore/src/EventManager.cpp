@@ -26,11 +26,11 @@ bool EventManager::GetMouseKey(Window window, EventInput key, EventAction event)
 	return false;
 }
 
-GamepadId EventManager::CheckGamepad()
+bool EventManager::CheckGamepad(GamepadId id)
 {
-	int present = glfwJoystickPresent(GLFW_JOYSTICK_2);
+	int present = glfwJoystickPresent((int)id);
 	Logger::LogWithLevel(LogLevel::DEBUG, present);
-	return GamepadId();
+	return present;
 }
 
 void EventManager::JoystickCallback(int jId, int event)
@@ -43,24 +43,18 @@ void EventManager::JoystickCallback(int jId, int event)
 
 std::string_view EventManager::GetGamepadName(GamepadId id)
 {
-	const char* name = glfwGetGamepadName((int)id);
-	std::string_view gamepadName(name);
+	const char* pName = glfwGetGamepadName((int)id);
+	std::string_view gamepadName(pName);
 	Logger::LogWithLevel(LogLevel::DEBUG, gamepadName);
 	return gamepadName;
 }
 
-std::vector<float> EventManager::GetGamepadAxes(GamepadId id)
+float EventManager::GetGamepadAxes(GamepadId id, EventInput key)
 {
 	int axesCount;
-	const float* axes = glfwGetJoystickAxes((int)id, &axesCount);
-	//Logger::LogWithLevel(LogLevel::DEBUG, axesCount);
-	Logger::LogWithLevel(LogLevel::DEBUG, axes[0]);
-	Logger::LogWithLevel(LogLevel::DEBUG, axes[1]);
-	Logger::LogWithLevel(LogLevel::DEBUG, axes[2]);
-	Logger::LogWithLevel(LogLevel::DEBUG, axes[3]);
-	Logger::LogWithLevel(LogLevel::DEBUG, axes[4]);
-	Logger::LogWithLevel(LogLevel::DEBUG, axes[5]);
-	return std::vector<float>();
+	const float* pAxes = glfwGetJoystickAxes((int)id, &axesCount);
+	Logger::LogWithLevel(LogLevel::DEBUG, pAxes[(int)key]);
+	return pAxes[(int)key];
 }
 
 bool EventManager::GetButton(GamepadId id, EventInput button)

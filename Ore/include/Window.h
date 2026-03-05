@@ -18,7 +18,6 @@ public:
 
 protected:
     virtual void Open() override;
-
 private:
     GLFWwindow* m_pWindow;
 };

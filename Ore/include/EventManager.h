@@ -5,6 +5,9 @@
 #include "Window.h"
 #include <GLFW/glfw3.h>
 
+//Replace KEY_MODE_AZERTY by KEY_MODE_QWERTY
+#define KEY_MODE_AZERTY
+
 enum class GamepadId
 {
     GAMEPAD_1,
@@ -14,7 +17,32 @@ enum class GamepadId
 
 enum class EventInput
 {
-    KEY_A = GLFW_KEY_Q,
+//#ifdef KEY_MODE_AZERTY
+//    
+//    KEY_A = GLFW_KEY_Q,
+//    KEY_M = GLFW_KEY_SEMICOLON,
+//    KEY_SEMICOLON = GLFW_KEY_M,
+//    KEY_Q = GLFW_KEY_A,
+//    KEY_W = GLFW_KEY_Z,
+//    KEY_Z = GLFW_KEY_W,
+//
+//#elif defined(KEY_MODE_QWERTY)
+//    
+//    KEY_A = GLFW_KEY_A,
+//    KEY_M = GLFW_KEY_M,
+//    KEY_SEMICOLON = GLFW_KEY_SEMICOLON,
+//    KEY_Q = GLFW_KEY_Q,
+//    KEY_W = GLFW_KEY_W,
+//    KEY_Z = GLFW_KEY_Z,  
+//    
+//#endif
+
+    KEY_A = GLFW_KEY_A,
+    KEY_M = GLFW_KEY_M,
+    KEY_SEMICOLON = GLFW_KEY_SEMICOLON,
+    KEY_Q = GLFW_KEY_Q,
+    KEY_W = GLFW_KEY_W,
+    KEY_Z = GLFW_KEY_Z,  
     KEY_B = GLFW_KEY_B,
     KEY_C = GLFW_KEY_C,
     KEY_D = GLFW_KEY_D,
@@ -26,20 +54,16 @@ enum class EventInput
     KEY_J = GLFW_KEY_J,
     KEY_K = GLFW_KEY_K,
     KEY_L = GLFW_KEY_L,
-    KEY_M = GLFW_KEY_SEMICOLON,
     KEY_N = GLFW_KEY_N,
     KEY_O = GLFW_KEY_O,
     KEY_P = GLFW_KEY_P,
-    KEY_Q = GLFW_KEY_A,
     KEY_R = GLFW_KEY_R,
     KEY_S = GLFW_KEY_S,
     KEY_T = GLFW_KEY_T,
     KEY_U = GLFW_KEY_U,
     KEY_V = GLFW_KEY_V,
-    KEY_W = GLFW_KEY_Z,
     KEY_X = GLFW_KEY_X,
     KEY_Y = GLFW_KEY_Y,
-    KEY_Z = GLFW_KEY_W,
     KEY_0 = GLFW_KEY_0,
     KEY_1 = GLFW_KEY_1,
     KEY_2 = GLFW_KEY_2,
@@ -55,7 +79,6 @@ enum class EventInput
     KEY_MINUS = GLFW_KEY_MINUS,             
     KEY_PERIOD = GLFW_KEY_PERIOD,            
     KEY_SLASH = GLFW_KEY_SLASH,     
-    KEY_SEMICOLON = GLFW_KEY_M,         
     KEY_EQUAL = GLFW_KEY_EQUAL,             
     KEY_ESCAPE = GLFW_KEY_ESCAPE,
     KEY_SPACE = GLFW_KEY_SPACE,
@@ -150,6 +173,7 @@ enum class EventInput
     GAMEPAD_DPAD_RIGHT = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT,
     GAMEPAD_DPAD_DOWN = GLFW_GAMEPAD_BUTTON_DPAD_DOWN,
     GAMEPAD_DPAD_LEFT = GLFW_GAMEPAD_BUTTON_DPAD_LEFT,
+
     GAMEPAD_LEFT_TRIGGER = GLFW_GAMEPAD_AXIS_LEFT_TRIGGER,
     GAMEPAD_RIGHT_TRIGGER = GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER,
     GAMEPAD_LEFT_X = GLFW_GAMEPAD_AXIS_LEFT_X,
@@ -184,10 +208,10 @@ public:
     static bool GetKey(Window window, EventInput key, EventAction event);
     static bool GetMouseKey(Window window, EventInput key, EventAction event);
 
-    static GamepadId CheckGamepad();
+    static bool CheckGamepad(GamepadId id);
     static void JoystickCallback(int jId, int event);
     static std::string_view GetGamepadName(GamepadId id);
-    static std::vector<float> GetGamepadAxes(GamepadId id);
+    static float GetGamepadAxes(GamepadId id, EventInput button);
     static bool GetButton(GamepadId id, EventInput button);
 
     static Event<void(GamepadId)> gamepadConnected;

@@ -1,5 +1,6 @@
 #include "EventManager.h"
 #include <iostream>
+#include <locale>
 
 void hello(GamepadId id)
 {
@@ -20,18 +21,19 @@ int main()
 	EventManager::gamepadDisconnected.Subscribe(goodbye);
 	while (window.IsOpen())
 	{
-		//EventManager::GetKey(window , EventInput::KEY_A, EventAction::PRESS);
+		EventManager::GetKey(window , EventInput::KEY_A, EventAction::PRESS);
+		//EventManager::GetKey(window , EventInput::KEY_Q, EventAction::PRESS);
 		//EventManager::GetKey(window , EventInput::KEY_W, EventAction::PRESS);
 		//EventManager::GetKey(window , EventInput::KEY_M, EventAction::PRESS);
 		//EventManager::GetMouseKey(window , EventInput::MOUSE_RIGHT, EventAction::PRESS);
 		//EventManager::CheckGamepad();
-		//EventManager::GetGamepadAxes(GamepadId::GAMEPAD_2);
+		//EventManager::GetGamepadAxes(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_LEFT_X);
 		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_A);
-		//EventManager::GetButton(GamepadId::GAMEPAD_2, EventInput::GAMEPAD_B);
+		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_B);
 		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_X);
-		//EventManager::GetButton(GamepadId::GAMEPAD_2, EventInput::GAMEPAD_Y);
+		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_Y);
 		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_DPAD_DOWN);
-		//EventManager::GetButton(GamepadId::GAMEPAD_2, EventInput::GAMEPAD_LEFT_BUMPER);
+		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_LEFT_BUMPER);
 		window.Present();
 	}
 	window.Close();
