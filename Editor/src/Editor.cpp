@@ -34,6 +34,11 @@ void Editor::Init()
 	m_camera.fovy = 45.0f;
 	m_camera.projection = CAMERA_PERSPECTIVE;
 
+	//Node Tree For Avaible Node
+	m_newNodeTypeSelector = Node::CreateNode<Node>("Node");
+	m_newNodeTypeSelector.get()->AddChild(Node::CreateNode<Node>("Node3DTest"));
+
+
 	// DefaultNode
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
 	m_viewRoot = m_sceneRoot.get(); // Default view on the root
@@ -76,17 +81,24 @@ void Editor::Shutdown()
 }
 
 void Editor::Update(float deltaTime)
-{//update de la camera.		
+{
+	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+		UpdateCamera(&m_camera, CAMERA_FREE);
+	}
+	if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
+		//UpdateCamera(&m_camera, CAMERA_ORBITAL);
+	}
+
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_S)) {
-		if (m_haveFileSelected && m_scenePathBuffer.length() != 0 ) {
-			SaveScene(m_scenePathBuffer);
-		}
-		else
-			m_showSaveAsPopup = true;
+		SaveSceneNoSpe();
 	}
 
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_S)) {
 		m_showSaveAsPopup = true;
+	}
+
+	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_N)) {
+		CreateNewScene();
 	}
 
 	EngineServer::FlushCommands();
@@ -159,12 +171,7 @@ void Editor::DrawMenuBar()
 			
 			if (ImGui::MenuItem("Save Scene", "Ctrl+S")) 
 			{
-				if (m_haveFileSelected && m_scenePathBuffer.length() != 0) {
-					SaveScene(m_scenePathBuffer);
-				}
-				else {
-					m_showSaveAsPopup = true;
-				}
+				SaveSceneNoSpe();
 			}
 			if (ImGui::MenuItem("Save Scene As", "Ctrl+Shift+S"))
 			{
@@ -235,7 +242,7 @@ void Editor::DrawHierarchyPanel()
 		ImGui::Separator();
 	}
 
-	// Button to create ew node
+	// Button to create New node
 	if (ImGui::Button("+ Create Node", ImVec2(-1, 0)))
 	{
 		m_showCreatePopup = true;
@@ -266,7 +273,7 @@ void Editor::DrawHierarchyPanel()
 	// Tree
 	if (m_viewRoot)
 	{
-		DrawNodeTree(*m_viewRoot);
+		DrawHierarchyNodeTree(*m_viewRoot);
 	}
 	else
 	{
@@ -276,7 +283,42 @@ void Editor::DrawHierarchyPanel()
 	ImGui::End();
 }
 
-void Editor::DrawNodeTree(Node& node)
+void Editor::DrawNodeSelector(Node& node) {
+
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
+		| ImGuiTreeNodeFlags_SpanAvailWidth;
+
+	if (&node == m_newNodeTypeSelected)
+	{
+		flags |= ImGuiTreeNodeFlags_Selected;
+		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.5f, 0.8f, 0.8f));
+	}
+
+	if (node.GetChildCount() == 0)
+		flags |= ImGuiTreeNodeFlags_Leaf;
+
+	bool nodeOpen = ImGui::TreeNodeEx(node.GetName().c_str(), flags);
+
+	if (&node == m_newNodeTypeSelected)
+		ImGui::PopStyleColor();
+
+	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+	{
+		NewNodeSelected(&node);
+	}
+
+	// Recursively draw children if open
+	if (nodeOpen)
+	{
+		for (uint32 i = 0; i < node.GetChildCount(); ++i)
+		{
+			DrawNodeSelector(node.GetChild(i));
+		}
+		ImGui::TreePop();
+	}
+}
+
+void Editor::DrawHierarchyNodeTree(Node& node)
 {
 
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow 
@@ -300,7 +342,7 @@ void Editor::DrawNodeTree(Node& node)
 
 	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
 	{
-		SelectNode(&node);
+		SelectedNode(&node);
 	}
 
 	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -311,7 +353,6 @@ void Editor::DrawNodeTree(Node& node)
 	// Context menu (right click)
 	if (ImGui::BeginPopupContextItem())
 	{
-		// Check if it's the scene root (no parent)
 		bool isSceneRoot = (node.GetParent() == nullptr);
 
 		if (ImGui::MenuItem("Add Child"))
@@ -365,13 +406,12 @@ void Editor::DrawNodeTree(Node& node)
 
 		ImGui::EndPopup();
 	}
-
 	// Recursively draw children if open
 	if (nodeOpen)
 	{
 		for (uint32 i = 0; i < node.GetChildCount(); ++i)
 		{
-			DrawNodeTree(node.GetChild(i));
+			DrawHierarchyNodeTree(node.GetChild(i));
 		}
 		ImGui::TreePop();
 	}
@@ -459,13 +499,6 @@ void Editor::DrawViewport3D()
 
 	if (!m_showViewport) return;
 
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
-		UpdateCamera(&m_camera, CAMERA_FREE);
-	}
-	if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
-		UpdateCamera(&m_camera, CAMERA_ORBITAL);
-	}
-
 
 	BeginMode3D(m_camera);
 
@@ -481,16 +514,17 @@ void Editor::DrawViewport3D()
 	EndMode3D();
 }
 
-void Editor::CreateNode(std::string const& name, Node* parent)
+void Editor::CreateNode(std::string Type,std::string const& name, Node* parent)
 {
 	if (!m_sceneRoot) 
 	{
 		std::cerr << "[Editor] Cannot create node: no scene root" << std::endl;
 		return;
 	}
-	// ye here
-	auto newNode = Node::CreateNode<Node>(name);
-	
+	uptr<Node> newNode = Node::CreateNode<Node>(name);
+	auto& typeinfo = typeid(m_newNodeTypeSelected);
+	dynamic_cast<newNode*>(typeinfo);
+
 	if (parent)
 	{
 		parent->AddChild(newNode);
@@ -508,6 +542,9 @@ void Editor::CreateNode(std::string const& name, Node* parent)
 		m_viewRoot->AddChild(newNode);
 		std::cout << "[Editor] Node '" << name << "' added to view root" << std::endl;
 	}
+
+	m_newNodeTypeSelected = nullptr;
+
 }
 
 void Editor::DeleteNode(Node* node)
@@ -531,15 +568,38 @@ void Editor::DeleteNode(Node* node)
 		std::cout << "[Editor] Node '" << nodeName << "' deleted" << std::endl;
 	}
 }
-
-void Editor::SelectNode(Node* node)
+void Editor::SelectedNode(Node* node)
 {
+
 	m_selectedNode = node;
 	if (node)
 	{
 		std::cout << "[Editor] Selected: " << node->GetName() << std::endl;
 	}
 }
+
+void Editor::NewNodeSelected( Node* node)
+{
+	m_newNodeTypeSelected = node;
+
+	if (node)
+	{
+		std::cout << "[Editor] Assigned: " << node->GetName() << std::endl;
+	}
+}
+
+//
+//
+//void Editor::AssignNode(Node* ToNode ,Node* ThisNode)
+//{
+//
+//	ToNode->SetName(ThisNode->GetName());
+//
+//	if (ThisNode)
+//	{
+//		std::cout << "[Editor] Assigned: " << ThisNode->GetName() << " to " << ToNode->GetName() << std::endl;
+//	}
+//}
 
 void Editor::SetViewRoot(Node* node)
 {
@@ -563,6 +623,7 @@ add a tree to see all possible Nodes
   
 -> Wait for the Big Enum planned to be added
 */
+
 void Editor::ShowCreateNodePopup()
 {
 	if (m_showCreatePopup)
@@ -576,6 +637,8 @@ void Editor::ShowCreateNodePopup()
 
 	if (ImGui::BeginPopupModal("Create Node", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		DrawNodeSelector(*m_newNodeTypeSelector);
+
 		ImGui::Text("Enter node name:");
 		ImGui::Spacing();
 
@@ -583,11 +646,11 @@ void Editor::ShowCreateNodePopup()
 
 		ImGui::Spacing();
 
-		if (ImGui::Button("Create", ImVec2(120, 0)) || enterPressed)
+		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_newNodeTypeSelected != nullptr)
 		{
 			if (strlen(m_nodeNameBuffer) > 0)
 			{
-				CreateNode(m_nodeNameBuffer);
+				CreateNode(m_newNodeTypeSelected->GetName(),m_nodeNameBuffer);
 				ImGui::CloseCurrentPopup();
 			}
 		}
@@ -622,6 +685,8 @@ void Editor::ShowCreateChildPopup(Node* parent)
 			ImGui::Spacing();
 		}
 
+		DrawNodeSelector(*m_newNodeTypeSelector);
+
 		ImGui::Text("Enter node name:");
 		ImGui::Spacing();
 
@@ -629,11 +694,11 @@ void Editor::ShowCreateChildPopup(Node* parent)
 
 		ImGui::Spacing();
 
-		if (ImGui::Button("Create", ImVec2(120, 0)) || enterPressed)
+		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_newNodeTypeSelected != nullptr)
 		{
 			if (strlen(m_nodeNameBuffer) > 0 && parent)
 			{
-				CreateNode(m_nodeNameBuffer, parent);
+				CreateNode(m_newNodeTypeSelected->GetName(), m_nodeNameBuffer, parent);
 				m_pendingParent = nullptr;
 				ImGui::CloseCurrentPopup();
 			}
@@ -670,6 +735,8 @@ void Editor::ShowCreateSiblingPopup(Node* sibling)
 			ImGui::Spacing();
 		}
 
+		DrawNodeSelector(*m_newNodeTypeSelector);
+
 		ImGui::Text("Enter node name:");
 		ImGui::Spacing();
 
@@ -677,11 +744,11 @@ void Editor::ShowCreateSiblingPopup(Node* sibling)
 
 		ImGui::Spacing();
 
-		if (ImGui::Button("Create", ImVec2(120, 0)) || enterPressed)
+		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_newNodeTypeSelected != nullptr)
 		{
 			if (strlen(m_nodeNameBuffer) > 0 && sibling && sibling->GetParent())
 			{
-				CreateNode(m_nodeNameBuffer, sibling->GetParent());
+				CreateNode(m_newNodeTypeSelected->GetName(), m_nodeNameBuffer, sibling->GetParent());
 				m_pendingSibling = nullptr;
 				ImGui::CloseCurrentPopup();
 			}
@@ -696,6 +763,15 @@ void Editor::ShowCreateSiblingPopup(Node* sibling)
 		}
 
 		ImGui::EndPopup();
+	}
+}
+
+void Editor::SaveSceneNoSpe() {
+	if (m_haveFileSelected && m_scenePathBuffer.length() != 0) {
+		SaveScene(m_scenePathBuffer);
+	}
+	else {
+		m_showSaveAsPopup = true;
 	}
 }
 

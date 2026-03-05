@@ -42,15 +42,22 @@ private:
 	// 
 	//void UpdateCam();
 
-	// Scene Management
-	void CreateNode(std::string const& name, Node* parent = nullptr);
-	void DeleteNode(Node* node);
-	void SelectNode(Node* node);
-	
+	// Scene Management	
 	void CreateNewScene();
 
-	// Recursive helpers for hierarchy
-	void DrawNodeTree(Node& node);
+	void CreateNode(std::string Type, std::string const& name, Node* parent = nullptr);
+	void DeleteNode(Node* node);
+
+	//void AssignNode(Node* ToNode, Node* Thisnode);
+	void SelectedNode(Node* Thisnode);
+	void NewNodeSelected(Node* Thisnode);
+
+	//Tree
+	//void DrawNodeTree(Node& node);
+	void DrawHierarchyNodeTree(Node& node);
+
+	// Selector
+	void DrawNodeSelector(Node& node);
 
 	// Load/Save
 	void LoadScene(std::string const& path);
@@ -68,7 +75,8 @@ private:
 	void ShowCreateSiblingPopup(Node* sibling);
 
 	// Popup for save/load
-	//void ShowSaveSceneBrowsing();
+	void SaveSceneNoSpe();
+
 	void ShowSaveAsSceneBrowsing();
 	void ShowLoadSceneBrowsing();
 
@@ -83,8 +91,12 @@ private:
 
 	// Scene
 	uptr<Node> m_sceneRoot = nullptr;
+	uptr<Node> m_newNodeTypeSelector = nullptr;
+
 	Node* m_selectedNode = nullptr;
 	Node* m_viewRoot = nullptr; // Current view root
+
+	Node* m_newNodeTypeSelected = nullptr;
 
 	// Creation Popup
 	bool m_showCreatePopup = false;
@@ -97,11 +109,8 @@ private:
 	// Popup save/load
 	bool m_showSaveAsPopup = false;
 	bool m_showLoadPopup = false;
-
 	std::string m_scenePathBuffer;
-
 	bool m_haveFileSelected = false;
-
 	ImGui::FileBrowser m_saveBrowser;
 	ImGui::FileBrowser m_loadBrowser;
 
