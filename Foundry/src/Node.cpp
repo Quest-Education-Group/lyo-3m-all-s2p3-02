@@ -1,7 +1,7 @@
 #include "Node.h"
 #include "Debug.h"
 #include "Servers/EngineServer.h"
-#include "SerializeObject.h"
+#include "SerializeObject.hpp"
 
 #include <algorithm>
 #include <exception>
@@ -13,9 +13,9 @@
 #include <utility>
 #include <vector>
 
-Node::Node(std::string const& name) :  m_name(name)
+Node::Node(std::string const& name) : m_name(name)
 {
-    DEBUG("Node : " << m_name << " has been " << ANSI_GREEN << "created !" << ANSI_RESET << std::endl);
+    DEBUG("Node : " << m_name << " has been " << ANSI_GREEN << "created !" << ANSI_RESET << std::endl);;
 }
 
 Node::~Node()
@@ -171,14 +171,13 @@ std::unique_ptr<Node> Node::Clone()
 void Node::Serialize(SerializedObject& datas) const
 {
 	// Serialize Parent
-	datas.SetType("Node");
+	datas.SetType(this);
 	datas.AddElement("m_name", m_name);
-	datas.AddDictionnary("Children");
+	datas.AddArray("Children");
 	for (uint32 i = 0; i < m_children.size(); i++)
 	{
-		datas.AddElementInDictionnary("Children", "Child" + std::to_string(i), *m_children.at(m_childrenOrder[i]));
+		datas.AddElementInArray("Children", static_cast<ISerializable const&>(*m_children.at(m_childrenOrder[i])));
 	}
-	// Serialize Childrens
 }
 
 void Node::Deserialize(SerializedObject const& datas)
@@ -186,7 +185,20 @@ void Node::Deserialize(SerializedObject const& datas)
 	std::string t;
 	datas.GetType(t);
 	datas.GetElement("m_name",m_name);
+
+	std::vector<ISerializable*> tempList = datas.GetArray<ISerializable*>("Children");
+	for (uint32 i = 0; i < tempList.size(); i++)
+	{
+		uptr<Node> pNode = uptr<Node>((Node*)tempList[i]);
+		AddChild(pNode);
+	}
 }
+
+std::function<ISerializable* ()> Node::Register()
+{
+	return []()->ISerializable* { return (ISerializable*)Node::CreateNode<Node>("Node").release(); };
+}
+
 
 std::string Node::GetName() { return m_name; }
 Node* Node::GetParent() { return m_pOwner; }

@@ -21,16 +21,16 @@ int main() {
 
 
     std::string t;
-    uptr<Node> rootNode = Node::CreateNode<Node>("Root");
-    uptr<Node> rootNode1 = Node::CreateNode<Node>("Root1");
-    uptr<Node> rootNode2 = Node::CreateNode<Node>("Root2");
-    uptr<Node> rootNode3 = Node::CreateNode<Node>("Root3");
+    //uptr<Node> rootNode = Node::CreateNode<Node>("Root");
+    //uptr<Node> rootNode1 = Node::CreateNode<Node>("Root1");
+    //uptr<Node> rootNode2 = Node::CreateNode<Node>("Root2");
+    //uptr<Node> rootNode3 = Node::CreateNode<Node>("Root3");
 
-    rootNode1.get()->AddChild(rootNode3);
-    rootNode.get()->AddChild(rootNode1);
-    rootNode.get()->AddChild(rootNode2);
+    //rootNode1.get()->AddChild(rootNode3);
+    //rootNode.get()->AddChild(rootNode1);
+    //rootNode.get()->AddChild(rootNode2);
 
-    EngineServer::FlushCommands();
-    EditorSerializer::Save("testJson.json", rootNode);
+    //EngineServer::FlushCommands();
+    uptr<Node> outRoot = EditorSerializer::LoadFromJson("testJson.json");
 
 }

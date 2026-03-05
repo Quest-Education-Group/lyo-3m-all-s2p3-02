@@ -7,6 +7,7 @@
 #include "SceneTree.h"
 #include "Scripting/Lua/LuaScriptInstance.hpp"
 #include "ISerializable.h"
+#include "Registries/AutomaticRegister.hpp"
 
 #include <functional>
 #include <memory>
@@ -28,9 +29,10 @@ template <typename T>
 using OptionalRef = std::optional<std::reference_wrapper<T>>;
 
 //Base class off every node in the tree
-class Node : public ISerializable
+class Node : public ISerializable, public automatic_register<Node>
 {
 public:
+	static std::function<ISerializable* ()> Register();
 
 	class Proxy;
 

@@ -1,10 +1,5 @@
 
-#include "SerializeObject.h"
-
-void SerializedObject::SetType(std::string type)
-{
-	m_elementsInSerializedObject["TYPE"] = type;
-}
+#include "SerializeObject.hpp"
 
 void SerializedObject::GetType(std::string& type) const
 {

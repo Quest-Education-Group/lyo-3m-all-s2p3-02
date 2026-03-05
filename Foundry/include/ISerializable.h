@@ -3,8 +3,8 @@
 
 #include "json.hpp"
 
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <Define.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -21,9 +21,7 @@ class ISerializable
 public:
 	virtual void Serialize(SerializedObject& datas) const = 0;
 	virtual void Deserialize(SerializedObject const& datas) = 0;
+
+	static inline std::unordered_map<std::string, std::function<ISerializable*()>> s_constructors{};
 };
-
-class EditorSerializer;
-
-
 #endif

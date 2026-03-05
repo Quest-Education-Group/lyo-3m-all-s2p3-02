@@ -1,6 +1,6 @@
 
 #include "EditorSerializer.h"
-#include "SerializeObject.h"
+#include "SerializeObject.hpp"
 
 #include <fstream>
 #include <map>
@@ -40,7 +40,7 @@ uptr<Node> EditorSerializer::LoadFromJson(std::string path)
 	file.close();
 
 	SerializedObject object = {};
-	object.m_elementsInSerializedObject = jsonFile;
+	object.m_elementsInSerializedObject = jsonFile["Root"];
 	uptr<Node> firstNode = Node::CreateNode<Node>("Node");
 	firstNode.get()->Deserialize(object);
 	return std::move(firstNode);
