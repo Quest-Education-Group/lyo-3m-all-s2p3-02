@@ -65,7 +65,7 @@ void Node3D::UpdateWorldTransform()
 
 		m_worldPosition += parent->m_worldPosition;
 		m_worldPosition.w = 1.0f;
-		
+				
 		//m_worldTransform = parent->m_worldTransform * m_transform.GetMatrix();
 		m_worldTransform = Maths::Translate(m_worldPosition) * glm::toMat4(m_worldRotation) * Maths::Scale(m_worldScale);
 
@@ -74,8 +74,7 @@ void Node3D::UpdateWorldTransform()
 		//m_worldPosition.x = posMatrix[3][0];
 		//m_worldPosition.y = posMatrix[3][1];
 		//m_worldPosition.z = posMatrix[3][2];
-
-	   //m_worldPosition += parent->m_worldPosition;
+	    //m_worldPosition += parent->m_worldPosition;
 	}
 	else
 	{
@@ -107,11 +106,10 @@ void Node3D::UpdateLocalTransform()
 	newScale.w = 1.0f;
 	m_transform.SetScale(newScale);
 
-	glm::quat newRot =  m_worldRotation * glm::inverse(parent->m_worldRotation);
+	glm::quat newRot = glm::inverse(parent->m_worldRotation) * m_worldRotation;
 	//newRot.w = 1.0f;
 	//m_transform.SetRotation(newRot);
 	m_transform.SetRotationQuat(newRot);
-
 	//glm::mat4 posMatrix = Maths::Translate(newLocal);
 	//posMatrix = glm::inverse(glm::toMat4(glm::quat(parent->m_worldRotation))) * posMatrix;
 	//newLocal.x = posMatrix[3][0];

@@ -97,6 +97,8 @@ private:
 	bool m_isParentNode3D;
 	bool m_isDirty;
 
+	bool bobDirty = true;
+
 	FlagsDirty m_flags;
 
 	void CheckParentTransform();
