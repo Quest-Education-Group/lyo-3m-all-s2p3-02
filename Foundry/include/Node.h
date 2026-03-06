@@ -32,8 +32,6 @@ using OptionalRef = std::optional<std::reference_wrapper<T>>;
 class Node : public ISerializable, public AutomaticRegisterISerializable<Node>
 {
 public:
-	static std::function<ISerializable* ()> Register();
-
 	class Proxy;
 
 	virtual ~Node();
@@ -69,6 +67,7 @@ public:
 	virtual std::unique_ptr<Node> Clone();
 	virtual void Serialize(SerializedObject& datas) const override;
 	virtual void Deserialize(SerializedObject const& datas) override;
+	static std::function<ISerializable* ()> Register();
 
 	std::string GetName();
 	Node* GetParent();

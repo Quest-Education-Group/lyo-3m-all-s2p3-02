@@ -5,11 +5,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <Define.h>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <Logger.hpp>
 
 class SerializedObject;
 
