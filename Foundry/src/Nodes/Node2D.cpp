@@ -1,16 +1,21 @@
 #include "Nodes/Node2D.h"
 
 Node2D::Node2D(
-	float _x, float _y, 
-	float _scaleX, float _scaleY, 
-	float _theta, 
-	bool _statism) : 
-	Node(), 
+	float _x, float _y,
+	float _scaleX, float _scaleY,
+	float _theta,
+	bool _statism) :
+	Node(),
 	m_transform(
-		_x, _y, 
-		_scaleX, _scaleY, 
-		_theta, 
-		_statism) 
+		_x, _y,
+		_scaleX, _scaleY,
+		_theta,
+		_statism),
+	m_worldScale(),
+	m_worldPosition(),
+	m_worldRotation(),
+	m_worldTransform(),
+	m_isParentNode2D(false)
 {}
 
 Node2D::~Node2D() {}
@@ -140,12 +145,11 @@ void Node2D::Update()
 	if (GetParent() == nullptr) 
 		return;
 
-	for (int i = 0; i < GetChildren().size(); i++)
-	{
-		Node2D current = reinterpret_cast<Node2D&>(GetChild(i));
-		current *= (*this);
-		current.Update();
-	}
+	Node2D* pParent = static_cast<Node2D>(m_pOwner);
+
+	glm::vec3 S = m_worldScale - pParent->m_worldScale;
+	glm::vec3 R = m_worldRotation - pParent->m_worldRotation;
+	glm::vec3 T = m_worldPosition - pParent->m_worldPosition;
 }
 
 

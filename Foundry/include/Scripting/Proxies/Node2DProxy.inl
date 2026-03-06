@@ -13,7 +13,7 @@ public:
 	{
 		m_pNode2D->SetScale(_width, _height); 
 	}
-	glm::uvec2 GetScale() 
+	glm::uvec2 GetScale()
 	{ 
 		return m_pNode2D->GetScale(); 
 	}
@@ -29,7 +29,7 @@ public:
 
 	void SetPosition(glm::vec2 _pos) 
 	{ 
-		m_pNode2D->SetPosition(_pos); 
+		m_pNode2D->SetPosition(_pos);
 	}
 	void SetPosition(float _x, float _y) 
 	{ 
@@ -45,11 +45,11 @@ public:
 		return m_pNode2D->GetTransformationMatrix(); 
 	}
 
-	void		SetStatism(bool _statism) 
+	void SetStatism(bool _statism) 
 	{ 
 		m_pNode2D->SetStatism(_statism); 
 	}
-	bool		IsStatic() const 
+	bool IsStatic() const 
 	{ 
 		return m_pNode2D->IsStatic(); 
 	}
@@ -60,15 +60,15 @@ private:
 
 BindProxy(Node2D::Proxy,
 	binder.BindClass<Node2D::Proxy>("Node2D",
-		"SetScale", OVERLOAD(Node2D, void, glm::vec2)(BIND(SetScale)),
-		"SetScale", OVERLOAD(Node2D, void, float, float)(BIND(SetScale)),
+		"SetScale", OVERLOAD(Node2D::Proxy, void, glm::vec2)(BIND(SetScale)),
+		"SetScale", OVERLOAD(Node2D::Proxy, void, float, float)(BIND(SetScale)),
 		"GetScale", BIND(GetScale),
 
 		"SetRotation", BIND(SetRotation),
 		"GetRotationMatrix", BIND(GetRotationMatrix),
 
-		"SetPosition", OVERLOAD(Node2D, void, glm::vec2)(BIND(SetPosition)),
-		"SetPosition", OVERLOAD(Node2D, void, float, float)(BIND(SetPosition)),
+		"SetPosition", OVERLOAD(Node2D::Proxy, void, glm::vec2)(BIND(SetPosition)),
+		"SetPosition", OVERLOAD(Node2D::Proxy, void, float, float)(BIND(SetPosition)),
 		"GetPosition", BIND(GetPosition),
 
 		"GetTransformationMatrix", BIND(GetTransformationMatrix),

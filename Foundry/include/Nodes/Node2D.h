@@ -51,6 +51,11 @@ public:
 
 private:
 	Transform2D m_transform;
+
+	glm::vec3 m_worldPosition;
+	glm::vec3 m_worldRotation;
+	glm::vec3 m_worldScale;
+	glm::mat3 m_worldTransform;
 };
 
 #include "Scripting/Proxies/Node2DProxy.inl"
