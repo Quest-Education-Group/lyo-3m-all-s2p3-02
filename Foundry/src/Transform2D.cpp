@@ -1,6 +1,9 @@
-#include "../include/Transform2D.h"
+#include "Transform2D.h"
 
 #include <cmath>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/detail/type_quat.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 Transform2D::Transform2D(
 	float _x,		     float _y,
@@ -13,21 +16,6 @@ Transform2D::Transform2D(
 	m_position(_x, _y, 0.0f),
 	m_isDirty(false)
 {
-	//m_scale = glm::mat3(
-	//	_scaleX, 0, 0, 
-	//	0, _scaleY, 0,
-	//	0,    0,    1
-	//);
-	//m_rotation = glm::mat3(
-	//	cos(_theta), -sin(_theta),	0,
-	//	sin(_theta), cos(_theta),	0,
-	//	0,				0,			1
-	//);
-	//m_position = glm::mat3(
-	//	1, 0, _x,
-	//	0, 1, _y,
-	//	0, 0,		1
-	//);
 	m_transformationMatrix = glm::mat3(
 		1, 0, 0,
 		0, 1, 0,
@@ -215,15 +203,13 @@ glm::uvec2 Transform2D::GetScale() const
 	return { m_scale.x, m_scale.y };
 }
 
-void Transform2D::SetRotation(float _theta)
+void Transform2D::SetRotation(float _rotX, float _rotY)
 {
 	if (m_isStatic) return;
 
-	m_rotation.x = m_rotation.x * cos(_theta) - m_rotation.y * sin(_theta);
-	m_rotation.y = m_rotation.x * sin(_theta) + m_rotation.y * cos(_theta) ;
+	m_rotation.x = _rotX;
+	m_rotation.y = _rotY;
 	m_rotation.z = 1.0f;
-
-	m_theta = _theta;
 
 	m_isDirty = true;
 }
@@ -285,11 +271,7 @@ void Transform2D::Update()
 		0, 0, 1
 	);
 
-	glm::mat3 R = glm::mat3(
-		cos(m_theta), -sin(m_theta), 0,
-		sin(m_theta), cos(m_theta), 0,
-		0, 0, 1
-	);
+	glm::mat3 R = glm::toMat3(glm::quat(m_rotation));
 
 	glm::mat3 T = glm::mat3(
 		1, 0, m_position.x,

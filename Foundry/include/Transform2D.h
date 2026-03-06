@@ -42,7 +42,7 @@ public:
 	void		SetScale(float _width, float _height);
 	glm::uvec2	GetScale() const;
 
-	void		SetRotation(float _theta);
+	void		SetRotation(float _rotX, float _rotY);
 	glm::vec2	GetRotation() const;
 
 	void		SetPosition(glm::vec2 _pos);
@@ -62,7 +62,6 @@ private:
 	
 	glm::vec3 m_scale;
 	glm::vec3 m_rotation;
-	float m_theta;
 	glm::vec3 m_position;
 	
 	glm::mat3 m_transformationMatrix;
