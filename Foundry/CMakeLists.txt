@@ -27,3 +27,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::lua::lua)
 target_link_libraries(${PROJECT_NAME} PUBLIC raylib)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
+if (WIN32)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+        _CRT_SECURE_NO_WARNINGS
+    )
+endif()
