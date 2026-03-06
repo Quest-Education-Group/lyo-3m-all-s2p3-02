@@ -522,8 +522,8 @@ void Editor::CreateNode(std::string Type,std::string const& name, Node* parent)
 		return;
 	}
 	uptr<Node> newNode = Node::CreateNode<Node>(name);
-	auto& typeinfo = typeid(m_newNodeTypeSelected);
-	dynamic_cast<newNode*>(typeinfo);
+	//auto& typeinfo = typeid(m_newNodeTypeSelected);
+	//dynamic_cast<newNode*>(typeinfo);
 
 	if (parent)
 	{

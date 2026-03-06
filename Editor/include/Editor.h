@@ -13,11 +13,6 @@
 #include <Node.h>
 #include <Define.h>
 
-/*TODO : Wait for the Typing of all the Node (ex: Node3D, Node2D, etc...)
-		When implemented :
-		Change Popups for a selection of the types of the node before creating it
-		use the Types and the new CreateNode for specific Type
-*/
 class Editor
 {
 public:
