@@ -42,8 +42,8 @@ public:
 	void		SetScale(float _width, float _height);
 	glm::uvec2	GetScale() const;
 
-	void		SetRotation(float _theta);
-	glm::mat2	GetRotationMatrix() const;
+	void		SetRotation(float _rotX, float _rotY);
+	glm::vec2	GetRotation() const;
 
 	void		SetPosition(glm::vec2 _pos);
 	void		SetPosition(float _x, float _y);
@@ -60,9 +60,9 @@ private:
 	bool m_isStatic;
 	bool m_isDirty;
 	
-	glm::mat3 m_scale;
-	glm::mat3 m_rotation;
-	glm::mat3 m_position;
+	glm::vec3 m_scale;
+	glm::vec3 m_rotation;
+	glm::vec3 m_position;
 	
 	glm::mat3 m_transformationMatrix;
 };
