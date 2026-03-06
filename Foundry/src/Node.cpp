@@ -170,8 +170,8 @@ std::unique_ptr<Node> Node::Clone()
 
 void Node::Serialize(SerializedObject& datas) const
 {
-	// Serialize Parent
-	datas.SetType(this);
+	// Call baseClass::Serialize(datas) : Example Node::Serialize(datas)
+	datas.SetType<Node>();
 	datas.AddElement("m_name", m_name);
 	datas.AddArray("Children");
 	for (uint32 i = 0; i < m_children.size(); i++)
@@ -182,10 +182,10 @@ void Node::Serialize(SerializedObject& datas) const
 
 void Node::Deserialize(SerializedObject const& datas)
 {
+	// Call baseClass::Deserialize(datas) : Example Node::Deserialize(datas)
 	std::string t;
 	datas.GetType(t);
 	datas.GetElement("m_name",m_name);
-
 	std::vector<ISerializable*> tempList = datas.GetArray<ISerializable*>("Children");
 	for (uint32 i = 0; i < tempList.size(); i++)
 	{

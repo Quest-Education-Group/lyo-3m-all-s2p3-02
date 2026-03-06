@@ -11,13 +11,12 @@
 
 using json = nlohmann::json;
 
-
 class SerializedObject
 {
 public:
 
 	template<typename T>
-	void SetType(T const& type);
+	void SetType();
 	
 	void AddArray(std::string arrayName);
 	void AddDictionnary(std::string dictionnaryName);
@@ -48,9 +47,10 @@ private:
 	friend class EditorSerializer;
 };
 template <typename T>
-void SerializedObject::SetType(T const& type)
+void SerializedObject::SetType()
 {
-	m_elementsInSerializedObject["TYPE"] = typeid(type).name();
+	std::string t = typeid(T).name();
+	m_elementsInSerializedObject["TYPE"] = t;
 }
 
 
@@ -132,9 +132,13 @@ inline void SerializedObject::GetElement(std::string elementName, T& outVariable
 template <>
 inline void SerializedObject::GetElement<ISerializable>(std::string elementName, ISerializable& outVariable) const
 {
-	SerializedObject object = {};
-	object.m_elementsInSerializedObject = m_elementsInSerializedObject[elementName];
-	outVariable.Deserialize(object);
+	SerializedObject jsonObject = {};
+	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject[elementName];
+	std::string type;
+	jsonObject.GetType(type);
+	ISerializable* outObject = ISerializable::s_constructors[type]();
+	outObject->Deserialize(jsonObject);
+	outVariable = *outObject;
 }
 
 
@@ -147,10 +151,13 @@ inline void SerializedObject::GetElementInDictionnary(std::string dictionnaryNam
 template <>
 inline void SerializedObject::GetElementInDictionnary<ISerializable>(std::string dictionnaryName, std::string elementName, ISerializable& outVariable) const
 {
-	SerializedObject object = {};
-	object.m_elementsInSerializedObject = m_elementsInSerializedObject[dictionnaryName][elementName];
-	outVariable.Deserialize(object);
-
+	SerializedObject jsonObject = {};
+	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject[dictionnaryName][elementName];
+	std::string type;
+	jsonObject.GetType(type);
+	ISerializable* outObject = ISerializable::s_constructors[type]();
+	outObject->Deserialize(jsonObject);
+	outVariable = *outObject;
 }
 
 template <typename T>
@@ -163,7 +170,7 @@ inline std::vector<T> SerializedObject::GetArray(std::string arrayName) const
 		array.push_back(m_elementsInSerializedObject[arrayName][i]);
 	}
 
-	return ;
+	return array;
 }
 template <>
 inline std::vector<ISerializable*> SerializedObject::GetArray(std::string arrayName) const
