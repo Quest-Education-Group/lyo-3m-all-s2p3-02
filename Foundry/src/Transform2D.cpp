@@ -8,23 +8,26 @@ Transform2D::Transform2D(
 	float _theta,
 	bool _statism) :
 	m_isStatic(_statism),
+	m_scale({ _scaleX, _scaleY, 1.0f }),
+	m_rotation( {0.0f,0.0f,0.0f} ),
+	m_position(_x, _y, 0.0f),
 	m_isDirty(false)
 {
-	m_scale = glm::mat3(
-		_scaleX, 0, 0, 
-		0, _scaleY, 0,
-		0,    0,    1
-	);
-	m_rotation = glm::mat3(
-		cos(_theta), -sin(_theta),	0,
-		sin(_theta), cos(_theta),	0,
-		0,				0,			1
-	);
-	m_position = glm::mat3(
-		1, 0, _x,
-		0, 1, _y,
-		0, 0,		1
-	);
+	//m_scale = glm::mat3(
+	//	_scaleX, 0, 0, 
+	//	0, _scaleY, 0,
+	//	0,    0,    1
+	//);
+	//m_rotation = glm::mat3(
+	//	cos(_theta), -sin(_theta),	0,
+	//	sin(_theta), cos(_theta),	0,
+	//	0,				0,			1
+	//);
+	//m_position = glm::mat3(
+	//	1, 0, _x,
+	//	0, 1, _y,
+	//	0, 0,		1
+	//);
 	m_transformationMatrix = glm::mat3(
 		1, 0, 0,
 		0, 1, 0,
@@ -43,10 +46,8 @@ Transform2D::Transform2D(Transform2D const& _other)
 	m_rotation = _other.m_rotation;
 	m_position = _other.m_position;
 
-	m_transformationMatrix = (m_scale * m_rotation) * m_position;
-
 	m_isStatic = _other.m_isStatic;
-	m_isDirty = _other.m_isDirty;
+	m_isDirty = true;
 }
 
 Transform2D& Transform2D::operator=(Transform2D const& _other)
@@ -55,10 +56,8 @@ Transform2D& Transform2D::operator=(Transform2D const& _other)
 	m_rotation = _other.m_rotation;
 	m_position = _other.m_position;
 
-	m_transformationMatrix = (m_scale * m_rotation) * m_position;
-
 	m_isStatic = _other.m_isStatic;
-	m_isDirty = _other.m_isDirty;
+	m_isDirty = true;
 
 	return *this;
 }
@@ -70,10 +69,8 @@ Transform2D::Transform2D(Transform2D&& _other) noexcept
 	m_rotation = _other.m_rotation;
 	m_position = _other.m_position;
 
-	m_transformationMatrix = (m_scale * m_rotation) * m_position;
-
 	m_isStatic = _other.m_isStatic;
-	m_isDirty = _other.m_isDirty;
+	m_isDirty = true;
 }
 Transform2D& Transform2D::operator=(Transform2D&& _other) noexcept
 {
@@ -81,10 +78,8 @@ Transform2D& Transform2D::operator=(Transform2D&& _other) noexcept
 	m_rotation = _other.m_rotation;
 	m_position = _other.m_position;
 
-	m_transformationMatrix = (m_scale * m_rotation) * m_position;
-
 	m_isStatic = _other.m_isStatic;
-	m_isDirty = _other.m_isDirty;
+	m_isDirty = true;
 
 	return *this;
 }
@@ -196,8 +191,9 @@ void Transform2D::SetScale(glm::vec2 _scale)
 {
 	if (m_isStatic) return;
 
-	m_scale[0][0] = _scale.x;
-	m_scale[1][1] = _scale.y;
+	m_scale.x = _scale.x;
+	m_scale.y = _scale.y;
+	m_scale.z = 1.0f;
 
 	m_isDirty = true;
 }
@@ -208,56 +204,55 @@ void Transform2D::SetScale(float _x, float _y)
 	if (_x < 0.f || _y < 0.f)
 		return;
 
-	m_scale[0][0] = _x;
-	m_scale[1][1] = _y;
+	m_scale.x = _x;
+	m_scale.y = _y;
+	m_scale.z = 1.0f;
 
 	m_isDirty = true;
 }
 glm::uvec2 Transform2D::GetScale() const
 {
-	return { m_scale[0][0], m_scale[1][1] };
+	return { m_scale.x, m_scale.y };
 }
 
 void Transform2D::SetRotation(float _theta)
 {
 	if (m_isStatic) return;
 
-	m_rotation[0][0] = cos(_theta);
-	m_rotation[0][1] = -sin(_theta);
-	m_rotation[1][0] = sin(_theta);
-	m_rotation[1][1] = cos(_theta);
+	m_rotation.x = m_rotation.x * cos(_theta) - m_rotation.y * sin(_theta);
+	m_rotation.y = m_rotation.x * sin(_theta) + m_rotation.y * cos(_theta) ;
+	m_rotation.z = 1.0f;
+
+	m_theta = _theta;
 
 	m_isDirty = true;
 }
-glm::mat2 Transform2D::GetRotationMatrix() const
+glm::vec2 Transform2D::GetRotation() const
 {
-	return glm::mat2(
-		m_rotation[0][0], m_rotation[0][1],
-		m_rotation[1][0], m_rotation[1][1]
-	);
+	return { m_rotation.x, m_rotation.y };
 }
 
 void Transform2D::SetPosition(float _u, float _v)
 {
 	if (m_isStatic) return;
 
-	m_position[0][2] = _u;
-	m_position[1][2] = _v;
+	m_position.x = _u;
+	m_position.y = _v;
 
 	m_isDirty = true;
 }
-void Transform2D::SetPosition(glm::vec2 _translation)
+void Transform2D::SetPosition(glm::vec2 _position)
 {
 	if (m_isStatic) return;
 
-	m_position[0][2] = _translation.x;
-	m_position[1][2] = _translation.y;
+	m_position.x = _position.x;
+	m_position.y = _position.y;
 
 	m_isDirty = true;
 }
 glm::vec2 Transform2D::GetPosition() const
 {
-	return { m_position[0][2], m_position[1][2] };
+	return { m_position.x, m_position.y };
 }
 
 glm::mat3 Transform2D::GetTransformationMatrix() const
@@ -284,7 +279,25 @@ void Transform2D::Update()
 		0, 0, 1 
 	);
 
-	m_transformationMatrix = (m_scale * m_rotation) * m_position;
+	glm::mat3 S = glm::mat3(
+		m_scale.x, 0, 0,
+		0, m_scale.y, 0,
+		0, 0, 1
+	);
+
+	glm::mat3 R = glm::mat3(
+		cos(m_theta), -sin(m_theta), 0,
+		sin(m_theta), cos(m_theta), 0,
+		0, 0, 1
+	);
+
+	glm::mat3 T = glm::mat3(
+		1, 0, m_position.x,
+		0, 1, m_position.y,
+		0, 0, 1
+	);
+
+	m_transformationMatrix = (S * R) * T;
 
 	m_isDirty = false;
 }
