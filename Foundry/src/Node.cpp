@@ -1,13 +1,12 @@
 #include "Node.h"
 #include "Debug.h"
 #include "Servers/EngineServer.h"
-#include "SerializeObject.hpp"
+#include "Serialization/SerializeObject.hpp"
 
 #include <algorithm>
 #include <exception>
 #include <functional>
 #include <memory>
-#include <ranges>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -53,6 +52,7 @@ void Node::AttachChildImmediate(std::unique_ptr<Node>& child)
 	m_childrenOrder.push_back(childName);
 
 	m_children[childName]->OnSceneEnter(*m_children[childName]);
+	m_children[childName]->OnParentChange(*this);
 
 	DEBUG("Node : " << childName << " is now a child of : " << m_name << std::endl);
 }
@@ -139,12 +139,21 @@ void Node::Destroy()
 void Node::Reparent(Node& newParent, bool keepGlobalTransform)
 {
     if (m_pOwner == nullptr) return;
+	if (newParent.m_name == m_pOwner->m_name)
+	{
+		OnParentChange(newParent);
+		return;
+	}
 
     newParent.m_children[m_name] = std::move(m_pOwner->m_children[m_name]);
     newParent.m_childrenOrder.push_back(m_name);
     std::erase(m_pOwner->m_childrenOrder, m_name);
     m_pOwner->m_children.erase(m_name);
     m_pOwner = &newParent;
+
+	DEBUG(m_name << " reparented to " << newParent.m_name);
+
+	OnParentChange(*this);
 }
 
 void Node::MoveChild(Node const& child, uint32 to)
@@ -194,9 +203,9 @@ void Node::Deserialize(SerializedObject const& datas)
 	}
 }
 
-std::function<ISerializable* ()> Node::Register()
+std::function<ISerializable* ()> Node::CreateInstance()
 {
-	return []()->ISerializable* { return (ISerializable*)Node::CreateNode<Node>("Node").release(); };
+	return []()->ISerializable* { return CreateNode<Node>("Node").release(); };
 }
 
 
