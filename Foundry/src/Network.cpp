@@ -447,3 +447,13 @@ std::string Network::GetLocalIP()
 
 	return std::string(ip);
 }
+
+ENetAddress Network::GetAddress() const 
+{
+	return m_address;
+}
+
+void Network::NetworkSetPort(int port)
+{
+	m_address.port = port;
+}

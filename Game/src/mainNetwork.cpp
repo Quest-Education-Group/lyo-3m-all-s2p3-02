@@ -1,7 +1,8 @@
 //GPC-Network.cpp :
 //To be clean, even if the p1 is the host the server part and client part are separated.
 
-#include <Network.h>
+#include "Network.h"
+#include "Nodes/NodeNetwork.h"
 
 void LaunchServer()
 {
@@ -16,7 +17,8 @@ void LaunchServer()
 	Network testNetwork;
 
 	std::string localIp = testNetwork.GetLocalIP();
-	std::cout << "NETWORK IP = " << localIp << std::endl;
+	std::cout << "SERVER IP = " << localIp << std::endl;
+
 	if (testNetwork.Init(true, 54321))
 	{
 		testNetwork.PrintSyncVar();
@@ -51,6 +53,13 @@ void LaunchClient()
 	}
 }
 
+void LaunchNodeServer() 
+{
+	auto serverNode = Node::CreateNode<NodeNetwork>("server");
+	serverNode->SetNetworkPort(54321);
+	serverNode->InitNetworkFor(NetworkType::SERVER);
+}
+
 int main()
 {
 	// Enet INIT
@@ -62,8 +71,9 @@ int main()
 	std::cout << "Enet Program launched.\n";
 
 	//---ChooseOne---
-	LaunchServer();
+	//LaunchServer();
 	//LaunchClient();
+	LaunchNodeServer();
 	//---------------
 
 	// Program END

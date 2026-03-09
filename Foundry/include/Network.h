@@ -156,13 +156,13 @@ public:
 	bool Init(bool _isServer = false, int _serverPort = 0);
 	void Close();
 
-	// Server Host
+	// Server | Host
 	void ServerLoop();
 	bool SendMsgToClients(const char* _message);
 	void PrintSyncVar();
 	void SyncVarsToClients();
 
-	// Simple Client
+	// Client
 	bool ConnectingTo(const char* _addressIP, int _addressPort);
 	void ClientLoop();
 	void DisconnectFromServer();
@@ -174,6 +174,9 @@ public:
 	void SendSyncVar();
 
 	std::string GetLocalIP();
+	ENetAddress GetAddress() const;
+
+	void NetworkSetPort(int port);
 
 	static Network& Instance()
 	{
