@@ -98,11 +98,7 @@ public:
 		SyncRegistry::Instance().Unregister(Name);
 	}
 
-	void OnChange()
-	{
-		//logique reseau
-		Network::Instance().SyncVarsToClients();
-	}
+	void OnChange();
 
 	Syncvar& operator=(const T& other)
 	{
@@ -196,5 +192,11 @@ private:
 	bool m_isRunning = false;
 	bool m_isConnected = false;
 };
+
+template <typename T, const char* Name>
+void Syncvar<T, Name>::OnChange()
+{
+	Network::Instance().SyncVarsToClients();
+}
 
 #endif
