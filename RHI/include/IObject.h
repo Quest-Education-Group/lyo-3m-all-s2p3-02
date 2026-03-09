@@ -8,6 +8,8 @@ class IObject
 public:
     virtual ~IObject() = 0;
 
+    virtual void Bind() = 0;
+    
     virtual void Load() = 0;
     virtual void Unload() = 0;
 };
