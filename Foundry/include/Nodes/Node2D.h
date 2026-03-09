@@ -47,7 +47,17 @@ public:
 	void		SetStatism(bool _statism);
 	bool		IsStatic() const;
 
-	void		Update();
+	void		UpdateLocal();
+	void		UpdateWorld();
+
+	void		SetWorldScale(glm::vec3& _worldPScale);
+	void		SetWorldRotation(glm::vec3& _worldRot);
+	void		SetWorldPosition(glm::vec3& _worldPos);
+
+	virtual void OnUpdate(float _delta) override;
+	virtual void Reparent(Node& _newParent, bool _keepGlobalTransform = true) override;
+	
+	void		CheckParentTransform();
 
 private:
 	Transform2D m_transform;
@@ -56,6 +66,8 @@ private:
 	glm::vec3 m_worldRotation;
 	glm::vec3 m_worldScale;
 	glm::mat3 m_worldTransform;
+
+	bool m_isParentNode2D;
 };
 
 #include "Scripting/Proxies/Node2DProxy.inl"

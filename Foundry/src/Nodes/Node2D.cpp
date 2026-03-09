@@ -138,18 +138,76 @@ bool Node2D::IsStatic() const
 	return m_transform.IsStatic();
 }
 
-void Node2D::Update()
+void Node2D::UpdateLocal()
 {
-	m_transform.Update();
-
 	if (GetParent() == nullptr) 
 		return;
 
 	Node2D* pParent = static_cast<Node2D>(m_pOwner);
 
-	glm::vec3 S = m_worldScale - pParent->m_worldScale;
-	glm::vec3 R = m_worldRotation - pParent->m_worldRotation;
 	glm::vec3 T = m_worldPosition - pParent->m_worldPosition;
+
+	glm::mat3 rotMatrix = glm::toMat4(glm::quat(pParent->m_worldRotation));
+	T = T * rotMatrix;
+	T /= pParent->m_worldScale;
+	T.z = 1.0f;
+	m_transform.SetPosition(T);
+
+	glm::vec3 S = m_worldScale / pParent->m_worldScale;
+	m_transform.SetScale(S);
+	
+	glm::vec3 R = glm::inverse(m_worldRotation) * pParent->m_worldRotation;
+	m_transform.SetRotation(R);
 }
 
+void Node2D::Reparent(Node& newParent, bool keepGlobalTransform)
+{
+	Node::Reparent(newParent, keepGlobalTransform);
+	m_worldDirty = true;
+}
+
+void Node2D::CheckParentTransform()
+{
+	if (m_pOwner == nullptr) 
+		return;
+	m_isParentNode2D = dynamic_cast<Node2D*>(GetParent());
+}
+
+void Node2D::UpdateWorld()
+{
+	if (m_isParentNode2D == false)
+	{
+		m_worldPosition = m_transform.GetPosition();
+		m_worldRotation = m_transform.GetRotation();
+		m_worldScale = m_transform.GetScale();
+		m_worldTransform = m_transform.GetTransformationMatrix();
+		return;
+	}
+
+	Node2D* pParent = static_cast<Node2D*>(m_pOwner);
+	m_worldScale = m_transform.GetScale() * pParent->m_worldScale;
+	m_worldRotation = parent->m_worldRotation * m_transform.GetRotation();
+	m_worldPosition = m_transform.GetPosition() * parent->m_worldScale;
+
+	m_worldPosition = m_worldPosition * glm::transpose(glm::toMat3(pParent->m_worldRotation));
+	
+	m_worldPosition += pParent->m_worldPosition;
+
+	m_worldTransform = glm::translate(m_worldPosition) * glm::toMat3(glm::quat(m_worldRotation)) * glm::scale(m_worldScale);
+}
+
+void Node2D::SetWorldPosition(glm::vec3& _worldPos)
+{
+	m_worldPosition = _worldPos;
+
+	m_isDirty = true;
+	Update();
+}
+
+void Node2D::OnUpdate(float _delta)
+{
+	Node::OnUpdate(_delta);
+	UpdateLocal();
+	UpdateWorld();
+}
 

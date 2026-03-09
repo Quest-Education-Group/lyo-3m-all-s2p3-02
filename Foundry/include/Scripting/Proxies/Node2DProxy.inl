@@ -54,6 +54,15 @@ public:
 		return m_pNode2D->IsStatic(); 
 	}
 
+	void UpdateLocal()
+	{
+		return m_pNode2D->UpdateLocal();
+	}
+	void UpdateWorld()
+	{
+		return m_pNode2D->UpdateWorld();
+	}
+
 private:
 	Node2D* m_pNode2D;
 };
@@ -74,6 +83,14 @@ BindProxy(Node2D::Proxy,
 		"GetTransformationMatrix", BIND(GetTransformationMatrix),
 
 		"SetStatism", BIND(SetStatism),
-		"IsStatic", BIND(IsStatic)
-		)
+		"IsStatic", BIND(IsStatic),
+
+		"UpdateLocal", BIND(UpdateLocal),
+		"UpdateWorld", BIND(UpdateWorld),
+
+		"SetWorldScale", BIND(SetWorldScale)
+		"SetWorldRotation", BIND(SetWorldRotation)
+		"SetWorldPosition", BIND(SetWorldPosition),
+
+		"CheckParentTransform", BIND(CheckParentTransform))
 	;)
