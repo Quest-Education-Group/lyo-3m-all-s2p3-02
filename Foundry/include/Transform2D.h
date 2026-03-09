@@ -10,11 +10,11 @@
 class Transform2D
 {
 public:
-	enum class Axis : char
+	enum class Axis : unsigned int
 	{
-		X = 'x',
-		Y = 'y',
-		Z = 'z'
+		X = 0,
+		Y = 1,
+		Z = 2
 	};
 
 	Transform2D(

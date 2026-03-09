@@ -190,15 +190,7 @@ void Transform2D::SetShearing(float _shearX, float _shearY)
 }
 void Transform2D::SetShearingOnAxis(Axis _axis, float _shear)
 {
-	switch (_axis)
-	{
-	case Axis::X:
-		m_shear.x = _shear;
-		break;
-	case Axis::Y:
-		m_shear.y = _shear;
-		break;
-	}
+	m_shear[static_cast<int>(_axis)] = _shear;
 
 	m_isDirty = true;
 }
@@ -209,18 +201,7 @@ glm::vec2 Transform2D::GetShearing() const
 
 void Transform2D::SetMirroringOnAxis(Axis _axis)
 {
-	switch (_axis)
-	{
-	case Axis::X:
-		m_position = { -m_position.x, m_position.y, m_position.z };
-		break;
-	case Axis::Y:
-		m_position = { m_position.x, -m_position.y, m_position.z };
-		break;
-	case Axis::Z:
-		m_position = { m_position.x, m_position.y, -m_position.z };
-		break;
-	}
+	m_position[static_cast<int>(_axis)] *= -1.0f;
 
 	m_isDirty = true;
 }
