@@ -17,9 +17,6 @@ Editor::~Editor()
 void Editor::Init() 
 {
 	// Initialize Raylib window
-	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
-	InitWindow(m_screenWidth, m_screenHeight, "Foundry Editor");
-	SetTargetFPS(144);
 
 	// DefaultNode
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
@@ -29,6 +26,8 @@ void Editor::Init()
 	m_editorImgui.Init();
 	m_editorImgui.SetSceneRoot(m_sceneRoot.get());
 	m_editorImgui.SetScreenSize(m_screenWidth, m_screenHeight);
+
+	m_editorRaylib.Init();
 
 	m_running = true;
 	std::cout << "[Editor] Initialized successfully!" << std::endl;
@@ -203,6 +202,13 @@ void Editor::LoadScene(std::string const& path)
 	{
 		std::cerr << "[Editor] Failed to load scene: " << e.what() << std::endl;
 	}
+}
+
+void Editor::UpdateNode(std::string const& name, Node* pNode)
+{
+	SerializeObject obj = {};
+
+
 }
 
 void Editor::SaveScene(std::string const& path)

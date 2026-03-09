@@ -2,9 +2,12 @@
 #define __EDITOR_RAYLIB3D__H_
 
 #include <json.hpp>
+namespace rl
+{
 #include <raylib.h>
 #include <raymath.h>
 #include <raygizmo.h>
+}
 #include <imgui.h>
 #include <imfilebrowser.h>
 #include <rlImGui.h>
@@ -30,10 +33,10 @@ private:
 	glm::vec3 rotation;
 };
 
-class Light : CustomDrawableElement
-{
-	void Draw() override { }
-};
+//class Light : CustomDrawableElement
+//{
+//	void Draw() override { }
+//};
 
 
 class EditorRaylib3D
@@ -43,20 +46,22 @@ public:
 	EditorRaylib3D();
 	~EditorRaylib3D();
 
-	void Init();
+	void InitWindow(float const& width, float const& height);
+	void LoadDrawableObject(json const& jsonObject);
 	void Render();
 	void Update(float deltaTime);
 	void UpdateJson(json const& newJson);
 	void Shutdown();
 
-	void AddDrawableElement();
+	void AddDrawableElement(json const& elementToDraw);
+	void RemoveDrawableElement(std::string const& elementName);
 
 private:
 	void DrawViewPort();
 	
 	void CheckIfIsDrawable(json element);
 
-	void Draw3DMesh(Model& model);
+	void Draw3DMesh(json& nodeMesh3D);
 	void DrawCollider3D();
 	void DrawLight();
 
@@ -69,9 +74,9 @@ private:
 	glm::vec3 m_currentRotation;
 
 	json m_jsonElementFromRoot;
-	Camera3D m_camera = {};
+	rl::Camera3D m_camera = {};
 
-	std::map<std::string, uptr<Model>> m_loadedMeshs;
+	std::map<std::string, uptr<rl::Mesh>> m_loadedMeshs;
 };
 
 #endif // __EDITOR_RAYLIB3D__H_

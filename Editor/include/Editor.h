@@ -27,8 +27,6 @@ private:
 	void Render3D();
 	void RenderUI();
 
-	void DrawViewport3D();
-
 	// Command processing
 	void ProcessUICommands();
 
@@ -41,6 +39,11 @@ private:
 	void LoadScene(std::string const& path);
 	void SaveScene(std::string const& path);
 	void SaveSceneNoSpe();
+
+	void UpdateNode(std::string const& name, Node* pNode);
+
+	json& GetNodeJson(std::string const& name);
+	void RemoveNode(std::string const& name);
 
 private:
 	// Editor Parts
@@ -55,6 +58,7 @@ private:
 			// Scene
 	uptr<Node> m_sceneRoot = nullptr;
 	std::string m_scenePathBuffer;
+	std::map<std::string&, json&> m_nodeInHierarchy;
 };
 
 #endif // __EDITOR_H

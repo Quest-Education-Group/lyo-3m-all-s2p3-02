@@ -66,19 +66,23 @@ typedef enum {
     LIGHT_POINT
 } LightType;
 
-#ifdef __cplusplus
-extern "C" {            // Prevents name mangling of functions
-#endif
+//#ifdef __cplusplus
+//extern "C" {            // Prevents name mangling of functions
+//#endif
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
-Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader);   // Create a light and get shader locations
-void UpdateLightValues(Shader shader, Light light);         // Send light properties to shader
 
-#ifdef __cplusplus
+namespace RlLights
+{
+    Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader);   // Create a light and get shader locations
+    void UpdateLightValues(Shader shader, Light light);         // Send light properties to shader
 }
-#endif
+
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif // RLIGHTS_H
 
@@ -118,7 +122,7 @@ static int lightsCount = 0;    // Current amount of created lights
 //----------------------------------------------------------------------------------
 
 // Create a light and get shader locations
-Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
+inline Light RlLights::CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
 {
     Light light = { 0 };
 
@@ -137,7 +141,7 @@ Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shade
         light.targetLoc = GetShaderLocation(shader, TextFormat("lights[%i].target", lightsCount));
         light.colorLoc = GetShaderLocation(shader, TextFormat("lights[%i].color", lightsCount));
 
-        UpdateLightValues(shader, light);
+        RlLights::UpdateLightValues(shader, light);
         
         lightsCount++;
     }
@@ -147,7 +151,7 @@ Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shade
 
 // Send light properties to shader
 // NOTE: Light shader locations should be available 
-void UpdateLightValues(Shader shader, Light light)
+inline void RlLights::UpdateLightValues(Shader shader, Light light)
 {
     // Send to shader light enabled state and type
     SetShaderValue(shader, light.enabledLoc, &light.enabled, SHADER_UNIFORM_INT);
