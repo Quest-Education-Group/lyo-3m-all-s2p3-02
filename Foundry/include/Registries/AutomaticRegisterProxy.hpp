@@ -10,9 +10,14 @@ template<typename D>
 struct AutomaticRegisterProxy {
     AutomaticRegisterProxy()
     {
+        //TODO Find a better way
+        static bool guard = false;
+
+        if (guard) return;
         Binder B(ScriptingEngine::GetScriptEngine());
         D::Bind(B);
         ScriptingEngine::RegisterTypeNames(B.GetRegisteredTypesName());
+        guard = true;
     }
 };
 
