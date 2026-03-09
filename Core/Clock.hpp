@@ -3,6 +3,8 @@
 
 #include <chrono>
 
+#include "Clock.hpp"
+
 namespace ch = std::chrono;
 
 template <typename T = double>
@@ -30,13 +32,13 @@ Clock<T>::Clock()
 template <typename T>
 void Clock<T>::Start()
 {
-    m_previousTime = ch::high_resolution_clock::now();
+    m_previousTime = ch::system_clock::now();
 }
 
 template <typename T>
 T Clock<T>::Reset()
 {
-    auto currentTime= ch::high_resolution_clock::now();
+    auto currentTime = ch::system_clock::now();
     auto elapsed = static_cast<ch::duration<T>>(currentTime - m_previousTime);
     m_elapsedTime = elapsed.count();
 

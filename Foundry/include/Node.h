@@ -32,9 +32,9 @@ public:
 	virtual ~Node();
 
 	void Update(double delta);
-	virtual void OnUpdate(double delta) { DEBUG("Node : " << m_name << ANSI_GOLD << " is updated" << ANSI_RESET << std::endl); };
+	virtual void OnUpdate(double delta) {  };
 	void PhysicsUpdate(double delta);
-	virtual void OnPhysicsUpdate(double delta) { DEBUG("Node : " << m_name << ANSI_GOLD << " physics update" << ANSI_RESET << std::endl); };
+	virtual void OnPhysicsUpdate(double delta) {  };
 
 	void AddChild(std::unique_ptr<Node>&& child);
 	void AddChild(std::unique_ptr<Node>& child);
