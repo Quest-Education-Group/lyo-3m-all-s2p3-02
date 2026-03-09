@@ -166,19 +166,19 @@ void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
 	}
 	std::string typefi = "class " + type;
 	ISerializable* outObject = ISerializable::s_constructors[typefi]();
-	uptr<Node> NewNode = uptr<Node>(static_cast<Node*>(outObject));
-	NewNode.get()->SetName(name);
+	uptr<Node> newNode = uptr<Node>(static_cast<Node*>(outObject));
+	newNode.get()->SetName(name);
 	m_editorRaylib.AddDrawableObject(name, newNode.get());
 
 	if (parent)
 	{
-		parent->AddChild(NewNode);
+		parent->AddChild(newNode);
 		std::cout << "[Editor] Node '" << name << "' added as child of '" 
 		          << parent->GetName() << "'" << std::endl;
 	}
 	else
 	{
-		m_sceneRoot->AddChild(NewNode);
+		m_sceneRoot->AddChild(newNode);
 		std::cout << "[Editor] Node '" << name << "' added to scene root" << std::endl;
 	}
 }
