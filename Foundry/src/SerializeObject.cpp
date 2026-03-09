@@ -1,4 +1,4 @@
-#include "SerializeObject.hpp"
+#include "Serialization/SerializeObject.hpp"
 
 SerializedObject::SerializedObject()
 {
