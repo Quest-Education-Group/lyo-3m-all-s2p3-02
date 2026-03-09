@@ -1,23 +1,22 @@
 #ifndef NODE__H_
 #define NODE__H_
 
-#include "Debug.h"
 #include "Define.h"
 #include "Event.hpp"
 #include "SceneTree.h"
 #include "Scripting/Lua/LuaScriptInstance.hpp"
-#include "ISerializable.h"
+#include "Serialization/ISerializable.h"
+#include "Registries/AutomaticRegisterISerializable.hpp"
 
 #include <functional>
-#include <memory>
 #include <optional>
 #include <string>
 #include <sstream>
-#include <type_traits>
 #include <vector>
 
 class Node;
 class SceneTree;
+class SerializedObject;
 
 template <typename T>
 concept NodeType = std::is_base_of_v<Node, T>;
@@ -27,15 +26,14 @@ template <typename T>
 using OptionalRef = std::optional<std::reference_wrapper<T>>;
 
 //Base class off every node in the tree
-class Node : public ISerializable
+class Node : public AutomaticRegisterISerializable<Node>, public ISerializable
 {
 public:
-
 	class Proxy;
 
 	virtual ~Node();
 
-	virtual void OnUpdate(float delta) { DEBUG("Node : " << m_name << ANSI_GOLD << " is updated" << ANSI_RESET << std::endl); };
+	virtual void OnUpdate(float delta) { };
 	void Update(float delta);
 
 	void AddChild(std::unique_ptr<Node>&& child);
@@ -64,8 +62,8 @@ public:
 
 	//override this method if the inherited node is not trivially copyable
 	virtual std::unique_ptr<Node> Clone();
-	std::map<std::string, std::string> const& Serialize() { return {}; }
-	void Deserialize(std::map<std::string, std::string> const& object) {}
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
 
 	std::string GetName();
 	Node* GetParent();
@@ -78,15 +76,19 @@ public:
 	template <NodeType T>
 	static void AttachScript(uptr<LuaScriptInstance>& script, T& node);
 
+	static std::function<ISerializable*()> CreateInstance();
+	static void Test() {};
+
 	//====Event======
 	Event<void(Node&)> OnSceneEnter;
 	Event<void(Node&, float)> OnNodeUpdated;
 	Event<void(Node&)> OnSceneLeave;
+	Event<void(Node&)> OnParentChange;
 
 protected:
 	//private constructor for in-class initialization
 	//====Constructors======
-	Node();
+	Node() = delete;
 	Node(std::string const& name);
 	Node(Node const& other) = delete;
 	Node(Node&& other) noexcept = delete;
@@ -94,12 +96,6 @@ protected:
 	Node& operator=(Node const& other) = delete;
 	Node& operator=(Node&& other) noexcept = delete;
 
-private:
-    void AttachChildImmediate(std::unique_ptr<Node>& child);
-
-    friend class EngineServer;
-
-private:
 	std::string m_name; //unique among siblings
 	Node* m_pOwner = nullptr;
 	SceneTree* m_pSceneTree = nullptr;
@@ -107,10 +103,13 @@ private:
 	uptr<Proxy> m_pProxy;
 	uptr<LuaScriptInstance> m_pScriptInstance;
 
+	std::unordered_map<std::string, std::unique_ptr<Node>> m_children{};
+	std::vector<std::string> m_childrenOrder{};
 
-	std::unordered_map<std::string, std::unique_ptr<Node>> m_children {};
-	std::vector<std::string> m_childrenOrder {};
+private:
+    void AttachChildImmediate(std::unique_ptr<Node>& child);
 
+    friend class EngineServer;
 	friend class unique_ptr;
 };
 
@@ -125,6 +124,7 @@ std::unique_ptr<T> Node::CreateNode(std::string const& name)
 
 	uptr<concrete_Node> ptr = std::make_unique<concrete_Node>(name);
 	ptr->m_pProxy = std::make_unique<typename T::Proxy>(*ptr);
+	auto _ = ptr->register_object;
 
     return std::move(ptr);
 }
