@@ -2,10 +2,19 @@
 #define FOUNDRY_NETWORK__H_
 
 #include <enet/enet.h>
-#include <ws2tcpip.h>
-#include <stdio.h>
-#pragma comment(lib, "ws2_32.lib")
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "winmm.lib")
+#else
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#endif
 
 #include <iostream>
 #include <unordered_map>

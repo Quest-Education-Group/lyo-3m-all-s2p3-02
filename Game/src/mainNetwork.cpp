@@ -3,7 +3,7 @@
 
 #include <Network.h>
 
-int main()
+void LaunchServer()
 {
 	// var sync with clients
 	SyncVar(std::string, "Name") playerName("Player1");
@@ -11,15 +11,6 @@ int main()
 	playerHp = 55;
 	SyncVar(float, "PosX") playerPosX = 5.56f;
 	SyncVar(bool, "IsDead") playerIsDead = false;
-
-
-	// Enet INIT
-	if (enet_initialize() != 0)
-	{
-		fprintf(stderr, "An error occurred while initializing ENet.\n");
-		return EXIT_FAILURE;
-	}
-	std::cout << "Enet Program launched.\n";
 
 	// Server INIT
 	Network testNetwork;
@@ -30,8 +21,45 @@ int main()
 	{
 		testNetwork.PrintSyncVar();
 		testNetwork.ServerLoop();
-		//testNetwork.Close();
+		testNetwork.Close();
 	}
+
+}
+
+void LaunchClient()
+{
+	// Client INIT
+	Network testClient;
+	if (testClient.Init())
+	{
+		testClient.PrintSyncVar();
+		std::string localIp = testClient.GetLocalIP();
+		std::cout << "CLIENT IP = " << localIp << std::endl;
+		if (testClient.ConnectingTo(localIp.c_str(), 54321))
+		{
+			//testClient.ClientLoop();
+			if (testClient.SendMsgToServer("HI ! Im going to send you my data(client)."))
+			{
+				//testClient.SendSyncVar();
+				testClient.SendMsgToServerA();
+			}
+		}
+	}
+}
+
+int main()
+{
+	// Enet INIT
+	if (enet_initialize() != 0)
+	{
+		fprintf(stderr, "An error occurred while initializing ENet.\n");
+		return EXIT_FAILURE;
+	}
+	std::cout << "Enet Program launched.\n";
+
+	//ChooseOne
+	LaunchServer();
+	//LaunchClient();
 
 	// Program END
 	atexit(enet_deinitialize);
