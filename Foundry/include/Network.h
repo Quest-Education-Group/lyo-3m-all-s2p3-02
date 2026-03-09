@@ -20,7 +20,9 @@
 #include <unordered_map>
 #include <type_traits>
 #include <string>
-
+#include <vector>
+#include <algorithm>
+#include <cstring>
 
 class Network;
 
