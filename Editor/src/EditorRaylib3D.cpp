@@ -78,7 +78,7 @@ void EditorRaylib3D::CheckIfIsDrawable(json element)
 	}
 	else if (element["TYPE"] == "class NodeCollider3D")
 	{
-		DrawCollider3D(m_loadedMeshs[element["DATAS"]["m_name"]]);
+		//DrawCollider3D(m_loadedMeshs[element["DATAS"]["m_name"]]);
 	}
 
 	for (uint32 i = 0; i < element["Children"].size(); i++)
@@ -91,10 +91,10 @@ void EditorRaylib3D::Draw3DMesh(json& nodeMesh3D)
 {
 	rl::Mesh m_mesh = {};
 
-	m_mesh.vertices = ...;
-	m_mesh.indices = ...;
-	m_mesh.vertexCount = m_mesh.vertices.size();
-	m_mesh.triangleCount = m_mesh.indices.size() / 3;
+	//m_mesh.vertices = ...;
+	//m_mesh.indices = ...;
+	//m_mesh.vertexCount = m_mesh.vertices.size();
+	//m_mesh.triangleCount = m_mesh.indices.size() / 3;
 
 	rl::UploadMesh(&m_mesh,false);
 }

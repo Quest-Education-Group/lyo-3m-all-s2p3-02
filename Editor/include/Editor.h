@@ -6,10 +6,6 @@
 
 #include <Define.h>
 #include <Node.h>
-#include <raylib.h>
-#include <raymath.h>
-#include <rlImGui.h>
-#include <rlImGuiColors.h>
 
 class Editor
 {
@@ -58,7 +54,7 @@ private:
 			// Scene
 	uptr<Node> m_sceneRoot = nullptr;
 	std::string m_scenePathBuffer;
-	std::map<std::string&, json&> m_nodeInHierarchy;
+	std::map<std::string, json> m_nodeInHierarchy;
 };
 
 #endif // __EDITOR_H

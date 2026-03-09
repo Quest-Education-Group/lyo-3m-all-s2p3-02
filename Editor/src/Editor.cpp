@@ -1,9 +1,13 @@
 #include "Editor.h"
-#include "SerializeObject.h"
-#include "Servers/EngineServer.h"
+#include "EditorSerializer.h"
 
+#include <Servers/EngineServer.h>
+#include <SerializeObject.hpp>
 #include <iostream>
 #include <cstring>
+using namespace rl;
+#include <rlImGui.h>
+#include <rlImGuiColors.h>
 
 Editor::Editor()
 {
@@ -17,6 +21,7 @@ Editor::~Editor()
 void Editor::Init() 
 {
 	// Initialize Raylib window
+	m_editorRaylib.InitWindow(m_screenWidth, m_screenHeight);
 
 	// DefaultNode
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
@@ -27,7 +32,6 @@ void Editor::Init()
 	m_editorImgui.SetSceneRoot(m_sceneRoot.get());
 	m_editorImgui.SetScreenSize(m_screenWidth, m_screenHeight);
 
-	m_editorRaylib.Init();
 
 	m_running = true;
 	std::cout << "[Editor] Initialized successfully!" << std::endl;
@@ -35,18 +39,18 @@ void Editor::Init()
 
 void Editor::Run()
 {
-	while (m_running && !WindowShouldClose())
+	while (m_running && !rl::WindowShouldClose())
 	{
-		float deltaTime = GetFrameTime();
+		float deltaTime = rl::GetFrameTime();
 		Update(deltaTime);
 		
-		BeginDrawing();
-		ClearBackground(DARKGRAY);
+		rl::BeginDrawing();
+		rl::ClearBackground(rl::DARKGRAY);
 
 		Render3D();
 		RenderUI();
 		
-		EndDrawing();
+		rl::EndDrawing();
 	}
 }
 
@@ -55,7 +59,7 @@ void Editor::Shutdown()
 	if (m_running)
 	{
 		rlImGuiShutdown();
-		CloseWindow();
+		rl::CloseWindow();
 		m_running = false;
 		std::cout << "[Editor] Shutdown successfully!" << std::endl;
 	}
@@ -65,9 +69,9 @@ void Editor::Update(float deltaTime)
 {
 
 	// Keyboard shortcuts
-	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S)) 
+	if (rl::IsKeyDown(rl::KEY_LEFT_CONTROL) && rl::IsKeyPressed(rl::KEY_S))
 	{
-		if (IsKeyDown(KEY_LEFT_SHIFT))
+		if (rl::IsKeyDown(rl::KEY_LEFT_SHIFT))
 		{
 			m_editorImgui.ShowSaveAs();
 		}
@@ -77,7 +81,7 @@ void Editor::Update(float deltaTime)
 		}
 	}
 
-	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_N)) 
+	if (rl::IsKeyDown(rl::KEY_LEFT_CONTROL) && rl::IsKeyPressed(rl::KEY_N))
 	{
 		CreateNewScene();
 	}
@@ -193,7 +197,7 @@ void Editor::LoadScene(std::string const& path)
 {
 	try
 	{
-		m_sceneRoot = SerializeObject::LoadFromJson(path);
+		m_sceneRoot = EditorSerializer::LoadFromJson(path);
 		m_editorImgui.SetSceneRoot(m_sceneRoot.get());
 		m_scenePathBuffer = path;
 		std::cout << "[Editor] Scene loaded: " << path << std::endl;
@@ -206,7 +210,8 @@ void Editor::LoadScene(std::string const& path)
 
 void Editor::UpdateNode(std::string const& name, Node* pNode)
 {
-	SerializeObject obj = {};
+	//SerializeObject obj = {};
+	//pNode->Serialize
 
 
 }
@@ -217,7 +222,7 @@ void Editor::SaveScene(std::string const& path)
 	{
 		if (m_sceneRoot)
 		{
-			SerializeObject::Save(path, m_sceneRoot);
+			EditorSerializer::Save(path, m_sceneRoot);
 			m_scenePathBuffer = path;
 			std::cout << "[Editor] Scene saved: " << path << std::endl;
 		}

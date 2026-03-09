@@ -2,16 +2,13 @@
 #define __EDITOR_RAYLIB3D__H_
 
 #include <json.hpp>
+
 namespace rl
 {
 #include <raylib.h>
 #include <raymath.h>
 #include <raygizmo.h>
 }
-#include <imgui.h>
-#include <imfilebrowser.h>
-#include <rlImGui.h>
-#include <rlImGuiColors.h>
 
 #include <Node.h>
 #include <Define.h>
