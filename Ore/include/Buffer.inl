@@ -1,4 +1,4 @@
-#include "Buffer.h" //TODO delete this line before push
+#include "Buffer.h" 
 
 #include <glad/glad.h>
 
@@ -17,9 +17,9 @@ void Buffer<T>::Bind()
 }
 
 template<typename T>
-T* Buffer<T>::Map()
+T* Buffer<T>::Map(uint32 offset, uint32 size)
 {
-    void* ptr = glMapBuffer((int)m_type, m_id);
+    void* ptr = glMapBufferRange((int)m_type, offset, size, GL_MAP_PERSISTENT_BIT|GL_MAP_COHERENT_BIT);
     return ptr;
 }
 

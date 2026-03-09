@@ -22,7 +22,7 @@ public:
     void Load() override;
     void Unload() override;
 
-    T* Map() override;
+    T* Map(uint32 offset, uint32 size) override;
     void Unmap() override;
     void Bind() override;
     void StoreData(std::vector<T> data) override;
