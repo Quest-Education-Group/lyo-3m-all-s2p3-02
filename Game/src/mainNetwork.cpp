@@ -33,9 +33,13 @@ void LaunchClient()
 	if (testClient.Init())
 	{
 		testClient.PrintSyncVar();
+		
 		std::string localIp = testClient.GetLocalIP();
+		std::string testIp = "10.10.42.254"; // <- test with someone IP
+		int testPort = 54321;
+
 		std::cout << "CLIENT IP = " << localIp << std::endl;
-		if (testClient.ConnectingTo(localIp.c_str(), 54321))
+		if (testClient.ConnectingTo(testIp.c_str(), testPort))
 		{
 			//testClient.ClientLoop();
 			if (testClient.SendMsgToServer("HI ! Im going to send you my data(client)."))
@@ -57,9 +61,10 @@ int main()
 	}
 	std::cout << "Enet Program launched.\n";
 
-	//ChooseOne
+	//---ChooseOne---
 	LaunchServer();
 	//LaunchClient();
+	//---------------
 
 	// Program END
 	atexit(enet_deinitialize);
