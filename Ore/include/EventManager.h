@@ -5,7 +5,6 @@
 #include "Window.h"
 #include <GLFW/glfw3.h>
 
-//Replace KEY_MODE_AZERTY by KEY_MODE_QWERTY
 #define KEY_MODE_AZERTY
 
 enum class GamepadId
@@ -17,30 +16,10 @@ enum class GamepadId
 
 enum class EventInput
 {
-//#ifdef KEY_MODE_AZERTY
-//    
-//    KEY_A = GLFW_KEY_Q,
-//    KEY_M = GLFW_KEY_SEMICOLON,
-//    KEY_SEMICOLON = GLFW_KEY_M,
-//    KEY_Q = GLFW_KEY_A,
-//    KEY_W = GLFW_KEY_Z,
-//    KEY_Z = GLFW_KEY_W,
-//
-//#elif defined(KEY_MODE_QWERTY)
-//    
-//    KEY_A = GLFW_KEY_A,
-//    KEY_M = GLFW_KEY_M,
-//    KEY_SEMICOLON = GLFW_KEY_SEMICOLON,
-//    KEY_Q = GLFW_KEY_Q,
-//    KEY_W = GLFW_KEY_W,
-//    KEY_Z = GLFW_KEY_Z,  
-//    
-//#endif
-
     KEY_A = GLFW_KEY_A,
-    KEY_M = GLFW_KEY_COMMA,
-    KEY_SEMICOLON = GLFW_KEY_M,
-    KEY_COMMA = GLFW_KEY_SEMICOLON,                 
+    KEY_M = GLFW_KEY_M,
+    KEY_SEMICOLON = GLFW_KEY_SEMICOLON,
+    KEY_COMMA = GLFW_KEY_COMMA,                 
     KEY_Q = GLFW_KEY_Q,
     KEY_W = GLFW_KEY_W,
     KEY_Z = GLFW_KEY_Z,  

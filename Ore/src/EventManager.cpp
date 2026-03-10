@@ -13,7 +13,6 @@ bool EventManager::GetKey(Window window, EventInput key, EventAction event)
 	if (ch != nullptr)
 	{
 		val = (int)toupper(ch[0]);
-		//Logger::Log(ch[0]);
 	}
 	else
 	{
