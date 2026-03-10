@@ -81,6 +81,8 @@ public:
 
 	virtual void OnUpdate(double delta) override;
 
+	static ISerializable* CreateInstance();
+
 private:
 	void CheckParentTransform();
 	void UpdateWorldTransform();
@@ -98,6 +100,8 @@ private:
 	bool m_worldDirty : 1 = true;
 	bool m_localDirty : 1 = true;
 };
+
+inline REGISTER_ISERIALIZABLE(Node3D, Node3D::CreateInstance);
 
 #include "Scripting/Proxies/Node3DProxy.inl"
 

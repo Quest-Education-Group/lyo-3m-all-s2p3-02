@@ -141,8 +141,7 @@ void Node3D::Deserialize(SerializedObject const& datas)
 	Node::Deserialize(datas);
 }
 
-
-std::function<ISerializable* ()> Node3D::CreateInstance()
+ISerializable* Node3D::CreateInstance()
 {
-	return []()->ISerializable* { return CreateNode<Node3D>("Node3D").release(); };
+	return CreateNode<Node3D>("Node3D").release();
 }
