@@ -6,7 +6,7 @@
 
 #include <glad/glad.h>
 
-class VertexArrayObject : public IVertexArrayObject 
+class VertexArrayObject final : public IVertexArrayObject 
 {
 public:
     VertexArrayObject(uint32 id);

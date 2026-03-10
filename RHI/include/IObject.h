@@ -9,9 +9,6 @@ public:
     virtual ~IObject() = 0;
 
     virtual void Bind() = 0;
-    
-    virtual void Load() = 0;
-    virtual void Unload() = 0;
 };
 
 #endif //!RHI_IOBJECT__H_

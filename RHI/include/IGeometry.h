@@ -11,8 +11,8 @@ class IGeometry
 public:
     virtual ~IGeometry() = 0;
 
-    virtual void AddPoints(std::vector<float> points) = 0;
-    virtual void AddIndices(std::vector<uint32> indices) = 0;
+    virtual void AddPoints(std::vector<float> const& points) = 0;
+    virtual void AddIndices(std::vector<uint32> const& indices) = 0;
 
     GeometryID Load();
     void Unload();
