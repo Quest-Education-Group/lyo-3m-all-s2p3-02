@@ -9,10 +9,14 @@
 #include "Scripting/Lua/LuaScriptInstance.hpp"
 
 #include <memory>
+#include <reactphysics3d/reactphysics3d.h>
 #include "raylib.h"
 #include "Transform3D.h"
 #include "Nodes/Node3D.h"
+#include "Clock.hpp"
+#include <Debug.h>
 
+namespace rp = reactphysics3d;
 
 int main()
 {
@@ -64,6 +68,26 @@ int main()
 	EnableCursor();
 	//--------------------------------------------------------------------------------------
 
+	// PHYSICS
+
+	rp::PhysicsCommon physicsCommon;
+
+	// Create the world settings
+	rp::PhysicsWorld::WorldSettings settings;
+	settings.defaultVelocitySolverNbIterations = 15;
+	settings.defaultPositionSolverNbIterations = 10;
+	settings.isSleepingEnabled = true;
+	settings.gravity = rp::Vector3(0, -9.81, 0);
+	// Create a physics world
+	rp::PhysicsWorld* world = physicsCommon.createPhysicsWorld();
+
+	rp::RigidBody* body = world->createRigidBody(*cube1.get());
+
+	//--------------------------------------------------------------------------------------
+
+
+	const rp::decimal timeStep = 1.0f / 60.0f;
+
 	// Main game loop
 	while (!WindowShouldClose())        // Detect window close button or ESC key
 	{
@@ -73,10 +97,14 @@ int main()
 		// move cube
 		if (IsKeyDown(KEY_I))
 			cube2ref.SetWorldPosition(cube2ref.GetWorldPosition() + glm::vec3(0.0f, 0.0f, -0.5f));
-		if (IsKeyDown(KEY_K)) cube1ref.AddPosition({ 0.0, 0.0, -1.0 });
-		if (IsKeyDown(KEY_J)) cube1ref.AddPosition({ -1.0, 0.0, 0.0 });
-		if (IsKeyDown(KEY_L)) cube1ref.AddPosition({ 1.0, 0.0, 0.0 });
-		if (IsKeyDown(KEY_G)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
+		//if (IsKeyDown(KEY_K)) cube1ref.AddPosition({ 0.0, 0.0, -1.0 });
+		//if (IsKeyDown(KEY_J)) cube1ref.AddPosition({ -1.0, 0.0, 0.0 });
+		//if (IsKeyDown(KEY_L)) cube1ref.AddPosition({ 1.0, 0.0, 0.0 });
+		//if (IsKeyDown(KEY_G)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
+		if (IsKeyDown(KEY_K)) body->applyLocalForceAtLocalPosition({ 0,0,50 }, { 0,0,0.5 });
+		//if (IsKeyDown(KEY_J)) cube1ref.AddPosition({ -1.0, 0.0, 0.0 });
+		//if (IsKeyDown(KEY_L)) cube1ref.AddPosition({ 1.0, 0.0, 0.0 });
+		//if (IsKeyDown(KEY_G)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
 
 		if (IsKeyDown(KEY_RIGHT)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
 		if (IsKeyDown(KEY_UP)) cube2ref.AddRoll(0.2);
@@ -90,14 +118,19 @@ int main()
 
 		if (IsKeyPressed(KEY_Y))
 		{
-			cube4ref.Reparent(cube1ref.GetChild(0));
+			//cube4ref.Reparent(cube1ref.GetChild(0));
+			auto newCube = Node::CreateNode<Node3D>("newCube");
+
 		}
 
 		// Update
 		//----------------------------------------------------------------------------------
 		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 			UpdateCamera(&camera, CAMERA_FREE);
-
+		auto& pos = body->getTransform().getPosition();
+		auto& rot = body->getTransform().getOrientation();
+		cube1->SetWorldPosition({ pos.x,pos.y,pos.z });
+		cube1->SetWorldRotation({ rot.x,rot.y,rot.z });
 		cube1->Update(0.016f);
 
 
@@ -111,12 +144,15 @@ int main()
 
 		BeginMode3D(camera);
 
+
+		world->update(timeStep);
+
+
 		glm::mat4 m1 = cube1->GetWorldMatrix();
 		glm::mat4 m2 = cube2ref.GetWorldMatrix();
 		glm::mat4 m3 = cube3ref.GetWorldMatrix();
 		glm::mat4 m4 = cube4ref.GetWorldMatrix();
 
-		//DEBUG(m4[0][])
 
 		Matrix rlMat1 = {
 			m1[0][0], m1[1][0], m1[2][0], m1[3][0],
@@ -158,6 +194,7 @@ int main()
 		cubeMaterial.maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
 		DrawMesh(cubeMesh, cubeMaterial, rlMat4);
 
+
 		DrawGrid(10, 1.0f);
 
 		EndMode3D();
@@ -173,4 +210,47 @@ int main()
 	//--------------------------------------------------------------------------------------
 	CloseWindow();        // Close window and OpenGL context
 	//--------------------------------------------------------------------------------------
+
+
+
+	//// Create a rigid body in the world
+	//rp::Vector3 position(0, 20, 0);
+
+	//cube1.get()->SetPosition({ 0, 20, 0 }); cube1.get()->Update(0);
+
+	//rp::Quaternion orientation = rp::Quaternion::identity();
+	//rp::Transform transform(*cube1.get());
+	////rp::Transform transform(position, orientation);
+	//rp::RigidBody* body = world->createRigidBody(*cube1.get());
+
+	//// Step the simulation a few steps
+	//for (int i = 0; i < 20; i++) {
+
+	//	world->update(timeStep);
+
+	//	// Get the updated position of the body
+	//	const rp::Transform& transform = body->getTransform();
+	//	const rp::Vector3& position = transform.getPosition();
+
+	//	// Display the position of the body
+	//	std::cout << "Body Position: (" << position.x << ", " <<
+	//		position.y << ", " << position.z << ")" << std::endl;
+	//}
+
+	//// Constant physics time step
+	//float totalTime = 10;
+
+	//// While there is enough accumulated time to take
+	//// one or several physics steps
+	//while (totalTime >= timeStep) {
+
+	//	// Update the Dynamics world with a constant time step
+
+
+	//	// Decrease the accumulated time
+	//	totalTime -= timeStep;	
+	//}
+
+	physicsCommon.destroyPhysicsWorld(world);
+
 }

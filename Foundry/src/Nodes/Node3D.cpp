@@ -5,7 +5,7 @@
 #include <glm/detail/type_quat.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-Node3D::Node3D(std::string const& name) : Node(name), m_isParentNode3D(false)
+Node3D::Node3D(std::string const& name) : Node(name), m_isParentNode3D(false), m_rigidBody()
 {
 	OnParentChange.Subscribe([&](Node& n) { CheckParentTransform(); });
 	UpdateWorldTransform();
@@ -129,4 +129,13 @@ void Node3D::SetWorldRotation(glm::vec3 const& worldRot)
 	m_worldRotation = glm::quat(worldRot);
 	m_worldDirty = true;
 	UpdateLocalTransform();
+}
+
+Node3D::operator reactphysics3d::Transform()
+{
+	reactphysics3d::Transform reactTr;
+	reactTr.setPosition({ m_worldPosition.x, m_worldPosition.y, m_worldPosition.z });
+	reactTr.setOrientation({ m_worldRotation.x, m_worldRotation.y, m_worldRotation.z, m_worldRotation.w });
+
+	return reactTr;
 }

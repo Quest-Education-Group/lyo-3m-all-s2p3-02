@@ -7,6 +7,9 @@
 /*
 Base class of every 3D object
 */
+#include <reactphysics3d/reactphysics3d.h>
+
+namespace rp = reactphysics3d;
 
 class Node3D : public Node
 {
@@ -75,6 +78,8 @@ public:
 
 	virtual void OnUpdate(double delta) override;
 
+	operator reactphysics3d::Transform();
+
 private:
 	void CheckParentTransform();
 	void UpdateWorldTransform();
@@ -82,6 +87,8 @@ private:
 
 private:
 	Transform3D m_transform;
+
+	rp::RigidBody m_rigidBody;
 
 	glm::mat4x4 m_worldTransform{ 1.0f };
 	glm::vec4 m_worldPosition{0.0f, 0.0f, 0.0f, 1.0f};
