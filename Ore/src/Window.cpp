@@ -1,9 +1,9 @@
 #include "Window.h"
 #include "Logger.hpp"
 #include "Define.h"
-
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "EventManager.h"
+
 
 std::unordered_map<GLFWwindow*, Window*> Window::s_windows = {};
 Window::Window(int width, int height, std::string name, bool enableTransparency)
@@ -54,6 +54,7 @@ void Window::Open()
 	glfwMakeContextCurrent(m_pWindow);
 
 	glfwSetFramebufferSizeCallback(m_pWindow, Window::FrameBufferResizeCallback);
+    glfwSetJoystickCallback(EventManager::JoystickCallback);
 
     s_windows[m_pWindow] = this;
 	onOpenEvent();
