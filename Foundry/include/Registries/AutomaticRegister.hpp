@@ -9,18 +9,18 @@
 class ISerializable;
 
 #define REGISTER_ISERIALIZABLE(ISerializable_name, create_func) \
-    bool ISerializable_name ## _entry = AutomaticRegisterISerializable::add(#ISerializable_name, (create_func))
+    bool ISerializable_name ## _entry = AutomaticRegisterISerializable<ISerializable>::add(#ISerializable_name, (create_func))
 
-
+template <typename T>
 struct AutomaticRegisterISerializable
 {
 public:
-    typedef std::function<ISerializable* ()> FactoryFunction;
+    typedef std::function<T* ()> FactoryFunction;
     typedef std::unordered_map<std::string, FactoryFunction> FactoryMap;
 
     static bool add(const std::string& name, FactoryFunction fac) {
         auto map = getFactoryMap();
-        if (map.find(name) != map.end()) {
+        if (map.contains(name)) {
             return false;
         }
 
@@ -28,9 +28,9 @@ public:
         return true;
     }
 
-    static ISerializable* create(const std::string& name) {
+    static T* create(const std::string& name) {
         auto map = getFactoryMap();
-        if (map.find(name) == map.end()) {
+        if (!map.contains(name)) {
             return nullptr;
         }
 
