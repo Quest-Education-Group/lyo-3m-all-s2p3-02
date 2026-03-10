@@ -58,6 +58,16 @@ void LaunchNodeServer()
 	auto serverNode = Node::CreateNode<NodeNetwork>("server");
 	serverNode->SetNetworkPort(54321);
 	serverNode->InitNetworkFor(NetworkType::SERVER);
+	serverNode->PrintNetworkInfos();
+
+}
+void LaunchNodeClient()
+{
+	auto clientNode = Node::CreateNode<NodeNetwork>("client");
+	clientNode->InitNetworkFor(NetworkType::CLIENT);
+	clientNode->PrintNetworkInfos();
+
+	clientNode->ConnectTo("10.10.42.254", 54321);
 }
 
 int main()
@@ -73,7 +83,8 @@ int main()
 	//---ChooseOne---
 	//LaunchServer();
 	//LaunchClient();
-	LaunchNodeServer();
+	//LaunchNodeServer();
+	LaunchNodeClient();
 	//---------------
 
 	// Program END

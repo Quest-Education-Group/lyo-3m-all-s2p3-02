@@ -10,12 +10,6 @@ void NodeNetwork::OnUpdate(double delta)
 	Node::OnUpdate(delta);
 }
 
-void NodeNetwork::CloseNetwork()
-{
-	m_network.Close();
-}
-
-
 void NodeNetwork::InitNetworkFor(NetworkType type) 
 {
 	switch (type)
@@ -27,11 +21,36 @@ void NodeNetwork::InitNetworkFor(NetworkType type)
 		}
 		break;
 	case NetworkType::CLIENT:
-		m_network.Init();
+		m_network.Init(false);
 		break;
 	default:
 		break;
 	}
+}
+
+void NodeNetwork::SendMsgToServer(const char* message)
+{
+	m_network.SendMsgToServer(message);
+}
+
+void NodeNetwork::SendMsgToClients(const char* message)
+{
+	m_network.SendMsgToClients(message);
+}
+
+void NodeNetwork::ConnectTo(const char* addressIP, int addressPort) 
+{
+	m_network.ConnectingTo(addressIP, addressPort);
+}
+
+void NodeNetwork::PrintNetworkInfos()
+{
+	m_network.PrinNetworkInfos();
+}
+
+void NodeNetwork::CloseNetwork()
+{
+	m_network.Close();
 }
 
 void NodeNetwork::SetNetworkPort(int const addressPORT)

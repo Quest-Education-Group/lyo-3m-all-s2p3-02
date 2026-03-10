@@ -19,10 +19,13 @@ public:
 	virtual void OnUpdate(double delta) override;
 
 	void InitNetworkFor(NetworkType type);
+	void ConnectTo(const char* addressIP, int addressPort);
 	void CloseNetwork();
+	void PrintNetworkInfos();
+	void SendMsgToServer(const char* message);
+	void SendMsgToClients(const char* message);
 
 	void SetNetworkPort(int const addressPORT);
-
 	Network& GetNetwork() { return m_network; };
 
 protected:

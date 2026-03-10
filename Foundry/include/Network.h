@@ -1,6 +1,9 @@
 #ifndef FOUNDRY_NETWORK__H_
 #define FOUNDRY_NETWORK__H_
 
+#include "Server.hpp"
+#include "Node.h"
+
 #include <enet/enet.h>
 
 #ifdef _WIN32
@@ -148,30 +151,41 @@ private:
 static const char CONCAT(__name__, __LINE__)[] = name; \
 Syncvar<type, CONCAT(__name__, __LINE__)>
 
-class Network
+template <>
+struct Command<class Network>
+{
+	enum class CmdType { FREE, ATTACH } Type;
+	std::unique_ptr<Node> Child; //The command now owns the node, it will be deleted when the command is executed
+	Node* const To = nullptr;
+};
+using CommandType = Command<Network>::CmdType;
+
+class Network //: public Server<Network>
 {
 public:
 	Network() = default;
 
-	bool Init(bool _isServer = false, int _serverPort = 0);
+	bool Init(bool isServer = false, int serverPort = 0);
 	void Close();
 
 	// Server | Host
 	void ServerLoop();
-	bool SendMsgToClients(const char* _message);
+	bool SendMsgToClients(const char* message);
 	void PrintSyncVar();
 	void SyncVarsToClients();
 
 	// Client
-	bool ConnectingTo(const char* _addressIP, int _addressPort);
+	bool ConnectingTo(const char* addressIP, int addressPort);
 	void ClientLoop();
 	void DisconnectFromServer();
 
 	bool SendMsgToServerA();
-	bool SendMsgToServer(const char* _message);
+	bool SendMsgToServer(const char* message);
 	void CommandManager(std::string command);
 	void ReceiveSyncVar(Package* package);
 	void SendSyncVar();
+
+	void PrinNetworkInfos();
 
 	std::string GetLocalIP();
 	ENetAddress GetAddress() const;

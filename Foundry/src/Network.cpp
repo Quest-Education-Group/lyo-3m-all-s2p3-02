@@ -1,15 +1,18 @@
 #include "Network.h"
 
 
-bool Network::Init(bool _isServer, int _serverPort)
+bool Network::Init(bool isServer, int serverPort)
 {
-	m_isServer = _isServer;
+	m_isServer = isServer;
 
 	if (m_isServer)
 	{
 		//server
 		m_address.host = ENET_HOST_ANY;
-		m_address.port = _serverPort;
+		if (serverPort != 0)
+		{
+			m_address.port = serverPort;
+		}
 		m_pHost = enet_host_create(&m_address, 32, 2, 0, 0);
 
 		std::cout << "Server Initialized !\n";
@@ -99,11 +102,11 @@ void Network::ServerLoop()
 	}
 }
 
-bool Network::SendMsgToClients(const char* _message)
+bool Network::SendMsgToClients(const char* message)
 {
 	for (auto Network : m_clients)
 	{
-		ENetPacket* packet = enet_packet_create(_message, strlen(_message) + 1, ENET_PACKET_FLAG_RELIABLE);
+		ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 		enet_peer_send(Network, 0, packet);
 		enet_host_flush(m_pHost);
 	}
@@ -176,10 +179,10 @@ void Network::SyncVarsToClients()
 		{
 			Package pkg{};
 
-			memset(pkg.name, 0, sizeof(pkg.name));
+			std::memset(pkg.name, 0, sizeof(pkg.name));
 			size_t nameLen = name.size();
 			if (nameLen > sizeof(pkg.name) - 1)nameLen = sizeof(pkg.name) - 1;
-			memcpy(pkg.name, name.c_str(), nameLen);
+			std::memcpy(pkg.name, name.c_str(), nameLen);
 
 			if (entry.type == SyncType::STRING)
 			{
@@ -190,7 +193,7 @@ void Network::SyncVarsToClients()
 
 				pkg.dataSize = (int)dataLen;
 				pkg.type = entry.type;
-				memcpy(pkg.data, s->c_str(), dataLen);
+				std::memcpy(pkg.data, s->c_str(), dataLen);
 			}
 			else
 			{
@@ -200,7 +203,7 @@ void Network::SyncVarsToClients()
 
 				pkg.dataSize = (int)sendSize;
 				pkg.type = entry.type;
-				memcpy(pkg.data, entry.data, sendSize);
+				std::memcpy(pkg.data, entry.data, sendSize);
 			}
 
 			for (auto Network : m_clients)
@@ -215,11 +218,13 @@ void Network::SyncVarsToClients()
 	}
 }
 
-bool Network::ConnectingTo(const char* _addressIP, int _addressPort)
+bool Network::ConnectingTo(const char* addressIP, int addressPort)
 {
+	std::cout << "Trying connection to " << addressIP << " | " << addressPort << std::endl;
+
 	ENetAddress address;
-	enet_address_set_host(&address, _addressIP);
-	address.port = _addressPort;
+	enet_address_set_host(&address, addressIP);
+	address.port = addressPort;
 
 	m_pServerConnection = enet_host_connect(m_pHost, &address, 2, 0);
 	if (!m_pServerConnection)
@@ -300,9 +305,9 @@ bool Network::SendMsgToServerA()
 	return true;
 }
 
-bool Network::SendMsgToServer(const char* _message)
+bool Network::SendMsgToServer(const char* message)
 {
-	ENetPacket* packet = enet_packet_create(_message, strlen(_message) + 1, ENET_PACKET_FLAG_RELIABLE);
+	ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(m_pServerConnection, 0, packet);
 	enet_host_flush(m_pHost);
 	return true;
@@ -347,7 +352,7 @@ void Network::ReceiveSyncVar(Package* package)
 			if (old.type == SyncType::STRING)
 				delete static_cast<std::string*>(old.data);
 			else
-				free(old.data);
+				std::free(old.data);
 		}
 
 		registry.erase(it);
@@ -374,7 +379,7 @@ void Network::ReceiveSyncVar(Package* package)
 	else
 	{
 		void* mem = malloc(entry.size ? entry.size : 1);
-		memcpy(mem, package->data, entry.size);
+		std::memcpy(mem, package->data, entry.size);
 		entry.data = mem;
 	}
 
@@ -392,10 +397,10 @@ void Network::SendSyncVar()
 	{
 		Package pkg{};
 
-		memset(pkg.name, 0, sizeof(pkg.name));
+		std::memset(pkg.name, 0, sizeof(pkg.name));
 		size_t nameLen = name.size();
 		if (nameLen > sizeof(pkg.name) - 1)nameLen = sizeof(pkg.name) - 1;
-		memcpy(pkg.name, name.c_str(), nameLen);
+		std::memcpy(pkg.name, name.c_str(), nameLen);
 
 		if (entry.type == SyncType::STRING)
 		{
@@ -406,7 +411,7 @@ void Network::SendSyncVar()
 
 			pkg.dataSize = (int)dataLen;
 			pkg.type = entry.type;
-			memcpy(pkg.data, s->c_str(), dataLen);
+			std::memcpy(pkg.data, s->c_str(), dataLen);
 		}
 		else
 		{
@@ -416,7 +421,7 @@ void Network::SendSyncVar()
 
 			pkg.dataSize = (int)sendSize;
 			pkg.type = entry.type;
-			memcpy(pkg.data, entry.data, sendSize);
+			std::memcpy(pkg.data, entry.data, sendSize);
 		}
 
 		ENetPacket* packet = enet_packet_create(&pkg, sizeof(pkg), ENET_PACKET_FLAG_RELIABLE);
@@ -425,6 +430,14 @@ void Network::SendSyncVar()
 	}
 
 	enet_host_flush(m_pHost);
+}
+
+void Network::PrinNetworkInfos()
+{
+	std::cout << "---[Network Type: " << (m_isServer ? "SERVER" : "CLIENT") << "]---" << std::endl;
+	std::cout << "PORT: " << m_address.port << std::endl;
+	std::cout << "HOST: " << m_address.host << " (0 == Listen everyone)" << std::endl;
+	std::cout << "----------------------------" << std::endl;
 }
 
 std::string Network::GetLocalIP()
