@@ -2,7 +2,7 @@
 #define FOUNDRY_NODENETWORK__H_
 
 #include "Node.h"
-#include "Network.h"
+#include "Servers/NetworkServer.h"
 
 enum class NetworkType 
 {
@@ -26,13 +26,13 @@ public:
 	void SendMsgToClients(const char* message);
 
 	void SetNetworkPort(int const addressPORT);
-	Network& GetNetwork() { return m_network; };
+	NetworkServer& GetNetwork() { return m_network; };
 
 protected:
 
 private:
 
-	Network m_network;
+	NetworkServer m_network;
 };
 
 #endif

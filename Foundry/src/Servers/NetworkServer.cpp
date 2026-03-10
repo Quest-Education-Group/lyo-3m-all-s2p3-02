@@ -1,7 +1,7 @@
-#include "Network.h"
+#include "Servers/NetworkServer.h"
+#include "Multithreading/TaskGraph.h"
 
-
-bool Network::Init(bool isServer, int serverPort)
+bool NetworkServer::Init(bool isServer, int serverPort)
 {
 	m_isServer = isServer;
 
@@ -36,7 +36,7 @@ bool Network::Init(bool isServer, int serverPort)
 	return true;
 }
 
-void Network::Close()
+void NetworkServer::Close()
 {
 	if (m_pHost != NULL)
 	{
@@ -45,7 +45,7 @@ void Network::Close()
 	}
 }
 
-void Network::ServerLoop()
+void NetworkServer::ServerLoop()
 {
 	if (m_isServer)
 	{
@@ -102,7 +102,7 @@ void Network::ServerLoop()
 	}
 }
 
-bool Network::SendMsgToClients(const char* message)
+bool NetworkServer::SendMsgToClients(const char* message)
 {
 	for (auto Network : m_clients)
 	{
@@ -115,7 +115,7 @@ bool Network::SendMsgToClients(const char* message)
 	return true;
 }
 
-void Network::PrintSyncVar()
+void NetworkServer::PrintSyncVar()
 {
 	std::cout << "---SyncVars---\n";
 
@@ -169,7 +169,7 @@ void Network::PrintSyncVar()
 	std::cout << "------------" << std::endl;
 }
 
-void Network::SyncVarsToClients()
+void NetworkServer::SyncVarsToClients()
 {
 	if (!m_clients.empty())
 	{
@@ -218,7 +218,7 @@ void Network::SyncVarsToClients()
 	}
 }
 
-bool Network::ConnectingTo(const char* addressIP, int addressPort)
+bool NetworkServer::ConnectingTo(const char* addressIP, int addressPort)
 {
 	std::cout << "Trying connection to " << addressIP << " | " << addressPort << std::endl;
 
@@ -239,7 +239,7 @@ bool Network::ConnectingTo(const char* addressIP, int addressPort)
 	return true;
 }
 
-void Network::ClientLoop()
+void NetworkServer::ClientLoop()
 {
 	ENetEvent event;
 
@@ -281,7 +281,7 @@ void Network::ClientLoop()
 
 }
 
-void Network::DisconnectFromServer()
+void NetworkServer::DisconnectFromServer()
 {
 	if (m_pServerConnection)
 	{
@@ -291,7 +291,7 @@ void Network::DisconnectFromServer()
 	}
 }
 
-bool Network::SendMsgToServerA()
+bool NetworkServer::SendMsgToServerA()
 {
 	std::cout << "Enter msg: ";
 	std::string msg;
@@ -305,7 +305,7 @@ bool Network::SendMsgToServerA()
 	return true;
 }
 
-bool Network::SendMsgToServer(const char* message)
+bool NetworkServer::SendMsgToServer(const char* message)
 {
 	ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(m_pServerConnection, 0, packet);
@@ -313,7 +313,7 @@ bool Network::SendMsgToServer(const char* message)
 	return true;
 }
 
-void Network::CommandManager(std::string command)
+void NetworkServer::CommandManager(std::string command)
 {
 	if (command[0] == '/')
 	{
@@ -332,7 +332,7 @@ void Network::CommandManager(std::string command)
 	}
 }
 
-void Network::ReceiveSyncVar(Package* package)
+void NetworkServer::ReceiveSyncVar(Package* package)
 {
 	std::cout << "Receiving syncVars..." << std::endl;
 
@@ -389,7 +389,7 @@ void Network::ReceiveSyncVar(Package* package)
 		<< " size=" << entry.size << std::endl;
 }
 
-void Network::SendSyncVar()
+void NetworkServer::SendSyncVar()
 {
 	auto& registry = SyncRegistry::Instance().Get();
 
@@ -432,7 +432,7 @@ void Network::SendSyncVar()
 	enet_host_flush(m_pHost);
 }
 
-void Network::PrinNetworkInfos()
+void NetworkServer::PrinNetworkInfos()
 {
 	std::cout << "---[Network Type: " << (m_isServer ? "SERVER" : "CLIENT") << "]---" << std::endl;
 	std::cout << "PORT: " << m_address.port << std::endl;
@@ -440,7 +440,7 @@ void Network::PrinNetworkInfos()
 	std::cout << "----------------------------" << std::endl;
 }
 
-std::string Network::GetLocalIP()
+std::string NetworkServer::GetLocalIP()
 {
 	char hostname[256];
 	gethostname(hostname, sizeof(hostname));
@@ -461,12 +461,55 @@ std::string Network::GetLocalIP()
 	return std::string(ip);
 }
 
-ENetAddress Network::GetAddress() const 
+ENetAddress NetworkServer::GetAddress() const
 {
 	return m_address;
-}
+} //toujours encapsuler ne pas garder enet comme ça
 
-void Network::NetworkSetPort(int port)
+void NetworkServer::NetworkSetPort(int port)
 {
 	m_address.port = port;
+}
+
+void NetworkServer::BuildTasksImpl(TaskGraph& graph)
+{
+	//uptr<Task> t = std::make_unique<Task>();
+	//t->TaskFunction = [this] { SendMsgToServer("test"); };
+	//t->Name = "SendMsgToServer";
+	//graph.AddTask(t);
+}
+void NetworkServer::FlushCommandsImpl()
+{
+	while (m_commands.empty() == false)
+	{
+		Command<NetworkServer>& command = m_commands.front();
+
+		switch (command.Type)
+		{
+		case CommandType::INIT:
+			Init();
+			m_commands.pop();
+			break;
+		case CommandType::CONNECTTO:
+			ConnectingTo(command.inputCharacter, command.inputInt);
+			m_commands.pop();
+			break;
+		case CommandType::SENDMSGCLIENTS:
+			SendMsgToClients(command.inputCharacter);
+			m_commands.pop();
+			break;
+		case CommandType::SENDMSGSERVER:
+			SendMsgToServer(command.inputCharacter);
+			m_commands.pop();
+			break;
+		case CommandType::PRINTINFO:
+			PrinNetworkInfos();
+			m_commands.pop();
+			break;
+		case CommandType::CLOSE:
+			Close();
+			m_commands.pop();
+			break;
+		}
+	}
 }

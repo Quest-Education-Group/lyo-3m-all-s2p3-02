@@ -1,7 +1,7 @@
 //GPC-Network.cpp :
 //To be clean, even if the p1 is the host the server part and client part are separated.
 
-#include "Network.h"
+#include "Servers/NetworkServer.h"
 #include "Nodes/NodeNetwork.h"
 
 void LaunchServer()
@@ -14,7 +14,7 @@ void LaunchServer()
 	SyncVar(bool, "IsDead") playerIsDead = false;
 
 	// Server INIT
-	Network testNetwork;
+	NetworkServer testNetwork;
 
 	std::string localIp = testNetwork.GetLocalIP();
 	std::cout << "SERVER IP = " << localIp << std::endl;
@@ -31,7 +31,7 @@ void LaunchServer()
 void LaunchClient()
 {
 	// Client INIT
-	Network testClient;
+	NetworkServer testClient;
 	if (testClient.Init())
 	{
 		testClient.PrintSyncVar();

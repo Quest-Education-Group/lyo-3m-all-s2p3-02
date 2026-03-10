@@ -1,5 +1,5 @@
-#ifndef FOUNDRY_NETWORK__H_
-#define FOUNDRY_NETWORK__H_
+#ifndef FOUNDRY_NETWORKSERVER__H_
+#define FOUNDRY_NETWORKSERVER__H_
 
 #include "Server.hpp"
 #include "Node.h"
@@ -26,8 +26,9 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <memory>
 
-class Network;
+class NetworkServer;
 
 enum class SyncType
 {
@@ -152,18 +153,18 @@ static const char CONCAT(__name__, __LINE__)[] = name; \
 Syncvar<type, CONCAT(__name__, __LINE__)>
 
 template <>
-struct Command<class Network>
+struct Command<class NetworkServer>
 {
-	enum class CmdType { FREE, ATTACH } Type;
-	std::unique_ptr<Node> Child; //The command now owns the node, it will be deleted when the command is executed
-	Node* const To = nullptr;
+	enum class CmdType { INIT, CONNECTTO, SENDMSGCLIENTS, SENDMSGSERVER, PRINTINFO, CLOSE } Type;
+	const char* inputCharacter;
+	int inputInt;
 };
-using CommandType = Command<Network>::CmdType;
+using CommandType = Command<NetworkServer>::CmdType;
 
-class Network //: public Server<Network>
+class NetworkServer : public Server<NetworkServer>
 {
 public:
-	Network() = default;
+	NetworkServer() = default;
 
 	bool Init(bool isServer = false, int serverPort = 0);
 	void Close();
@@ -192,10 +193,9 @@ public:
 
 	void NetworkSetPort(int port);
 
-	static Network& Instance()
+	static NetworkServer& Get()
 	{
-		static Network instance;
-		return instance;
+		return Instance();
 	}
 
 protected:
@@ -208,12 +208,15 @@ private:
 	bool m_isServer = false;
 	bool m_isRunning = false;
 	bool m_isConnected = false;
+
+	void BuildTasksImpl(TaskGraph& graph) override;
+	void FlushCommandsImpl() override;
 };
 
 template <typename T, const char* Name>
 void Syncvar<T, Name>::OnChange()
 {
-	Network::Instance().SyncVarsToClients();
+	NetworkServer::Get().SyncVarsToClients();
 }
 
 #endif
