@@ -8,6 +8,7 @@
 using namespace rl;
 #include <rlImGui.h>
 #include <rlImGuiColors.h>
+#include <Nodes/Node3D.h>
 
 Editor::Editor()
 {
@@ -164,10 +165,13 @@ void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
 		std::cerr << "[Editor] Cannot create node: no scene root" << std::endl;
 		return;
 	}
-	std::string typefi = "class " + type;
-	ISerializable* outObject = ISerializable::s_constructors[typefi]();
+
+	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(type);
 	uptr<Node> newNode = uptr<Node>(static_cast<Node*>(outObject));
 	newNode.get()->SetName(name);
+	SerializedObject obj;
+	newNode.get()->Serialize(obj);
+
 	m_editorRaylib.AddDrawableObject(name, newNode.get());
 
 	if (parent)

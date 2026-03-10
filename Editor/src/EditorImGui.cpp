@@ -13,7 +13,7 @@ void EditorImGui::Init()
 {
 	//Node Tree For Available Nodes
 	m_newNodeTypeSelector = Node::CreateNode<Node>("Node");
-	m_newNodeTypeSelector.get()->AddChild(Node::CreateNode<Node>("Node3DTest"));
+	m_newNodeTypeSelector.get()->AddChild(Node::CreateNode<Node>("Node3D"));
 	
 	ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
 
@@ -96,7 +96,8 @@ void EditorImGui::DrawInspectorPanel()
 		ImGui::Text("Name :");
 
 		ImGui::SameLine();
-		if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
+		ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer), 32);
+		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
 			m_selectedNode->SetName(nameBuffer);
 			std::cout << "[EditorImGui] Node renamed to: " << nameBuffer << std::endl;

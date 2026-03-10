@@ -1,5 +1,5 @@
 #include "EditorRaylib3D.h"
-
+#include <Nodes/Node3D.h>
 
 EditorRaylib3D::EditorRaylib3D(){}
 EditorRaylib3D::~EditorRaylib3D(){}
@@ -32,7 +32,7 @@ void EditorRaylib3D::Update(float deltaTime)
 
 void EditorRaylib3D::AddDrawableObject(std::string const& name, Node* pNode)
 {
-	if (dynamic_cast<Node*>(pNode) != nullptr) // TestTemp
+	if (dynamic_cast<Node3D*>(pNode) != nullptr) // TestTemp
 	{
 		Instanciate3DMesh(name, pNode);
 	}
