@@ -7,7 +7,8 @@ Buffer<T>::Buffer(std::vector<T> const& data, uint32 id, BufferType type, bool i
 {
     m_id = id;
     m_type = type;    
-    StoreData(data, isDataPersistant);
+    isDataPersistant ? m_dataPersistanceFlag = GL_MAP_PERSISTENT_BIT|GL_MAP_COHERENT_BIT : m_dataPersistanceFlag = GL_DYNAMIC_STORAGE_BIT;
+    StoreData(data);
 }
 
 template <typename T>
@@ -19,7 +20,7 @@ void Buffer<T>::Bind()
 template<typename T>
 T* Buffer<T>::Map(uint32 offset, uint32 size)
 {
-    void* ptr = glMapBufferRange((int)m_type, offset, size, GL_MAP_PERSISTENT_BIT|GL_MAP_COHERENT_BIT);
+    void* ptr = glMapBufferRange((int)m_type, offset, size, m_dataPersistanceFlag);
     return ptr;
 }
 
@@ -30,10 +31,8 @@ void Buffer<T>::Unmap()
 }
 
 template<typename T>
-void Buffer<T>::StoreData(std::vector<T> const& data, bool isPersistant)
+void Buffer<T>::StoreData(std::vector<T> const& data)
 {
-    int flag = 0;
-    isPersistant ? flag = GL_MAP_PERSISTENT_BIT : flag = GL_MAP_COHERENT_BIT;  
-    glBufferStorage((int)m_type, sizeof(data.data()), data.data(), flag);
+    glBufferStorage((int)m_type, sizeof(data.data()), data.data(), m_dataPersistanceFlag);
 }
 

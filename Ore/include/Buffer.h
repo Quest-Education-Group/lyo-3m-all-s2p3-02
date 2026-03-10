@@ -7,10 +7,9 @@
 
 enum class BufferType
 {
-    BUFFER,  
-    BUFFER_ELEMENT,
+    BUFFER = GL_ARRAY_BUFFER, 
+    BUFFER_ELEMENT = GL_ELEMENT_ARRAY_BUFFER,
 };
-
 
 template<typename T>
 class Buffer final : public IBuffer<T>
@@ -20,17 +19,17 @@ public:
     ~Buffer() override;
 
     void Bind() override;
-    void Unload() override;
 
     T* Map(uint32 offset, uint32 size) override;
     void Unmap() override;
 
 protected:
-    void StoreData(std::vector<T> const& data, bool isPersistant) override;
+    void StoreData(std::vector<T> const& data) override;
 
 private:
     BufferType m_type;
     GLuint m_id;
+    int m_dataPersistanceFlag;
 };
 
 #include "Buffer.inl"
