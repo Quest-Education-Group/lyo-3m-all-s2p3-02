@@ -154,6 +154,8 @@ void Editor::CreateNewScene()
 {
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
 	m_editorImgui.SetSceneRoot(m_sceneRoot.get());
+	m_editorImgui.SetViewRoot(m_sceneRoot.get());
+	
 	m_scenePathBuffer = "";
 	std::cout << "[Editor] New scene created" << std::endl;
 }
@@ -169,9 +171,8 @@ void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
 	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(type);
 	uptr<Node> newNode = uptr<Node>(static_cast<Node*>(outObject));
 	newNode.get()->SetName(name);
-	SerializedObject obj;
-	newNode.get()->Serialize(obj);
 
+	
 	m_editorRaylib.AddDrawableObject(name, newNode.get());
 
 	if (parent)
@@ -206,6 +207,7 @@ void Editor::LoadScene(std::string const& path)
 	{
 		m_sceneRoot = EditorSerializer::LoadFromJson(path);
 		m_editorImgui.SetSceneRoot(m_sceneRoot.get());
+		m_editorImgui.SetViewRoot(m_sceneRoot.get());
 		m_scenePathBuffer = path;
 
 		// Update NodeList

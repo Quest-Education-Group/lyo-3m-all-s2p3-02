@@ -1,6 +1,9 @@
 #ifndef __EDITORIMGUI_H
 #define __EDITORIMGUI_H
 
+#include "InspectorNodePropreties.h"
+#include <Serialization/SerializeObject.hpp>
+
 #include <imgui.h>
 #include <imfilebrowser.h>
 
@@ -47,6 +50,7 @@ public:
 	
 	// Setter
 	void SetSceneRoot(Node* root);
+	void SetViewRoot(Node* node);
 	void SetScreenSize(int width, int height);
 	void ShowSaveAs() { m_showSaveAsPopup = true; }
 
@@ -62,7 +66,6 @@ private:
 	void DrawNodeSelector(Node& node);	
 	void DrawHierarchyNodeTree(Node& node);
 
-	void SetViewRoot(Node* node);
 	void ResetViewRoot();
 
 	void ShowCreateNodePopup();
@@ -98,6 +101,10 @@ private:
 	std::string m_scenePathBuffer;
 
 	Node* m_selectedNode = nullptr;
+
+	SerializedObject m_selectedNodeData;
+	json m_selectedNodeDataJson;
+
 	Node* m_newNodeTypeSelected = nullptr;
 
 	Node* m_sceneRoot = nullptr;
@@ -113,6 +120,7 @@ private:
 	int m_screenHeight = 900;
 
 	EditorCommand m_command;
+	InspectorNodePropreties m_Inspector;
 };
 
 #endif //__EDITORIMGUI_H

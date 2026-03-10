@@ -83,37 +83,11 @@ void EditorImGui::DrawInspectorPanel()
 
 	if (m_selectedNode)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 1.0f, 1.0f));
-		ImGui::Text("Node Properties");
-		ImGui::PopStyleColor();
-		ImGui::Separator();
 
-		// editable node name
-		char nameBuffer[128];
-		strncpy_s(nameBuffer, m_selectedNode->GetName().c_str(), sizeof(nameBuffer));
-
-		ImGui::Spacing();
-		ImGui::Text("Name :");
-
-		ImGui::SameLine();
-		ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer), 32);
-		if (ImGui::IsItemDeactivatedAfterEdit())
-		{
-			m_selectedNode->SetName(nameBuffer);
-			std::cout << "[EditorImGui] Node renamed to: " << nameBuffer << std::endl;
-		}
-
-		ImGui::Spacing();
-
-		ImGui::Text("Parent: %s",
-			m_selectedNode->GetParent()
-			? m_selectedNode->GetParent()->GetName().c_str()
-			: "None");
-
-		ImGui::Text("Children Count: %d", m_selectedNode->GetChildCount());
-
-		ImGui::Separator();
-		ImGui::Spacing();
+		m_selectedNode->Serialize(m_selectedNodeData);
+		m_selectedNodeDataJson =  m_selectedNodeData.GetJson();
+		m_Inspector.Draw(m_selectedNodeData);
+		m_selectedNode->Deserialize(m_selectedNodeData);
 
 		bool isSceneRoot = (m_selectedNode->GetParent() == nullptr);
 
