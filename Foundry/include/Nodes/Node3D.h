@@ -89,8 +89,6 @@ private:
 private:
 	Transform3D m_transform;
 
-	rp::RigidBody m_rigidBody;
-
 	glm::mat4x4 m_worldTransform{ 1.0f };
 	glm::vec4 m_worldPosition{0.0f, 0.0f, 0.0f, 1.0f};
 	glm::vec4 m_worldScale{ 1.0f };

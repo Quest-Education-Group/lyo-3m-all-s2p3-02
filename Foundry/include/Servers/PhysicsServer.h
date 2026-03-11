@@ -13,27 +13,37 @@ namespace rp = reactphysics3d;
 template <>
 struct Command<class PhysicsServer>
 {
-    enum class CmdType { APPLYFORCE, ATTACH } Type;
+    enum class CmdType { CREATERIGIDBODY, APPLYFORCE } Type;
 
-
+    Node* const To = nullptr;
 
 };
 
-using CommandType = Command<EngineServer>::CmdType;
+using CommandTyp = Command<PhysicsServer>::CmdType;
 
 class PhysicsServer : public Server<PhysicsServer>
 {
 public:
 
+    PhysicsServer();
+    ~PhysicsServer();
+
+    static void Init();
+
+    static rp::RigidBody* CreateRigidBody(const rp::Transform& transform, Node* const To);
+
+    static rp::PhysicsCommon& GetPhysicsCommon() { return m_physicsCommon; }
+    static rp::PhysicsWorld& GetPhysicsWorld() { return *m_pWorld; }
 
 private:
     void FlushCommandsImpl() override;
-    void BuildTasksImpl(TaskGraph& graph) override;
+    void BuildTasksImpl(TaskGraph& graph) override {};
     void OnInitialize() override {}
+    
 
 private:    
-    rp::PhysicsCommon physicsCommon;
-    rp::PhysicsWorld* world;
+    static rp::PhysicsCommon m_physicsCommon;
+    static rp::PhysicsWorld* m_pWorld;
 
 
 };

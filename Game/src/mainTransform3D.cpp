@@ -6,6 +6,7 @@
 #include "Define.h"
 #include "Node.h"
 #include "Servers/EngineServer.h"
+#include "Servers/PhysicsServer.h"
 #include "Scripting/Lua/LuaScriptInstance.hpp"
 
 #include <memory>
@@ -13,6 +14,7 @@
 #include "raylib.h"
 #include "Transform3D.h"
 #include "Nodes/Node3D.h"
+#include "Nodes/NodeRigidBody.h"
 #include "Clock.hpp"
 #include <Debug.h>
 
@@ -39,28 +41,48 @@ int main()
 	Mesh cubeMesh = GenMeshCube(1.0f, 1.0f, 1.0f);
 	Material cubeMaterial = LoadMaterialDefault();
 
+	PhysicsServer::Init();
+
 	auto cube1 = Node::CreateNode<Node3D>("a");
+	auto rigidBody1 = Node::CreateNode<NodeRigidBody>("aRB");
+	cube1->SetPosition({ 0.0,5.0,0.0});
+
 	auto cube2 = Node::CreateNode<Node3D>("b");
-	auto cube3 = Node::CreateNode<Node3D>("c");
-	auto cube4 = Node::CreateNode<Node3D>("y");
+	cube2->SetPosition({ 0.0,0.0,0.0});
+	//cube2->SetScale({ 10.0,1.0,10.0});
+	auto rigidBody2 = Node::CreateNode<NodeRigidBody>("bRB");
 
-	cube2->SetPosition({ 1.0,0.0,0.0});
-	cube3->SetPosition({ 2.0,0.0,0.0});
-	cube4->SetPosition({ 1.0,0.0,0.0});
+	cube1->Update(0.016f);
+	cube2->Update(0.016f);
 
-	cube2->SetScale({ 1.0,4.0,1.0});
+	rigidBody1->Init(cube1.get());
+	rigidBody1->AddBoxCollider({ 3.0,3.0,3.0 });
+	rigidBody2->Init(cube2.get());
+	//rigidBody2->AddBoxCollider({ 10.0,1.0,10.0 });
+	rigidBody2->AddBoxCollider({ 3.0,3.0,3.0 });
 
-	cube1->AddChild(std::move(cube2));
-	cube1->AddChild(std::move(cube3));
+	//rigidBody2->GetRigidBody().setTransform(*cube2.get());
+	//auto tr = rigidBody2.get()->GetRigidBody().getTransform();
+	rigidBody1->GetRigidBody().enableGravity(false);
+	rigidBody2->GetRigidBody().enableGravity(false);
 
-	EngineServer::FlushCommands();
+	rigidBody1->GetRigidBody().setType(rp::BodyType::DYNAMIC);
+	rigidBody1->GetRigidBody().getCollider(0)->setIsSimulationCollider(true);
+	rigidBody2->GetRigidBody().setType(rp::BodyType::STATIC);
+	rigidBody2->GetRigidBody().getCollider(0)->setIsSimulationCollider(true);
+
+
+	//EngineServer::FlushCommands();
+
+
 	Node3D& cube1ref = *cube1.get();
-	Node3D& cube2ref =  static_cast<Node3D&>(cube1->GetChild(0));
-	Node3D& cube3ref =  static_cast<Node3D&>(cube1->GetChild(1));
+	Node3D& cube2ref = *cube2.get();
+	// Add children
+	//EngineServer::FlushCommands();
 
-	cube3ref.AddChild(std::move(cube4));
-	EngineServer::FlushCommands();
-	Node3D& cube4ref =  static_cast<Node3D&>(cube3ref.GetChild(0));
+
+
+	//PhysicsServer::FlushCommands();
 
 	DisableCursor();                    // Limit cursor to relative movement inside the window
 
@@ -70,18 +92,18 @@ int main()
 
 	// PHYSICS
 
-	rp::PhysicsCommon physicsCommon;
+	//rp::PhysicsCommon physicsCommon;
 
-	// Create the world settings
-	rp::PhysicsWorld::WorldSettings settings;
-	settings.defaultVelocitySolverNbIterations = 15;
-	settings.defaultPositionSolverNbIterations = 10;
-	settings.isSleepingEnabled = true;
-	settings.gravity = rp::Vector3(0, -9.81, 0);
-	// Create a physics world
-	rp::PhysicsWorld* world = physicsCommon.createPhysicsWorld();
+	//// Create the world settings
+	//rp::PhysicsWorld::WorldSettings settings;
+	//settings.defaultVelocitySolverNbIterations = 15;
+	//settings.defaultPositionSolverNbIterations = 10;
+	//settings.isSleepingEnabled = true;
+	//settings.gravity = rp::Vector3(0, -9.81, 0);
+	//// Create a physics world
+	//rp::PhysicsWorld* world = physicsCommon.createPhysicsWorld();
 
-	rp::RigidBody* body = world->createRigidBody(*cube1.get());
+	//rp::RigidBody* body = world->createRigidBody(*cube1.get());
 
 	//--------------------------------------------------------------------------------------
 
@@ -95,16 +117,19 @@ int main()
 		if (IsKeyPressed(KEY_Z)) camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
 
 		// move cube
-		if (IsKeyDown(KEY_I))
-			cube2ref.SetWorldPosition(cube2ref.GetWorldPosition() + glm::vec3(0.0f, 0.0f, -0.5f));
+		//if (IsKeyDown(KEY_I))
+		//	cube2ref.SetWorldPosition(cube2ref.GetWorldPosition() + glm::vec3(0.0f, 0.0f, -0.5f));
 		//if (IsKeyDown(KEY_K)) cube1ref.AddPosition({ 0.0, 0.0, -1.0 });
 		//if (IsKeyDown(KEY_J)) cube1ref.AddPosition({ -1.0, 0.0, 0.0 });
 		//if (IsKeyDown(KEY_L)) cube1ref.AddPosition({ 1.0, 0.0, 0.0 });
 		//if (IsKeyDown(KEY_G)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
-		if (IsKeyDown(KEY_K)) body->applyLocalForceAtLocalPosition({ 0,0,50 }, { 0,0,0.5 });
-		//if (IsKeyDown(KEY_J)) cube1ref.AddPosition({ -1.0, 0.0, 0.0 });
-		//if (IsKeyDown(KEY_L)) cube1ref.AddPosition({ 1.0, 0.0, 0.0 });
-		//if (IsKeyDown(KEY_G)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
+
+		if (IsKeyDown(KEY_U)) rigidBody1->GetRigidBody().applyLocalForceAtLocalPosition({ 0,5,0 }, { 0,0,0 });
+		if (IsKeyDown(KEY_O)) rigidBody1->GetRigidBody().applyLocalForceAtLocalPosition({ 0,-5,0 }, { 0,0,0 });
+		if (IsKeyDown(KEY_I)) rigidBody1->GetRigidBody().applyLocalForceAtLocalPosition({ 0,0,5 }, { 0,0,0 });
+		if (IsKeyDown(KEY_K)) rigidBody1->GetRigidBody().applyLocalForceAtLocalPosition({ 0,0,-5 }, { 0,0,0 });
+		if (IsKeyDown(KEY_J)) rigidBody1->GetRigidBody().applyLocalForceAtLocalPosition({ -5,0,0 }, { 0,0,0 });
+		if (IsKeyDown(KEY_L)) rigidBody1->GetRigidBody().applyLocalForceAtLocalPosition({ 5,0,0 }, { 0,0,0 });
 
 		if (IsKeyDown(KEY_RIGHT)) cube2ref.AddPosition({ 1.0, 0.0, 0.0 });
 		if (IsKeyDown(KEY_UP)) cube2ref.AddRoll(0.2);
@@ -127,11 +152,14 @@ int main()
 		//----------------------------------------------------------------------------------
 		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 			UpdateCamera(&camera, CAMERA_FREE);
-		auto& pos = body->getTransform().getPosition();
-		auto& rot = body->getTransform().getOrientation();
-		cube1->SetWorldPosition({ pos.x,pos.y,pos.z });
-		cube1->SetWorldRotation({ rot.x,rot.y,rot.z });
+
+		/*if (rigidBody2->GetRigidBody().testPointInside(Vec3(cube1->GetPosition().x, cube1->GetPosition().y, cube1->GetPosition().z)))
+			DEBUG("\nPOINT IN CUBE 2\n");*/
+
+		rigidBody1->Update(0.016f);
+		rigidBody2->Update(0.016f);
 		cube1->Update(0.016f);
+		cube2->Update(0.016f);
 
 
 		//----------------------------------------------------------------------------------
@@ -144,14 +172,14 @@ int main()
 
 		BeginMode3D(camera);
 
-
-		world->update(timeStep);
+		PhysicsServer::GetPhysicsWorld().update(timeStep);
+		//world->update(timeStep);
 
 
 		glm::mat4 m1 = cube1->GetWorldMatrix();
 		glm::mat4 m2 = cube2ref.GetWorldMatrix();
-		glm::mat4 m3 = cube3ref.GetWorldMatrix();
-		glm::mat4 m4 = cube4ref.GetWorldMatrix();
+		//glm::mat4 m3 = cube3ref.GetWorldMatrix();
+		//glm::mat4 m4 = cube4ref.GetWorldMatrix();
 
 
 		Matrix rlMat1 = {
@@ -168,19 +196,19 @@ int main()
 			m2[0][3], m2[1][3], m2[2][3], m2[3][3]
 		};
 
-		Matrix rlMat3 = {
-			m3[0][0], m3[1][0], m3[2][0], m3[3][0],
-			m3[0][1], m3[1][1], m3[2][1], m3[3][1],
-			m3[0][2], m3[1][2], m3[2][2], m3[3][2],
-			m3[0][3], m3[1][3], m3[2][3], m3[3][3]
-		};
+		//Matrix rlMat3 = {
+		//	m3[0][0], m3[1][0], m3[2][0], m3[3][0],
+		//	m3[0][1], m3[1][1], m3[2][1], m3[3][1],
+		//	m3[0][2], m3[1][2], m3[2][2], m3[3][2],
+		//	m3[0][3], m3[1][3], m3[2][3], m3[3][3]
+		//};
 
-		Matrix rlMat4 = {
-			m4[0][0], m4[1][0], m4[2][0], m4[3][0],
-			m4[0][1], m4[1][1], m4[2][1], m4[3][1],
-			m4[0][2], m4[1][2], m4[2][2], m4[3][2],
-			m4[0][3], m4[1][3], m4[2][3], m4[3][3]
-		};
+		//Matrix rlMat4 = {
+		//	m4[0][0], m4[1][0], m4[2][0], m4[3][0],
+		//	m4[0][1], m4[1][1], m4[2][1], m4[3][1],
+		//	m4[0][2], m4[1][2], m4[2][2], m4[3][2],
+		//	m4[0][3], m4[1][3], m4[2][3], m4[3][3]
+		//};
 
 		cubeMaterial.maps[MATERIAL_MAP_DIFFUSE].color = RED;
 		DrawMesh(cubeMesh, cubeMaterial, rlMat1);
@@ -188,11 +216,11 @@ int main()
 		cubeMaterial.maps[MATERIAL_MAP_DIFFUSE].color = BLUE;
 		DrawMesh(cubeMesh, cubeMaterial, rlMat2);
 
-		cubeMaterial.maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
-		DrawMesh(cubeMesh, cubeMaterial, rlMat3);
+		//cubeMaterial.maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
+		//DrawMesh(cubeMesh, cubeMaterial, rlMat3);
 
-		cubeMaterial.maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
-		DrawMesh(cubeMesh, cubeMaterial, rlMat4);
+		//cubeMaterial.maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
+		//DrawMesh(cubeMesh, cubeMaterial, rlMat4);
 
 
 		DrawGrid(10, 1.0f);
@@ -212,45 +240,5 @@ int main()
 	//--------------------------------------------------------------------------------------
 
 
-
-	//// Create a rigid body in the world
-	//rp::Vector3 position(0, 20, 0);
-
-	//cube1.get()->SetPosition({ 0, 20, 0 }); cube1.get()->Update(0);
-
-	//rp::Quaternion orientation = rp::Quaternion::identity();
-	//rp::Transform transform(*cube1.get());
-	////rp::Transform transform(position, orientation);
-	//rp::RigidBody* body = world->createRigidBody(*cube1.get());
-
-	//// Step the simulation a few steps
-	//for (int i = 0; i < 20; i++) {
-
-	//	world->update(timeStep);
-
-	//	// Get the updated position of the body
-	//	const rp::Transform& transform = body->getTransform();
-	//	const rp::Vector3& position = transform.getPosition();
-
-	//	// Display the position of the body
-	//	std::cout << "Body Position: (" << position.x << ", " <<
-	//		position.y << ", " << position.z << ")" << std::endl;
-	//}
-
-	//// Constant physics time step
-	//float totalTime = 10;
-
-	//// While there is enough accumulated time to take
-	//// one or several physics steps
-	//while (totalTime >= timeStep) {
-
-	//	// Update the Dynamics world with a constant time step
-
-
-	//	// Decrease the accumulated time
-	//	totalTime -= timeStep;	
-	//}
-
-	physicsCommon.destroyPhysicsWorld(world);
 
 }

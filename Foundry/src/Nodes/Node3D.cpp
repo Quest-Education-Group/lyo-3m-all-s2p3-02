@@ -5,10 +5,11 @@
 #include <glm/detail/type_quat.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-Node3D::Node3D(std::string const& name) : Node(name), m_isParentNode3D(false), m_rigidBody()
+Node3D::Node3D(std::string const& name) : Node(name), m_isParentNode3D(false)
 {
 	OnParentChange.Subscribe([&](Node& n) { CheckParentTransform(); });
 	UpdateWorldTransform();
+	
 }
 
 void Node3D::OnUpdate(double delta)
@@ -92,6 +93,7 @@ void Node3D::UpdateLocalTransform()
 	m_worldDirty = false;
 }
 
+
 glm::mat4x4 const& Node3D::GetWorldMatrix() const
 {
 	return m_worldTransform;
@@ -138,6 +140,7 @@ Node3D::operator reactphysics3d::Transform()
 	reactTr.setOrientation({ m_worldRotation.x, m_worldRotation.y, m_worldRotation.z, m_worldRotation.w });
 
 	return reactTr;
+}
 ISerializable* Node3D::CreateInstance()
 {
 	return CreateNode<Node3D>("Node3D").release();
