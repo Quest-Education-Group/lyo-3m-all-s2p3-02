@@ -16,7 +16,7 @@ Node2D::Node2D(
 		_statism),
 	m_worldScale(),
 	m_worldPosition(),
-	m_worldRotation(),
+	m_worldRotationAngle(),
 	m_worldTransform(),
 	m_isParentNode2D(false)
 {}
@@ -26,7 +26,7 @@ Node2D::Node2D(Transform2D _transform) :
 	m_transform(_transform), 
 	m_worldScale(),
 	m_worldPosition(),
-	m_worldRotation(),
+	m_worldRotationAngle(),
 	m_worldTransform(),
 	m_isParentNode2D(false)
 {}
@@ -136,7 +136,7 @@ void Node2D::UpdateLocal()
 	{
 		m_transform.SetPosition(m_worldPosition);
 		m_transform.SetScale(m_worldScale);
-		m_transform.SetRotation(m_worldRotation.x, m_worldRotation.y);
+		m_transform.SetRotation(m_worldRotationAngle);
 		m_worldDirty = false;
 		return;
 	}
@@ -161,7 +161,7 @@ void Node2D::UpdateLocal()
 	rotation[2][1] = localMatrix[2][1] / scaleY;
 
 	glm::vec3 eulerAngles = glm::eulerAngles(glm::toQuat(rotation));
-	m_transform.SetRotation(eulerAngles.x, 0.0f);
+	m_transform.SetRotation(eulerAngles.x);
 
 	m_worldDirty = false;
 }
@@ -189,10 +189,10 @@ void Node2D::UpdateWorld()
 
 	if (m_isParentNode2D == false)
 	{
-		m_worldPosition  = glm::vec3(m_transform.GetPosition(), 1.0f);
-		m_worldRotation  = glm::vec3(m_transform.GetRotation(), 1.0f);
-		m_worldScale	 = glm::vec3(m_transform.GetScale(), 1.0f);
-		m_worldTransform = m_transform.GetTransformationMatrix();
+		m_worldPosition		 = glm::vec3(m_transform.GetPosition(), 1.0f);
+		m_worldRotationAngle = m_transform.GetRotation();
+		m_worldScale		 = glm::vec3(m_transform.GetScale(), 1.0f);
+		m_worldTransform	 = m_transform.GetTransformationMatrix();
 		return;
 	}
 
@@ -223,9 +223,9 @@ void Node2D::SetWorldScale(glm::vec3& _worldScale)
 	UpdateLocal();
 }
 
-void Node2D::SetWorldRotation(glm::vec3& _worldRot)
+void Node2D::SetWorldRotationAngle(float _worldRot)
 {
-	m_worldRotation = _worldRot;
+	m_worldRotationAngle = _worldRot;
 
 	UpdateLocal();
 }

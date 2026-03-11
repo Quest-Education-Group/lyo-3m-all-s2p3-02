@@ -68,9 +68,9 @@ public:
 	{
 		m_pNode2D->SetWorldScale(_scale);
 	}
-	void SetWorldRotation(glm::vec3 _rot)
+	void SetWorldRotationAngle(float _rot)
 	{
-		m_pNode2D->SetWorldRotation(_rot);
+		m_pNode2D->SetWorldRotationAngle(_rot);
 	}
 	void SetWorldPosition(glm::vec3 _pos)
 	{
@@ -103,7 +103,7 @@ BindProxy(Node2D::Proxy,
 		"UpdateWorld", BIND(UpdateWorld),
 
 		"SetWorldScale", BIND(SetWorldScale),
-		"SetWorldRotation", BIND(SetWorldRotation),
+		"SetWorldRotationAngle", BIND(SetWorldRotationAngle),
 		"SetWorldPosition", BIND(SetWorldPosition));
 );
 

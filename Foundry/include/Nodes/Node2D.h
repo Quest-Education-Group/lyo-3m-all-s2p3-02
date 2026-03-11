@@ -57,7 +57,7 @@ public:
 	void		UpdateWorld();
 
 	void		SetWorldScale(glm::vec3& _worldScale);
-	void		SetWorldRotation(glm::vec3& _worldRot);
+	void		SetWorldRotationAngle(float _worldRot);
 	void		SetWorldPosition(glm::vec3& _worldPos);
 
 	virtual void OnUpdate(double _delta) override;
@@ -69,7 +69,7 @@ private:
 	Transform2D m_transform;
 
 	glm::vec3 m_worldPosition;
-	glm::vec3 m_worldRotation;
+	float	  m_worldRotationAngle;
 	glm::vec3 m_worldScale;
 	glm::mat3 m_worldTransform;
 
