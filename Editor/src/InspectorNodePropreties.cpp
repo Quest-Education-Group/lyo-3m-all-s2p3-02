@@ -55,26 +55,29 @@ bool InspectorNodePropreties::Draw(json& publicDataJson)
 			}
 		}
 		else if (value.is_object()) {
-			if (!m_objectsStatus.contains(key)) {
-				ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(value["PRIVATE_DATAS"]["TYPE"]);
-				SerializedObject obj;
-				outObject->Serialize(obj);
-				m_objectJsonData = obj.GetJson();
-				m_objectsStatus.insert(std::pair<std::string, bool>(key, true));
-			}
-			json& publicdata = m_objectJsonData["PUBLIC_DATAS"];
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
-				| ImGuiTreeNodeFlags_SpanAvailWidth;
+			//if (!m_objectsStatus.contains(key)) {
+			//	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(value["PRIVATE_DATAS"]["TYPE"]);
+			//	SerializedObject obj;
+			//	outObject->Serialize(obj);
+			//	m_objectsJsonData[key] = obj.GetJson();
+			//	m_objectsStatus.insert(std::pair<std::string, bool>(key, true));
+			//}
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+
 			if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
 			{
 				flags |= ImGuiTreeNodeFlags_Selected;
 			}
-
 			bool objOpen = ImGui::TreeNodeEx(key.c_str(), flags);
 
-			if (objOpen) {
+			if (objOpen)
+			{
+				json& publicdata = publicDataJson[key]["PUBLIC_DATAS"];
 				wasModified = Draw(publicdata);
 				ImGui::TreePop();
+				if (wasModified == true) {
+					publicDataJson[key]["PUBLIC_DATAS"] = publicdata;
+				}
 			}
 		}
 		ImGui::PopID();

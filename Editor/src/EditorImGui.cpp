@@ -1,7 +1,10 @@
 ﻿#include "EditorImGui.h"
+#include "Editor.h"
+#include "EditorRaylib3D.h"
+
 #include <iostream>
 
-EditorImGui::EditorImGui()
+EditorImGui::EditorImGui(Editor* pEditor, EditorRaylib3D* pRaylibEditor) : m_pEditor(pEditor), m_pRaylibEditor(pRaylibEditor)
 {
 }
 
@@ -723,6 +726,8 @@ void EditorImGui::ApplyInspectorChanges()
 	
 	m_selectedNodeData.SetJson(cleanJson);
 	m_selectedNode->Deserialize(m_selectedNodeData);
+
+	m_pRaylibEditor->UpdateDrawableElement(m_selectedNode->GetName(), m_selectedNode);
 
 	std::cout << "[EditorImGui] Applied inspector changes" << std::endl;
 }

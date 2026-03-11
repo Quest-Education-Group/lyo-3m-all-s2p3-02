@@ -12,6 +12,9 @@
 
 #include <string>
 
+class Editor;
+class EditorRaylib3D;
+
 struct EditorCommand
 {
 	enum class Type
@@ -42,7 +45,7 @@ struct EditorCommand
 
 class EditorImGui {
 public:
-	EditorImGui();
+	EditorImGui(Editor* pEditor, EditorRaylib3D* pRaylibEditor);
 	~EditorImGui();
 
 	void Init();
@@ -81,7 +84,9 @@ private:
 
 	void SaveSceneNoSpecialisation();
 
-private:	
+private:
+	EditorRaylib3D* m_pRaylibEditor;
+	Editor* m_pEditor;
 	uptr<Node> m_newNodeTypeSelector = nullptr;
 
 	bool m_showCreatePopup = false;
