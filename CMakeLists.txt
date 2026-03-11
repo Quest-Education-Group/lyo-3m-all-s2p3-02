@@ -21,7 +21,6 @@ endif()
 
 include_directories("Core/")
 
-add_subdirectory(RHI)
 add_subdirectory(Ore)
 add_subdirectory(Foundry)
 add_subdirectory(testLib)
