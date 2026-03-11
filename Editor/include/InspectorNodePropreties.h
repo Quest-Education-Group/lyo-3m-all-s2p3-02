@@ -12,10 +12,17 @@ public:
     bool Draw(json& publicDataJson);
     void SetWindow(int width, int height) { m_screenWidth = width; m_screenHeight = height; }
 
+    void SetInspectedObject(json& object);
+    bool IsModified();
+
+    void Draw();
+
 private:
+    json inspectedObject;
+
     int m_screenWidth = 0;
     int m_screenHeight = 0;
-    json m_objectJsonData;
+    std::map<std::string, json> m_objectsJsonData;
     std::map<std::string, bool> m_objectsStatus;
 
 };

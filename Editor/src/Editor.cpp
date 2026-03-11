@@ -9,7 +9,7 @@
 #include <rlImGuiColors.h>
 #include <Nodes/Node3D.h>
 
-Editor::Editor()
+Editor::Editor() : m_editorRaylib() ,m_editorImgui(this,&m_editorRaylib)
 {
 }
 

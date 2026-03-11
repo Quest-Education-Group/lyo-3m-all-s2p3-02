@@ -67,19 +67,21 @@ Matrix EditorRaylib3D::FindParentWorldMatrix(Node* pNode)
 	Vector3 worldRot = { 0.0f };
 
 	pNode3DParent = dynamic_cast<Node3D*>(pNode);
+
 	while (pNode3DParent == nullptr)
 	{
 		Node* pParent = pNode->GetParent();
-
 		if (pParent == nullptr) break;
 		pNode3DParent = dynamic_cast<Node3D*>(pParent);
-		if (pNode3DParent != nullptr)
-		{
-			worldPos = { pNode3DParent->GetWorldPosition().x,pNode3DParent->GetWorldPosition().y, pNode3DParent->GetWorldPosition().z};
-			worldScale = { pNode3DParent->GetWorldScale().x,pNode3DParent->GetWorldScale().y, pNode3DParent->GetWorldScale().z };
-			worldRot = { pNode3DParent->GetWorldRotation().x,pNode3DParent->GetWorldRotation().y, pNode3DParent->GetWorldRotation().z };
-		}
 	}
+	
+	if (pNode3DParent != nullptr)
+	{
+		worldPos = { pNode3DParent->GetWorldPosition().x,pNode3DParent->GetWorldPosition().y, pNode3DParent->GetWorldPosition().z };
+		worldScale = { pNode3DParent->GetWorldScale().x,pNode3DParent->GetWorldScale().y, pNode3DParent->GetWorldScale().z };
+		worldRot = { pNode3DParent->GetWorldRotation().x,pNode3DParent->GetWorldRotation().y, pNode3DParent->GetWorldRotation().z };
+	}
+
 	return rl::MatrixMultiply(rl::MatrixRotateXYZ({ worldRot.x, worldRot.y, worldRot.z }), rl::MatrixMultiply(rl::MatrixScale(worldScale.x, worldScale.y, worldScale.z), rl::MatrixTranslate(worldPos.x, worldPos.y, worldPos.z)));
 }
 
