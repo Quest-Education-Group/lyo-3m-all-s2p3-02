@@ -21,7 +21,7 @@ template<typename T>
 T* Buffer<T>::Map(uint32 offset, uint32 size)
 {
     void* ptr = glMapBufferRange((int)m_type, offset, size, m_dataPersistanceFlag);
-    return ptr;
+    return (T*)ptr;
 }
 
 template<typename T>

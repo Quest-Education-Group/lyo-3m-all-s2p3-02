@@ -9,3 +9,4 @@ void VertexArrayObject::Bind()
 {
     glBindVertexArray(m_id);
 }
+

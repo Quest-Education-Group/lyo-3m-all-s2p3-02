@@ -15,7 +15,7 @@ public:
     virtual void Bind() = 0;
 
 protected:
-    virtual void StoreData(std::vector<T>& data) = 0;
+    virtual void StoreData(std::vector<T> const& data) = 0;
 
 };
 
