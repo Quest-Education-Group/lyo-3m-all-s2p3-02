@@ -1,15 +1,12 @@
 ﻿#include "InspectorNodePropreties.h"
+#include <Serialization/SerializeObject.hpp>
+
+#include <iostream>
 #include <imgui.h>
 
 bool InspectorNodePropreties::Draw(json& publicDataJson)
 {
 	bool wasModified = false;
-
-	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 1.0f, 1.0f));
-	ImGui::Text("Node Properties");
-	ImGui::PopStyleColor();
-	ImGui::Separator();
-
 	for (auto& [key, value] : publicDataJson.items())
 	{
 		ImGui::PushID(key.c_str());
@@ -50,14 +47,36 @@ bool InspectorNodePropreties::Draw(json& publicDataJson)
 			std::string strVal = value.get<std::string>();
 			char buffer[256];
 			strncpy_s(buffer, strVal.c_str(), sizeof(buffer));
-			
-			if (ImGui::InputText(key.c_str(), buffer, sizeof(buffer)))
+			ImGui::InputText(key.c_str(), buffer, sizeof(buffer), 32);
+			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
 				publicDataJson[key] = std::string(buffer);
 				wasModified = true;
 			}
 		}
+		else if (value.is_object()) {
+			if (!m_objectsStatus.contains(key)) {
+				ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(value["PRIVATE_DATAS"]["TYPE"]);
+				SerializedObject obj;
+				outObject->Serialize(obj);
+				m_objectJsonData = obj.GetJson();
+				m_objectsStatus.insert(std::pair<std::string, bool>(key, true));
+			}
+			json& publicdata = m_objectJsonData["PUBLIC_DATAS"];
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
+				| ImGuiTreeNodeFlags_SpanAvailWidth;
+			if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+			{
+				flags |= ImGuiTreeNodeFlags_Selected;
+			}
 
+			bool objOpen = ImGui::TreeNodeEx(key.c_str(), flags);
+
+			if (objOpen) {
+				wasModified = Draw(publicdata);
+				ImGui::TreePop();
+			}
+		}
 		ImGui::PopID();
 	}
 

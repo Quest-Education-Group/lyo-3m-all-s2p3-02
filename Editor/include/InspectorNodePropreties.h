@@ -3,6 +3,7 @@
 
 #include <string>
 #include <Serialization/json.hpp>
+#include <map>
 
 using json = nlohmann::json;
 
@@ -14,6 +15,9 @@ public:
 private:
     int m_screenWidth = 0;
     int m_screenHeight = 0;
+    json m_objectJsonData;
+    std::map<std::string, bool> m_objectsStatus;
+
 };
 
 #endif

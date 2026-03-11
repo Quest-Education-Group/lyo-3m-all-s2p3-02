@@ -154,7 +154,8 @@ void Editor::CreateNewScene()
 {
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
 	m_editorImgui.SetSceneRoot(m_sceneRoot.get());
-	m_editorImgui.SetViewRoot(m_sceneRoot.get());
+	m_editorImgui.ResetViewRoot();
+	m_editorImgui.ResetSelectedNode();
 	
 	m_scenePathBuffer = "";
 	std::cout << "[Editor] New scene created" << std::endl;
@@ -167,8 +168,8 @@ void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
 		std::cerr << "[Editor] Cannot create node: no scene root" << std::endl;
 		return;
 	}
-	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(type);
 
+	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(type);
 	uptr<Node> newNode = uptr<Node>(static_cast<Node*>(outObject));
 	newNode.get()->SetName(name);
 
@@ -207,7 +208,8 @@ void Editor::LoadScene(std::string const& path)
 	{
 		m_sceneRoot = EditorSerializer::LoadFromJson(path);
 		m_editorImgui.SetSceneRoot(m_sceneRoot.get());
-		m_editorImgui.SetViewRoot(m_sceneRoot.get());
+		m_editorImgui.ResetViewRoot();
+		m_editorImgui.ResetSelectedNode();
 		m_scenePathBuffer = path;
 
 		// Update NodeList

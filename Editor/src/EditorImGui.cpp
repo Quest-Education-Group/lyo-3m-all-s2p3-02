@@ -88,6 +88,11 @@ void EditorImGui::DrawInspectorPanel()
 			m_inspectorDirty = false;
 		}
 
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 1.0f, 1.0f));
+		ImGui::Text("Node Properties");
+		ImGui::PopStyleColor();
+		ImGui::Separator();
+
 		json& publicData = m_selectedNodeDataJson["PUBLIC_DATAS"];
 		bool wasModified = m_Inspector.Draw(publicData);
 		
@@ -324,7 +329,7 @@ void EditorImGui::DrawNodeSelector(Node& node)
 void EditorImGui::DrawHierarchyNodeTree(Node& node)
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
-		| ImGuiTreeNodeFlags_SpanAvailWidth;
+		| ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
 	if (&node == m_selectedNode)
 	{
@@ -431,6 +436,12 @@ void EditorImGui::ResetViewRoot()
 {
 	m_viewRoot = m_sceneRoot;
 	std::cout << "[EditorImGui] View root reset to scene root" << std::endl;
+}
+
+void EditorImGui::ResetSelectedNode() {
+
+	m_selectedNode = nullptr;
+	std::cout << "[EditorImGui] Selected root reset" << std::endl;
 }
 
 void EditorImGui::ShowCreateNodePopup()
@@ -655,6 +666,9 @@ void EditorImGui::SaveSceneNoSpecialisation()
 	if (m_haveFileSelected && m_scenePathBuffer.length() != 0) 
 	{
 		m_command.type = EditorCommand::Type::SAVE_SCENE;
+		if (m_scenePathBuffer.substr(m_scenePathBuffer.length() - 5) == ".json") {
+			m_scenePathBuffer = m_scenePathBuffer.substr(0, m_scenePathBuffer.length() - 5);
+		}
 		m_command.stringParam1 = m_scenePathBuffer;
 	}
 	else 
