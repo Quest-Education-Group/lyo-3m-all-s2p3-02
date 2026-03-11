@@ -129,7 +129,7 @@ private:
 	int m_screenWidth = 1900;
 	int m_screenHeight = 900;
 
-	bool m_play;
+	bool m_play = false;
 
 	EditorCommand m_command;
 	InspectorNodePropreties m_Inspector;
