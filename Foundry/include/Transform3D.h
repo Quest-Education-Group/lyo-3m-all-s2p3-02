@@ -1,13 +1,12 @@
 #ifndef FOUNDRY_TRANSFORM3D__H_
 #define FOUNDRY_TRANSFORM3D__H_
 
+#include "Serialization/ISerializable.h"
+#include "Registries/AutomaticRegister.hpp"
 
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
-
-#include <Serialization/ISerializable.h>
-#include <Registries/AutomaticRegister.hpp>
 
 /// /////////////////////////////////////////////////////////////////////////////////
 /// Classe Transform
