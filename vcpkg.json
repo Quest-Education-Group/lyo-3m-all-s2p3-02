@@ -7,7 +7,6 @@
     "glfw3",
     "raylib",
     "glm",
-    "raygizmo",
     "reactphysics3d",
     "raylib",
     "imgui"

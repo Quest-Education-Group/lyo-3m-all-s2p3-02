@@ -1,5 +1,4 @@
 #include "EditorRaylib3D.h"
-#include "raygizmo.h"
 
 #include <Nodes/Node3D.h>
 namespace rl
@@ -114,10 +113,8 @@ void EditorRaylib3D::Render()
 	{
 		DrawMesh(*it->second.get()->mesh.get(), m_defaultMaterial, it->second.get()->worldMatrix);
 		//Matrix m = it->second.get()->worldMatrix;
-
-		Transform gTransform = GizmoIdentity();
-
-		DrawGizmo3D(GIZMO_TRANSLATE, &gTransform);
+		//Transform gTransform = GizmoIdentity();
+		//DrawGizmo3D(GIZMO_TRANSLATE, &gTransform);
 	}
 
 	EndMode3D();

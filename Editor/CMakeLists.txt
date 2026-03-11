@@ -31,7 +31,7 @@ find_package(raylib CONFIG REQUIRED)
 file(GLOB_RECURSE SOURCES 
     "${PROJECT_SOURCE_DIR}/src/*.cpp" 
     "${PROJECT_BINARY_DIR}/../_deps/rlimgui-src/*.cpp" 
-    #"${PROJECT_BINARY_DIR}/../_deps/rlgizmo-src/src/*.c"
+    "${PROJECT_BINARY_DIR}/../_deps/rlgizmo-src/src/*.c"
 )
 
 
@@ -46,7 +46,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include/
         ${PROJECT_BINARY_DIR}/../_deps/rlimgui-src/
-        #${PROJECT_BINARY_DIR}/../_deps/rlgizmo-src/src/
+        ${PROJECT_BINARY_DIR}/../_deps/rlgizmo-src/src/
         ${PROJECT_BINARY_DIR}/../_deps/imgui-filebrowser-src/
 )
 
