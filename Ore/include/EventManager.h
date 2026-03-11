@@ -202,6 +202,7 @@ class EventManager
 public:
     static void GetKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void GetMouseButtonCallBack(GLFWwindow* window, int button, int action, int mods);
+    static void GetCursorPosCallBack(GLFWwindow* window, double xpos, double ypos);
 
     static bool CheckGamepad(GamepadId id);
     static void JoystickCallback(int jId, int event);
@@ -214,5 +215,6 @@ public:
 
     static Event<void(EventInput key, EventAction action)> getKey;
     static Event<void(EventInput mouse, EventAction action)> getMouse;
+    static Event<void(int32 posX, int32 posY)> getCursorPos;
 };
 #endif // !ORE_EVENT_MANAGER__H_

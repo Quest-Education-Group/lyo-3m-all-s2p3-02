@@ -25,6 +25,11 @@ void mouse(EventInput mousebutton, EventAction action)
         std::cout << "en effet cela fonctionne en effet" << std::endl;
 }
 
+void pos(int32 x, int32 y)
+{
+    std::cout << "x : " << x << std::endl << "y : "  << y << std::endl;
+}
+
 int main()
 {
 	Window window(800, 600, "ORE ORE OREORE ORE ORE OREORE OREORE");
@@ -34,6 +39,7 @@ int main()
 	//EventManager::gamepadDisconnected.Subscribe(goodbye);
     EventManager::getKey.Subscribe(key);
     EventManager::getMouse.Subscribe(mouse);
+    EventManager::getCursorPos.Subscribe(pos);
 	while (window.IsOpen())
 	{
 		//EventManager::CheckGamepad();

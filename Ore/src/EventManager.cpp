@@ -5,6 +5,7 @@ Event<void(GamepadId)> EventManager::gamepadConnected = Event<void(GamepadId)>()
 Event<void(GamepadId)> EventManager::gamepadDisconnected = Event<void(GamepadId)>();
 Event<void(EventInput key, EventAction action)> EventManager::getKey = Event<void(EventInput key, EventAction action)>();
 Event<void(EventInput mouse, EventAction action)> EventManager::getMouse = Event<void(EventInput mouse, EventAction action)>();
+Event<void(int32 posX, int32 posY)> EventManager::getCursorPos = Event<void(int32 posX, int32 posY)>();
 
 bool EventManager::CheckGamepad(GamepadId id)
 {
@@ -96,4 +97,9 @@ void EventManager::GetKeyCallback(GLFWwindow *window, int key, int scancode, int
 void EventManager::GetMouseButtonCallBack(GLFWwindow *window, int button, int action, int mods)
 {
     EventManager::getMouse((EventInput) button, (EventAction) action);
+}
+
+void EventManager::GetCursorPosCallBack(GLFWwindow *window, double xpos, double ypos)
+{
+    getCursorPos(xpos, ypos);
 }

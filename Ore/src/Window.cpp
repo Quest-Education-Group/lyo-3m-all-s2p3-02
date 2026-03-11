@@ -37,7 +37,7 @@ Window::Window(int width, int height, std::string name, bool enableTransparency)
 
 Window::~Window()
 {
-
+    Close();
 }
 
 bool Window::IsOpen()
@@ -71,6 +71,7 @@ void Window::Open()
     glfwSetJoystickCallback(EventManager::JoystickCallback);
     glfwSetKeyCallback(m_pWindow, EventManager::GetKeyCallback);
     glfwSetMouseButtonCallback(m_pWindow, EventManager::GetMouseButtonCallBack);
+    glfwSetCursorPosCallback(m_pWindow, EventManager::GetCursorPosCallBack);
 
 #ifdef DEBUG_BUILD
     glEnable(GL_DEBUG_OUTPUT);
