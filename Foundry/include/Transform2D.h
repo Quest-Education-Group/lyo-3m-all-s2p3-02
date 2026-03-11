@@ -57,8 +57,8 @@ public:
 	void		SetScale(float _width, float _height);
 	glm::vec2	GetScale() const;
 
-	void		SetRotation(float _rotX, float _rotY);
-	glm::vec2	GetRotation() const;
+	void		SetRotation(float _theta);
+	float		GetRotation() const;
 
 	void		SetPosition(glm::vec2 _pos);
 	void		SetPosition(float _x, float _y);
@@ -80,7 +80,7 @@ private:
 
 	glm::vec3 m_scale;
 	glm::vec3 m_shear;
-	glm::vec3 m_rotation;
+	float	  m_theta;
 	glm::vec3 m_position;
 	
 	glm::mat3 m_transformationMatrix;

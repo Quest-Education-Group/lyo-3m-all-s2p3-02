@@ -91,11 +91,11 @@ glm::vec2 Node2D::GetScale() const
 }
 
 
-void Node2D::SetRotation(float _x, float _y)
+void Node2D::SetRotation(float _theta)
 {
-	m_transform.SetRotation(_x, _y);
+	m_transform.SetRotation(_theta);
 }
-glm::vec2 Node2D::GetRotation() const
+float Node2D::GetRotation() const
 {
 	return m_transform.GetRotation();
 }

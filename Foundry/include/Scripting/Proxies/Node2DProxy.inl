@@ -19,11 +19,11 @@ public:
 		return m_pNode2D->GetScale(); 
 	}
 
-	void SetRotation(glm::vec2 _rot) 
+	void SetRotation(float _theta) 
 	{ 
-		m_pNode2D->SetRotation(_rot.x, _rot.y);
+		m_pNode2D->SetRotation(_theta);
 	}
-	glm::vec2 GetRotation() const 
+	float GetRotation() const 
 	{ 
 		return m_pNode2D->GetRotation();
 	}

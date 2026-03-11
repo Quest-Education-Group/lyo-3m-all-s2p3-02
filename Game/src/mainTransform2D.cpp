@@ -63,11 +63,11 @@ int main(int argc, char** argv)
 		
 		if (IsKeyDown(KEY_A))
 		{
-			parent->SetRotation(parent->GetRotation().x + 0.1f, parent->GetRotation().y);
+			parent->SetRotation(parent->GetRotation() + 0.1f);
 		}
 		if (IsKeyDown(KEY_E))
 		{
-			parent->SetRotation(parent->GetRotation().x - 0.1f, parent->GetRotation().y);
+			parent->SetRotation(parent->GetRotation() - 0.1f);
 		}
 
 		if (IsKeyDown(KEY_O))

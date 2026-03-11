@@ -41,8 +41,8 @@ public:
 	void		SetScale(float _width, float _height);
 	glm::vec2	GetScale() const;
 
-	void		SetRotation(float _x, float _y);
-	glm::vec2	GetRotation() const;
+	void		SetRotation(float _theta);
+	float		GetRotation() const;
 
 	void		SetPosition(glm::vec2 _pos);
 	void		SetPosition(float _x, float _y);
