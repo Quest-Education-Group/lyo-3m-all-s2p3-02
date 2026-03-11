@@ -1,22 +1,41 @@
 #include "Geometry.h"
-#include "Buffer.h"
 
-Geometry::Geometry(std::vector<float> const& points, std::vector<uint32> const& indices)
+Geometry::Geometry(std::vector<Vertex> const& vertices, std::vector<uint32> const& indices)
 {
-    AddPoints(points);
+    m_indiceSize = indices.size();
+    GLuint vaoId;
+    glGenVertexArrays(1, &vaoId);
+
+    m_pVao = std::make_unique<VertexArrayObject>(vaoId);
+    m_pVao->Bind();
+
+    AddPoints(vertices);
     AddIndices(indices);
+
+    Setup();    
 }
 
 Geometry::~Geometry()
 {
 }
 
-void Geometry::AddPoints(std::vector<float> const& points)
+void Geometry::Draw(sptr<Shader> shader)
+{
+   //TODO textures
+
+    m_pVao->Bind();
+    glDrawElements(GL_TRIANGLES, m_indiceSize, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+
+    glActiveTexture(GL_TEXTURE0);
+}
+
+void Geometry::AddPoints(std::vector<Vertex> const& vertices)
 {
     GLuint id;
     glGenBuffers(1, &id); 
 
-    Buffer arrayBuffer(points, id, BufferType::BUFFER, true);
+    m_pVertexBuffer = std::make_unique<Buffer<Vertex>>(vertices, id, BufferType::BUFFER, true);
 }
 
 void Geometry::AddIndices(std::vector<uint32> const& indices)
@@ -24,5 +43,19 @@ void Geometry::AddIndices(std::vector<uint32> const& indices)
     GLuint id;
     glGenBuffers(1, &id);
 
-    Buffer indexBuffer(indices, id, BufferType::BUFFER_ELEMENT, true);
+    m_pIndexBuffer = std::make_unique<Buffer<uint32>>(indices, id, BufferType::BUFFER_ELEMENT, true);
+}
+
+void Geometry::Setup()
+{
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+
+    glBindVertexArray(0);
 }

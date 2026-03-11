@@ -27,6 +27,7 @@ void GeometryPass::Execute()
         model = glm::translate(model, glm::vec3(0.0f, i, 0.0f));
         model = glm::scale(model, glm::vec3(0.25f));
         m_pShader->SetMat4("model", model);
+        m_geometries[i]->Draw(m_pShader);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
