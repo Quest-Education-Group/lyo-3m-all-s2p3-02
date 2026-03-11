@@ -8,7 +8,6 @@
 #include <Define.h>
 #include <Logger.hpp>
 #include <string>
-#include <vector>
 
 using json = nlohmann::json;
 
@@ -73,7 +72,6 @@ public:
 	void SetJson(json const& json) { m_elementsInSerializedObject = json; } // Check d'error
 
 private:
-	std::vector<std::string> m_existingNames;
 	json m_elementsInSerializedObject;
 	friend class EditorSerializer;
 };
@@ -81,60 +79,33 @@ private:
 template <typename T>
 inline void SerializedObject::AddPrivateElement(std::string variableName, T const* variableData)
 {
-	if (std::find(m_existingNames.begin(), m_existingNames.end(), variableName) != m_existingNames.end())
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Variable " + variableName + " already store in Data");
-		return;
-	}
 	m_elementsInSerializedObject["PRIVATE_DATAS"][variableName] = *variableData;
-	m_existingNames.push_back(variableName);
 }
 
 template <>
 inline void SerializedObject::AddPrivateElement<ISerializable>(std::string variableName, ISerializable const* variableData)
 {
-	if (std::find(m_existingNames.begin(), m_existingNames.end(), variableName) != m_existingNames.end())
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Variable " + variableName + " already store in Data");
-		return;
-	}
-
-
 	SerializedObject object = SerializedObject();
 	if (variableData != nullptr)
 		variableData->Serialize(object);
 
 	m_elementsInSerializedObject["PRIVATE_DATAS"][variableName] = object.m_elementsInSerializedObject;
-	m_existingNames.push_back(variableName);
 }
 
 
 template <typename T>
 inline void SerializedObject::AddPrivateElementInDictionnary(std::string disctionnaryName, std::string name, T const* element)
 {
-	if (std::find(m_existingNames.begin(), m_existingNames.end(), disctionnaryName +"d"+name) != m_existingNames.end())
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Variable " + name + " already store in Dictionnary " + disctionnaryName);
-		return;
-	}
-	
 	m_elementsInSerializedObject["PRIVATE_DATAS"][disctionnaryName][name] = *element;
-	m_existingNames.push_back(disctionnaryName+"d"+name);
 }
 template <>
 inline void SerializedObject::AddPrivateElementInDictionnary<ISerializable>(std::string disctionnaryName, std::string name, ISerializable const* variableData)
 {
-	if (std::find(m_existingNames.begin(), m_existingNames.end(), disctionnaryName + "d" + name) != m_existingNames.end())
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Variable " + name + " already store in Dictionnary " + disctionnaryName);
-		return;
-	}
 	SerializedObject object = SerializedObject();
 	if (variableData != nullptr)
 		variableData->Serialize(object);
 
 	m_elementsInSerializedObject["PRIVATE_DATAS"][disctionnaryName][name] = object.m_elementsInSerializedObject;
-	m_existingNames.push_back(disctionnaryName + "d" + name);
 }
 
 template <typename T>
@@ -219,61 +190,33 @@ inline std::vector<ISerializable*> SerializedObject::GetPrivateArray(std::string
 template <typename T>
 inline void SerializedObject::AddPublicElement(std::string variableName, T const* variableData)
 {
-	if (std::find(m_existingNames.begin(), m_existingNames.end(), variableName) != m_existingNames.end())
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Variable " + variableName + " already store in Data");
-		return;
-	}
-
 	m_elementsInSerializedObject["PUBLIC_DATAS"][variableName] = *variableData;
-	m_existingNames.push_back(variableName);
 }
 
 template <>
 inline void SerializedObject::AddPublicElement<ISerializable>(std::string variableName, ISerializable const* variableData)
 {
-	if (std::find(m_existingNames.begin(), m_existingNames.end(), variableName) != m_existingNames.end())
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Variable " + variableName + " already store in Data");
-		return;
-	}
-
 	SerializedObject object = SerializedObject();
 	if (variableData != nullptr)
 		variableData->Serialize(object);
 
 	m_elementsInSerializedObject["PUBLIC_DATAS"][variableName] = object.m_elementsInSerializedObject;
-	m_existingNames.push_back(variableName);
 }
 
 
 template <typename T>
 inline void SerializedObject::AddPublicElementInDictionnary(std::string disctionnaryName, std::string name, T const* element)
 {
-	if (std::find(m_existingNames.begin(), m_existingNames.end(), disctionnaryName +"d"+name) != m_existingNames.end())
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Variable " + name + " already store in Dictionnary " + disctionnaryName);
-		return;
-	}
-	
 	m_elementsInSerializedObject["PUBLIC_DATAS"][disctionnaryName][name] = *element;
-	m_existingNames.push_back(disctionnaryName+"d"+name);
 }
 template <>
 inline void SerializedObject::AddPublicElementInDictionnary<ISerializable>(std::string disctionnaryName, std::string name, ISerializable const* variableData)
 {
-	if (std::find(m_existingNames.begin(), m_existingNames.end(), disctionnaryName + "d" + name) != m_existingNames.end())
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Variable " + name + " already store in Dictionnary " + disctionnaryName);
-		return;
-	}
-
 	SerializedObject object = SerializedObject();
 	if (variableData != nullptr)
 		variableData->Serialize(object);
 
 	m_elementsInSerializedObject["PUBLIC_DATAS"][disctionnaryName][name] = object.m_elementsInSerializedObject;
-	m_existingNames.push_back(disctionnaryName + "d" + name);
 }
 
 template <typename T>
@@ -296,7 +239,7 @@ inline void SerializedObject::AddPublicElementInArray<ISerializable>(std::string
 template <typename T>
 inline void SerializedObject::GetPublicElement(std::string elementName, T* outVariable) const
 {
-	*outVariable = m_elementsInSerializedObject["PUBLIC_DATAS"][elementName];
+	*outVariable = m_elementsInSerializedObject["PUBLIC_DATAS"][elementName]/*["DATA"]*/;
 }
 template <>
 inline void SerializedObject::GetPublicElement<ISerializable>(std::string elementName, ISerializable* outVariable) const

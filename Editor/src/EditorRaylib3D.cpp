@@ -1,6 +1,6 @@
 #include "EditorRaylib3D.h"
+#include <Nodes/AllNodes.h>
 
-#include <Nodes/Node3D.h>
 namespace rl
 {
 #include <raymath.h>

@@ -1,4 +1,4 @@
-#include "EditorImGui.h"
+﻿#include "EditorImGui.h"
 #include <iostream>
 
 EditorImGui::EditorImGui()
@@ -73,8 +73,6 @@ void EditorImGui::Render()
 void EditorImGui::DrawInspectorPanel()
 {
 	if (!m_showInspector) return;
-
-	// Position to the right
 	float menuBarHeight = ImGui::GetFrameHeight();
 	ImGui::SetNextWindowPos(ImVec2(m_screenWidth - 400, menuBarHeight), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(400, m_screenHeight - menuBarHeight), ImGuiCond_Always);
@@ -83,37 +81,45 @@ void EditorImGui::DrawInspectorPanel()
 
 	if (m_selectedNode)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 1.0f, 1.0f));
-		ImGui::Text("Node Properties");
-		ImGui::PopStyleColor();
-		ImGui::Separator();
-
-		// editable node name
-		char nameBuffer[128];
-		strncpy_s(nameBuffer, m_selectedNode->GetName().c_str(), sizeof(nameBuffer));
-
-		ImGui::Spacing();
-		ImGui::Text("Name :");
-
-		ImGui::SameLine();
-		if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
+		if (m_selectedNode != m_lastSelectedNode)
 		{
-			m_selectedNode->SetName(nameBuffer);
-			std::cout << "[EditorImGui] Node renamed to: " << nameBuffer << std::endl;
+			LoadInspectorData();
+			m_lastSelectedNode = m_selectedNode;
+			m_inspectorDirty = false;
 		}
 
-		ImGui::Spacing();
+		json& publicData = m_selectedNodeDataJson["PUBLIC_DATAS"];
+		bool wasModified = m_Inspector.Draw(publicData);
+		
+		if (wasModified)
+		{
+			m_inspectorDirty = true;
+		}
 
-		ImGui::Text("Parent: %s",
-			m_selectedNode->GetParent()
-			? m_selectedNode->GetParent()->GetName().c_str()
-			: "None");
-
-		ImGui::Text("Children Count: %d", m_selectedNode->GetChildCount());
+		// Apply/Revert buttons if modified
+		if (m_inspectorDirty)
+		{
+			ImGui::Separator();
+			ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "* Modified");
+			
+			if (ImGui::Button("Apply", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f - 4, 0)))
+			{
+				ApplyInspectorChanges();
+				m_inspectorDirty = false;
+			}
+			
+			ImGui::SameLine();
+			
+			if (ImGui::Button("Revert", ImVec2(-1, 0)))
+			{
+				LoadInspectorData();
+				m_inspectorDirty = false;
+			}
+		}
 
 		ImGui::Separator();
-		ImGui::Spacing();
 
+		// Delete button
 		bool isSceneRoot = (m_selectedNode->GetParent() == nullptr);
 
 		if (isSceneRoot)
@@ -128,6 +134,7 @@ void EditorImGui::DrawInspectorPanel()
 				m_command.type = EditorCommand::Type::DELETE_NODE;
 				m_command.nodeParam = m_selectedNode;
 				m_selectedNode = nullptr;
+				m_lastSelectedNode = nullptr;
 			}
 		}
 
@@ -139,6 +146,7 @@ void EditorImGui::DrawInspectorPanel()
 	}
 	else
 	{
+		m_lastSelectedNode = nullptr;
 		ImGui::TextDisabled("No node selected");
 		ImGui::Spacing();
 		ImGui::TextWrapped("Select a node in the Hierarchy panel to view and edit its properties.");
@@ -671,4 +679,36 @@ void EditorImGui::NewNodeSelected(Node* node)
 	{
 		std::cout << "[EditorImGui] Node type selected: " << node->GetName() << std::endl;
 	}
+}
+
+void EditorImGui::LoadInspectorData()
+{
+	if (!m_selectedNode) return;
+
+	m_selectedNodeData = SerializedObject();
+	m_selectedNode->Serialize(m_selectedNodeData);
+	m_selectedNodeDataJson = m_selectedNodeData.GetJson();
+
+	std::cout << "[EditorImGui] Loaded inspector data for: " << m_selectedNode->GetName() << std::endl;
+}
+
+void EditorImGui::ApplyInspectorChanges()
+{
+	if (!m_selectedNode || !m_inspectorDirty) return;
+
+	m_selectedNodeData.SetJson(m_selectedNodeDataJson);
+	
+	// temporary
+	json tempJson = m_selectedNodeDataJson;
+	
+	json cleanJson;
+	cleanJson["PUBLIC_DATAS"] = tempJson["PUBLIC_DATAS"];
+	cleanJson["PRIVATE_DATAS"]["TYPE"] = tempJson["PRIVATE_DATAS"]["TYPE"];
+	cleanJson["PRIVATE_DATAS"]["Children"] = json::array(); // No child for safety, they are not handled by the inspector
+	cleanJson["PRIVATE_DATAS"]["m_pOwner"] = tempJson["PRIVATE_DATAS"]["m_pOwner"];
+	
+	m_selectedNodeData.SetJson(cleanJson);
+	m_selectedNode->Deserialize(m_selectedNodeData);
+
+	std::cout << "[EditorImGui] Applied inspector changes" << std::endl;
 }
