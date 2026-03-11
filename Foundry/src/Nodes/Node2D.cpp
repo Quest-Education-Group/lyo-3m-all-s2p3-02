@@ -90,11 +90,11 @@ glm::vec2 Node2D::GetScale() const
 }
 
 
-void Node2D::SetRotation(float _x, float _y)
+void Node2D::SetRotation(float _theta)
 {
-	m_transform.SetRotation(_x, _y);
+	m_transform.SetRotation(_theta);
 }
-glm::vec2 Node2D::GetRotation() const
+float Node2D::GetRotation() const
 {
 	return m_transform.GetRotation();
 }
@@ -147,7 +147,7 @@ void Node2D::UpdateLocal()
 	float rot = atan2(localMatrix[1][0], localMatrix[0][0]);
 
 	m_transform.SetScale(scale);
-	m_transform.SetRotation(rot, 0);
+	m_transform.SetRotation(rot);
 	m_transform.SetPosition(pos);
 }
 
@@ -180,7 +180,7 @@ void Node2D::UpdateWorld()
 	glm::vec2 localScale = m_transform.GetScale();
 	glm::vec2 localPos = m_transform.GetPosition();
 	
-	float angle = m_transform.GetRotation().x;
+	float angle = m_transform.GetRotation();
 
 	glm::mat3 S = glm::mat3(
 		localScale.x, 0, 0,

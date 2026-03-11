@@ -12,7 +12,7 @@ Transform2D::Transform2D(
 	m_isStatic(_statism),
 	m_scale({ _scaleX, _scaleY, 1.0f }),
 	m_shear({ 0.0f, 0.0f, 0.0f }),
-	m_rotation({ 0.0f,0.0f,0.0f } ),
+	m_theta(0.0f),
 	m_position(_x, _y, 0.0f),
 	m_isDirty(false)
 {
@@ -31,7 +31,7 @@ Transform2D::~Transform2D() {}
 Transform2D::Transform2D(Transform2D const& _other)
 {
 	m_scale = _other.m_scale;
-	m_rotation = _other.m_rotation;
+	m_theta = _other.m_theta;
 	m_position = _other.m_position;
 
 	m_isStatic = _other.m_isStatic;
@@ -41,7 +41,7 @@ Transform2D::Transform2D(Transform2D const& _other)
 Transform2D& Transform2D::operator=(Transform2D const& _other)
 {
 	m_scale = _other.m_scale;
-	m_rotation = _other.m_rotation;
+	m_theta = _other.m_theta;
 	m_position = _other.m_position;
 
 	m_isStatic = _other.m_isStatic;
@@ -54,7 +54,7 @@ Transform2D& Transform2D::operator=(Transform2D const& _other)
 Transform2D::Transform2D(Transform2D&& _other) noexcept
 {
 	m_scale = _other.m_scale;
-	m_rotation = _other.m_rotation;
+	m_theta = _other.m_theta;
 	m_position = _other.m_position;
 
 	m_isStatic = _other.m_isStatic;
@@ -63,7 +63,7 @@ Transform2D::Transform2D(Transform2D&& _other) noexcept
 Transform2D& Transform2D::operator=(Transform2D&& _other) noexcept
 {
 	m_scale = _other.m_scale;
-	m_rotation = _other.m_rotation;
+	m_theta = _other.m_theta;
 	m_position = _other.m_position;
 
 	m_isStatic = _other.m_isStatic;
@@ -77,7 +77,7 @@ Transform2D Transform2D::operator*(Transform2D const& _other) const
 {
 	Transform2D toReturn  = {};
 	toReturn.m_scale      = m_scale      * _other.m_scale;
-	toReturn.m_rotation   = m_rotation   * _other.m_rotation;
+	toReturn.m_theta   = m_theta   * _other.m_theta;
 	toReturn.m_position = m_position * _other.m_position;
 
 	toReturn.m_transformationMatrix = m_transformationMatrix * _other.m_transformationMatrix;
@@ -92,7 +92,7 @@ Transform2D& Transform2D::operator*=(Transform2D const& _other)
 	if (m_isStatic) return *this;
 
 	m_scale      *= _other.m_scale;
-	m_rotation   *= _other.m_rotation;
+	m_theta   *= _other.m_theta;
 	m_position *= _other.m_position;
 
 	m_transformationMatrix *= _other.m_transformationMatrix;
@@ -104,7 +104,7 @@ Transform2D Transform2D::operator+(Transform2D const& _other) const
 {
 	Transform2D toReturn  = {};
 	toReturn.m_scale      = m_scale      + _other.m_scale;
-	toReturn.m_rotation = m_rotation + _other.m_rotation;
+	toReturn.m_theta = m_theta + _other.m_theta;
 	toReturn.m_position = m_position + _other.m_position;
 
 	toReturn.m_transformationMatrix = m_transformationMatrix + _other.m_transformationMatrix;
@@ -116,7 +116,7 @@ Transform2D& Transform2D::operator+=(Transform2D const& _other)
 	if (m_isStatic) return *this;
 
 	m_scale += _other.m_scale;
-	m_rotation += _other.m_rotation;
+	m_theta += _other.m_theta;
 	m_position += _other.m_position;
 
 	m_transformationMatrix += _other.m_transformationMatrix;
@@ -129,7 +129,7 @@ Transform2D Transform2D::operator-(Transform2D const& _other) const
 	Transform2D toReturn  = {};
 
 	toReturn.m_scale = m_scale - _other.m_scale;
-	toReturn.m_rotation = m_rotation - _other.m_rotation;
+	toReturn.m_theta = m_theta - _other.m_theta;
 	toReturn.m_position = m_position - _other.m_position;
 
 	toReturn.m_transformationMatrix = m_transformationMatrix - _other.m_transformationMatrix;
@@ -141,7 +141,7 @@ Transform2D& Transform2D::operator-=(Transform2D const& _other)
 	if (m_isStatic) return *this;
 
 	m_scale -= _other.m_scale;
-	m_rotation -= _other.m_rotation;
+	m_theta -= _other.m_theta;
 	m_position -= _other.m_position;
 
 	m_transformationMatrix -= _other.m_transformationMatrix;
@@ -154,7 +154,7 @@ Transform2D Transform2D::operator/(Transform2D const& _other) const
 	Transform2D toReturn = {};
 
 	toReturn.m_scale = m_scale / _other.m_scale;
-	toReturn.m_rotation = m_rotation / _other.m_rotation;
+	toReturn.m_theta = m_theta / _other.m_theta;
 	toReturn.m_position = m_position / _other.m_position;
 
 	toReturn.m_transformationMatrix = m_transformationMatrix / _other.m_transformationMatrix;
@@ -166,7 +166,7 @@ Transform2D& Transform2D::operator/=(Transform2D const& _other)
 	if (m_isStatic) return *this;
 
 	m_scale /= _other.m_scale;
-	m_rotation /= _other.m_rotation;
+	m_theta /= _other.m_theta;
 	m_position /= _other.m_position;
 
 	m_transformationMatrix /= _other.m_transformationMatrix;
@@ -233,19 +233,17 @@ glm::vec2 Transform2D::GetScale() const
 	return { m_scale.x, m_scale.y };
 }
 
-void Transform2D::SetRotation(float _rotX, float _rotY)
+void Transform2D::SetRotation(float _theta)
 {
 	if (m_isStatic) return;
 
-	m_rotation.x = _rotX;
-	m_rotation.y = _rotY;
-	m_rotation.z = 1.0f;
+	m_theta = _theta;
 
 	m_isDirty = true;
 }
-glm::vec2 Transform2D::GetRotation() const
+float Transform2D::GetRotation() const
 {
-	return { m_rotation.x, m_rotation.y };
+	return m_theta;
 }
 
 void Transform2D::SetPosition(float _u, float _v)
@@ -311,8 +309,8 @@ void Transform2D::Update()
 	);
 
 	glm::mat3 R = glm::mat3(
-		cos(m_rotation.x), sin(m_rotation.x), 0,
-		-sin(m_rotation.x), cos(m_rotation.x), 0,
+		cos(m_theta), sin(m_theta), 0,
+		-sin(m_theta), cos(m_theta), 0,
 		0, 0, 1
 	);
 
