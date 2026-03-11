@@ -24,8 +24,8 @@ void EditorImGui::Init()
 	ImGui::FileBrowser LoadBrowseWindow(ImGuiFileBrowserFlags_ConfirmOnEnter);
 	m_saveBrowser = SaveBrowseWindow;
 	m_loadBrowser = LoadBrowseWindow;
-	m_saveBrowser.SetDirectory("res");
-	m_loadBrowser.SetDirectory("res");
+	m_saveBrowser.SetDirectory("../Game/res");
+	m_loadBrowser.SetDirectory("../Game/res");
 }
 
 void EditorImGui::SetSceneRoot(Node* root)
@@ -102,28 +102,14 @@ void EditorImGui::DrawInspectorPanel()
 		if (wasModified)
 		{
 			m_inspectorDirty = true;
+			ApplyInspectorChanges();
 		}
 
-		// Apply/Revert buttons if modified
-		if (m_inspectorDirty)
-		{
-			ImGui::Separator();
-			ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "* Modified");
-			
-			if (ImGui::Button("Apply", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f - 4, 0)))
-			{
-				ApplyInspectorChanges();
-				m_inspectorDirty = false;
-			}
-			
-			ImGui::SameLine();
-			
-			if (ImGui::Button("Revert", ImVec2(-1, 0)))
-			{
-				LoadInspectorData();
-				m_inspectorDirty = false;
-			}
-		}
+		//if (ImGui::Button("Revert", ImVec2(-1, 0)))
+		//{
+		//	LoadInspectorData();
+		//	m_inspectorDirty = false;
+		//}
 
 		ImGui::Separator();
 

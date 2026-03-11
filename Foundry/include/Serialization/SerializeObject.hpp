@@ -193,8 +193,7 @@ inline void SerializedObject::GetPrivateElement<ISerializable>(std::string eleme
 	SerializedObject jsonObject = {};
 	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject["PRIVATE_DATAS"][elementName];
 	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(jsonObject.GetType());
-	outObject->Deserialize(jsonObject);
-	outVariable = outObject;
+	outVariable->Deserialize(jsonObject);
 }
 template <>
 inline void SerializedObject::GetPrivateElement<glm::vec2>(std::string elementName, glm::vec2* outVariable) const
@@ -231,8 +230,7 @@ inline void SerializedObject::GetPrivateElementInDictionnary<ISerializable>(std:
 	SerializedObject jsonObject = {};
 	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject["PRIVATE_DATAS"][dictionnaryName][elementName];
 	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(jsonObject.GetType());
-	outObject->Deserialize(jsonObject);
-	outVariable = outObject;
+	outVariable->Deserialize(jsonObject);
 }
 template <>
 inline void SerializedObject::GetPrivateElementInDictionnary<glm::vec2>(std::string dictionnaryName, std::string elementName, glm::vec2* outVariable) const
@@ -441,8 +439,7 @@ inline void SerializedObject::GetPublicElement<ISerializable>(std::string elemen
 	SerializedObject jsonObject = {};
 	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject["PUBLIC_DATAS"][elementName];
 	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(jsonObject.GetType());
-	outObject->Deserialize(jsonObject);
-	outVariable = outObject;
+	outVariable->Deserialize(jsonObject);
 }
 template <>
 inline void SerializedObject::GetPublicElement<glm::vec2>(std::string elementName, glm::vec2* outVariable) const
@@ -478,8 +475,7 @@ inline void SerializedObject::GetPublicElementInDictionnary<ISerializable>(std::
 	SerializedObject jsonObject = {};
 	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject["PUBLIC_DATAS"][dictionnaryName][elementName];
 	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(jsonObject.GetType());
-	outObject->Deserialize(jsonObject);
-	outVariable = outObject;
+	outVariable->Deserialize(jsonObject);
 }
 template <>
 inline void SerializedObject::GetPublicElementInDictionnary<glm::vec2>(std::string dictionnaryName, std::string elementName, glm::vec2* outVariable) const
