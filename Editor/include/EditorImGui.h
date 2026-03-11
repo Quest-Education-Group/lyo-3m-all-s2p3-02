@@ -50,9 +50,11 @@ public:
 	
 	// Setter
 	void SetSceneRoot(Node* root);
-	void SetViewRoot(Node* node);
 	void SetScreenSize(int width, int height);
 	void ShowSaveAs() { m_showSaveAsPopup = true; }
+
+	void ResetViewRoot();
+	void ResetSelectedNode();
 
 	// Command handling
 	EditorCommand& GetCommand() { return m_command; }
@@ -66,7 +68,7 @@ private:
 	void DrawNodeSelector(Node& node);	
 	void DrawHierarchyNodeTree(Node& node);
 
-	void ResetViewRoot();
+	void SetViewRoot(Node* node);
 
 	void ShowCreateNodePopup();
 	void ShowCreateChildPopup(Node* parent);
