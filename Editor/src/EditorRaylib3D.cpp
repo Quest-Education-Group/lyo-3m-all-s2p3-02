@@ -82,7 +82,7 @@ Matrix EditorRaylib3D::FindParentWorldMatrix(Node* pNode)
 		worldRot = { pNode3DParent->GetWorldRotation().x,pNode3DParent->GetWorldRotation().y, pNode3DParent->GetWorldRotation().z };
 	}
 
-	return rl::MatrixMultiply(rl::MatrixRotateXYZ({ worldRot.x, worldRot.y, worldRot.z }), rl::MatrixMultiply(rl::MatrixScale(worldScale.x, worldScale.y, worldScale.z), rl::MatrixTranslate(worldPos.x, worldPos.y, worldPos.z)));
+	return rl::MatrixMultiply(rl::MatrixTranslate(worldPos.x, worldPos.y, worldPos.z),rl::MatrixMultiply(rl::MatrixRotateZYX(worldRot), rl::MatrixScale(worldScale.x, worldScale.y, worldScale.z)));
 }
 
 void EditorRaylib3D::UpdateDrawableElement(std::string const& name, Node* pNode)
