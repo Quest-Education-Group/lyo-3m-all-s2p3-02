@@ -6,8 +6,8 @@
 
 enum class NetworkType 
 {
-	SERVER,
-	CLIENT
+	CLIENT,
+	SERVER
 };
 
 class NodeNetwork : public Node
@@ -18,15 +18,16 @@ public:
 
 	virtual void OnUpdate(double delta) override;
 
-	void InitNetworkFor(NetworkType type);
+	void InitNetworkFor(NetworkType type, int port = 0);
 	void ConnectTo(const char* addressIP, int addressPort);
 	void CloseNetwork();
 	void PrintNetworkInfos();
+	void SendMsgToServerInput();
 	void SendMsgToServer(const char* message);
 	void SendMsgToClients(const char* message);
 
-	void SetNetworkPort(int const addressPORT);
 	NetworkServer& GetNetwork() { return m_network; };
+	std::string GetLocalIP() const { return m_network.GetLocalIP(); };
 
 protected:
 

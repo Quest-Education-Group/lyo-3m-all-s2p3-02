@@ -27,33 +27,21 @@
 #include <algorithm>
 #include <cstring>
 #include <memory>
+#include <thread>
 
 class NetworkServer;
 
-enum class SyncType
+struct NetworkAdress
 {
-	INT,
-	FLOAT,
-	STRING,
-	BOOL,
-
-	DEFAULT
+	uint32 host = 0;
+	uint16 port = 0;
 };
 
 struct Package
 {
 	char name[20] = {};
-	int dataSize = 0;
-	char data[255] = {};
-	SyncType type = SyncType::DEFAULT;
-};
-
-struct SyncEntry
-{
-	void* data = nullptr;
-	SyncType type = SyncType::DEFAULT;
-	size_t size = 0;
-	bool ownerAllocated = false;
+	int32 size = 0;
+    int8 data[255] = {};
 };
 
 struct SyncRegistry
@@ -64,7 +52,7 @@ struct SyncRegistry
 		return instance;
 	}
 
-	void Register(const std::string& name, const SyncEntry& entry)
+	void Register(const std::string& name, const Package& entry)
 	{
 		m_registry.insert_or_assign(name, entry);
 	}
@@ -74,13 +62,13 @@ struct SyncRegistry
 		m_registry.erase(name);
 	}
 
-	std::unordered_map<std::string, SyncEntry>& Get()
+	std::unordered_map<std::string, Package>& Get()
 	{
 		return m_registry;
 	}
 
 private:
-	std::unordered_map<std::string, SyncEntry> m_registry;
+	std::unordered_map<std::string, Package> m_registry;
 };
 
 template <typename T, const char* Name>
@@ -89,10 +77,9 @@ struct Syncvar
 public:
 	Syncvar(const T& data) : m_Data(data)
 	{
-		SyncEntry entry;
-		entry.data = &m_Data;
+		Package entry;
 		entry.size = sizeof(T);
-		entry.type = DeduceType();
+		std::memcpy(entry.data, &m_Data, sizeof(T));
 
 		SyncRegistry::Instance().Register(Name, entry);
 	}
@@ -126,18 +113,6 @@ public:
 	}
 
 protected:
-	static SyncType DeduceType()
-	{
-		if constexpr (std::is_same_v<T, int>)
-			return SyncType::INT;
-		else if constexpr (std::is_same_v<T, float>)
-			return SyncType::FLOAT;
-		else if constexpr (std::is_same_v<T, bool>)
-			return SyncType::BOOL;
-		else if constexpr (std::is_same_v<T, std::string>)
-			return SyncType::STRING;
-		return SyncType::DEFAULT;
-	}
 
 private:
 	T m_Data;
@@ -169,45 +144,41 @@ public:
 	bool Init(bool isServer = false, int serverPort = 0);
 	void Close();
 
-	// Server | Host
-	void ServerLoop();
-	bool SendMsgToClients(const char* message);
-	void PrintSyncVar();
-	void SyncVarsToClients();
+	void Loop();
+	void ReceiveConnection(ENetEvent& event);
+	void ReceiveDisconnection(ENetEvent& event);
+	void ReceivePackage(ENetEvent& event);
 
-	// Client
 	bool ConnectingTo(const char* addressIP, int addressPort);
-	void ClientLoop();
 	void DisconnectFromServer();
 
-	bool SendMsgToServerA();
+	bool SendMsgToClients(const char* message);
+	bool SendMsgToServerInput();
 	bool SendMsgToServer(const char* message);
-	void CommandManager(std::string command);
-	void ReceiveSyncVar(Package* package);
-	void SendSyncVar();
 
+	void CommandManager(std::string command);
 	void PrinNetworkInfos();
 
-	std::string GetLocalIP();
-	ENetAddress GetAddress() const;
+	void ReceiveSyncVar(Package* package);
+	void SendSyncVar();
+	void PrintSyncVar();
+	
+	std::string GetLocalIP() const;
+	NetworkAdress GetAddress() const;
 
-	void NetworkSetPort(int port);
-
-	static NetworkServer& Get()
-	{
-		return Instance();
-	}
+	static bool StartEnet();
+	static void StopEnet();
 
 protected:
-	ENetAddress m_address = {};
-	ENetHost* m_pHost = nullptr; // can be host(server) or client
+	NetworkAdress m_address = {};
+
+	ENetHost* m_pHost = nullptr;
 	ENetPeer* m_pServerConnection = nullptr;
 	std::vector<ENetPeer*> m_clients;
 
 private:
 	bool m_isServer = false;
 	bool m_isRunning = false;
-	bool m_isConnected = false;
 
 	void BuildTasksImpl(TaskGraph& graph) override;
 	void FlushCommandsImpl() override;
@@ -216,7 +187,7 @@ private:
 template <typename T, const char* Name>
 void Syncvar<T, Name>::OnChange()
 {
-	NetworkServer::Get().SyncVarsToClients();
+	//NetworkServer::Instance().SyncVarsToClients();
 }
 
 #endif

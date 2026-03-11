@@ -10,22 +10,14 @@ void NodeNetwork::OnUpdate(double delta)
 	Node::OnUpdate(delta);
 }
 
-void NodeNetwork::InitNetworkFor(NetworkType type) 
+void NodeNetwork::InitNetworkFor(NetworkType type, int port)
 {
-	switch (type)
-	{
-	case NetworkType::SERVER:
-		if (m_network.Init(true))
-		{
-			m_network.ServerLoop();
-		}
-		break;
-	case NetworkType::CLIENT:
-		m_network.Init(false);
-		break;
-	default:
-		break;
-	}
+	m_network.Init(static_cast<bool>(type), port);
+}
+
+void NodeNetwork::SendMsgToServerInput()
+{
+	m_network.SendMsgToServerInput();
 }
 
 void NodeNetwork::SendMsgToServer(const char* message)
@@ -51,9 +43,4 @@ void NodeNetwork::PrintNetworkInfos()
 void NodeNetwork::CloseNetwork()
 {
 	m_network.Close();
-}
-
-void NodeNetwork::SetNetworkPort(int const addressPORT)
-{
-	m_network.NetworkSetPort(addressPORT);
 }
