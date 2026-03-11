@@ -67,7 +67,9 @@ void Editor::Shutdown()
 
 void Editor::Update(float deltaTime)
 {
+	m_sceneRoot->Update(deltaTime);
 	m_editorRaylib.Update(deltaTime);
+	m_editorRaylib.UpdateDisplay(m_sceneRoot.get());
 
 	// Keyboard shortcuts
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S))
@@ -92,8 +94,6 @@ void Editor::Update(float deltaTime)
 	EngineServer::FlushCommands();
 }
 
-// void EditorRaylib3D::UpdateJson(json const& newJson)
-// {}
 
 void Editor::ProcessUICommands()
 {
@@ -105,11 +105,11 @@ void Editor::ProcessUICommands()
 	switch (cmd.type)
 	{
 	case EditorCommand::Type::CREATE_NODE:
-		CreateNode(cmd.stringParam1, cmd.stringParam2, cmd.nodeParam);
+		CreateNode(cmd.stringParam1, cmd.stringParam2, cmd.pNodeParam);
 		break;
 
 	case EditorCommand::Type::DELETE_NODE:
-		DeleteNode(cmd.nodeParam);
+		DeleteNode(cmd.pNodeParam);
 		break;
 
 	case EditorCommand::Type::CREATE_NEW_SCENE:
@@ -131,7 +131,6 @@ void Editor::ProcessUICommands()
 	default:
 		break;
 	}
-
 
 	cmd.Reset();
 }
@@ -161,7 +160,7 @@ void Editor::CreateNewScene()
 	std::cout << "[Editor] New scene created" << std::endl;
 }
 
-void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
+void Editor::CreateNode(std::string const& type, std::string const& name, Node* pParent)
 {
 	if (!m_sceneRoot) 
 	{
@@ -176,11 +175,11 @@ void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
 	
 	m_editorRaylib.AddDrawableObject(name, newNode.get());
 
-	if (parent)
+	if (pParent)
 	{
-		parent->AddChild(newNode);
+		pParent->AddChild(newNode);
 		std::cout << "[Editor] Node '" << name << "' added as child of '" 
-		          << parent->GetName() << "'" << std::endl;
+		          << pParent->GetName() << "'" << std::endl;
 	}
 	else
 	{
@@ -189,15 +188,16 @@ void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
 	}
 }
 
-void Editor::DeleteNode(Node* node)
+void Editor::DeleteNode(Node* pNode)
 {
-	if (!node) return;
+	if (!pNode) return;
 
-	std::string nodeName = node->GetName();
+	std::string nodeName = pNode->GetName();
+	m_editorRaylib.RemoveDrawableElement(nodeName);
 	
-	if (node && node->GetParent())
+	if (pNode && pNode->GetParent())
 	{
-		node->Destroy();
+		pNode->Destroy();
 		std::cout << "[Editor] Node '" << nodeName << "' deleted" << std::endl;
 	}
 }

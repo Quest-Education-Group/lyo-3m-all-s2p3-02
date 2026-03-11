@@ -32,10 +32,11 @@ public:
 	void Init(float const& width, float const& height);
 	void Render();
 	void Update(float deltaTime);
+	void UpdateDisplay(Node* pNode);
 	void Shutdown();
 
 	void AddDrawableObject(std::string const& name,Node* jsonObject);
-	void UpdateDrawableElement(std::string const& name, Node* pNode);
+	void UpdateDrawableElement(Node* pNode);
 	void RemoveDrawableElement(std::string const& elementName);
 
 private:

@@ -136,23 +136,40 @@ void Node3D::Serialize(SerializedObject& datas) const
 {
 	Node::Serialize(datas);
 	datas.SetType("Node3D");
+
+	//glm::vec4 quat = { m_worldRotation.x ,m_worldRotation.y,m_worldRotation.z,m_worldRotation.w };
+	//datas.AddPrivateElement("m_worldRotationQuat", static_cast<glm::vec4 const*>(&quat));
+	
+	//glm::vec3 pos = m_worldPosition;
+	//datas.AddPublicElement("m_worldPosition", static_cast<glm::vec3*>(&pos));
+	//glm::vec3 scale = m_worldScale;
+	//datas.AddPublicElement("m_worldScale", static_cast<glm::vec3*>(&scale));
+	//glm::vec3 rotation = GetWorldRotation();
+	//datas.AddPublicElement("m_worldRotation", static_cast<glm::vec3 const*>(&rotation));
+	
 	datas.AddPublicElement("m_transform", static_cast<ISerializable const*>(&m_transform));
-	datas.AddPublicElement("m_worldPosition", static_cast<glm::vec4 const*>(&m_worldPosition));
-	datas.AddPublicElement("m_worldScale", static_cast<glm::vec4 const*>(&m_worldScale));
-	glm::vec4 quat = { m_worldRotation.x ,m_worldRotation.y,m_worldRotation.z,m_worldRotation.w };
-	datas.AddPublicElement("m_worldRotation", static_cast<glm::vec4 const*>(&quat));
 }
 
 
 void Node3D::Deserialize(SerializedObject const& datas)
 {
 	Node::Deserialize(datas);
+	//glm::vec4 quat = {};
+	//datas.GetPrivateElement("m_worldRotationQuat", static_cast<glm::vec4*>(&quat));
+	//m_worldRotation = { quat.x ,quat.y,quat.z,quat.w };
+
+	//glm::vec3 pos = { 0.0f,0.0f,0.0f };
+	//datas.GetPublicElement("m_worldPosition", static_cast<glm::vec3*>(&pos));
+	//SetWorldPosition(pos);	
+	//glm::vec3 scale = { 1.0f,1.0f,1.0f };
+	//datas.GetPublicElement("m_worldScale", static_cast<glm::vec3*>(&scale));
+	//SetWorldScale(scale);
+	//glm::vec3 rotation = {};
+	//datas.GetPublicElement("m_worldRotation", static_cast<glm::vec3*>(&rotation));
+	//SetWorldRotation(rotation);
+
 	datas.GetPublicElement("m_transform", static_cast<ISerializable*>(&m_transform));
-	datas.GetPublicElement("m_worldPosition", static_cast<glm::vec4*>(&m_worldPosition));
-	datas.GetPublicElement("m_worldScale", static_cast<glm::vec4*>(&m_worldScale));
-	glm::vec4 quat = {};
-	datas.GetPublicElement("m_worldRotation", static_cast<glm::vec4*>(&quat));
-	m_worldRotation = { quat.x ,quat.y,quat.z,quat.w };
+
 }
 
 ISerializable* Node3D::CreateInstance()

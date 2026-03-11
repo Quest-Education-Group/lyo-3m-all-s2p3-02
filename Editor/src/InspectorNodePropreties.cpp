@@ -46,7 +46,7 @@ bool InspectorNodePropreties::Draw(json& publicDataJson)
 		{
 			std::string strVal = value.get<std::string>();
 			char buffer[256];
-			strncpy_s(buffer, strVal.c_str(), sizeof(buffer));
+			strncpy(buffer, strVal.c_str(), sizeof(buffer));
 			ImGui::InputText(key.c_str(), buffer, sizeof(buffer), 32);
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
@@ -72,11 +72,13 @@ bool InspectorNodePropreties::Draw(json& publicDataJson)
 
 			if (objOpen)
 			{
+				bool dataModified = false;
 				json& publicdata = publicDataJson[key]["PUBLIC_DATAS"];
-				wasModified = Draw(publicdata);
+				dataModified = Draw(publicdata);
 				ImGui::TreePop();
-				if (wasModified == true) {
+				if (dataModified == true) {
 					publicDataJson[key]["PUBLIC_DATAS"] = publicdata;
+					wasModified = true;
 				}
 			}
 		}

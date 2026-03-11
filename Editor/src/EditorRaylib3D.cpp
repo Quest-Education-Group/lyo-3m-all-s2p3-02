@@ -16,6 +16,7 @@ void EditorRaylib3D::Init(float const& width, float const& height)
 {
 	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
 	InitWindow(width, height, "Foundry Editor");
+	
 	SetTargetFPS(144);
 
 	// Static Cam 
@@ -35,6 +36,15 @@ void EditorRaylib3D::Update(float deltaTime)
 	}
 	if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
 		UpdateCamera(&m_camera, CAMERA_ORBITAL);
+	}
+}
+
+void EditorRaylib3D::UpdateDisplay(Node* pNode)
+{
+	UpdateDrawableElement(pNode);
+	for (uint32 i = 0; i < pNode->GetChildCount(); ++i)
+	{
+		UpdateDisplay(&pNode->GetChild(i));
 	}
 }
 
@@ -61,37 +71,50 @@ void EditorRaylib3D::AddDrawableObject(std::string const& name, Node* pNode)
 
 Matrix EditorRaylib3D::FindParentWorldMatrix(Node* pNode)
 {
-	Node3D* pNode3DParent = nullptr; // Node3D
-	Vector3 worldPos = { 0.0f };
-	Vector3 worldScale = { 1.0f,1.0f,1.0f };
-	Vector3 worldRot = { 0.0f };
+	Node3D* pNode3D = nullptr; // Node3D
+	Matrix world = rl::MatrixIdentity();
+	Node* pParent = pNode;
 
-	pNode3DParent = dynamic_cast<Node3D*>(pNode);
+	pNode3D = dynamic_cast<Node3D*>(pNode);
 
-	while (pNode3DParent == nullptr)
+	while (pNode3D == nullptr)
 	{
-		Node* pParent = pNode->GetParent();
+		pParent = pParent->GetParent();
 		if (pParent == nullptr) break;
-		pNode3DParent = dynamic_cast<Node3D*>(pParent);
+		pNode3D = dynamic_cast<Node3D*>(pParent);
 	}
 	
-	if (pNode3DParent != nullptr)
+	if (pNode3D != nullptr)
 	{
-		worldPos = { pNode3DParent->GetWorldPosition().x,pNode3DParent->GetWorldPosition().y, pNode3DParent->GetWorldPosition().z };
-		worldScale = { pNode3DParent->GetWorldScale().x,pNode3DParent->GetWorldScale().y, pNode3DParent->GetWorldScale().z };
-		worldRot = { pNode3DParent->GetWorldRotation().x,pNode3DParent->GetWorldRotation().y, pNode3DParent->GetWorldRotation().z };
+		glm::mat4 m1 = pNode3D->GetWorldMatrix();
+		world = {
+			m1[0][0], m1[1][0], m1[2][0], m1[3][0],
+			m1[0][1], m1[1][1], m1[2][1], m1[3][1],
+			m1[0][2], m1[1][2], m1[2][2], m1[3][2],
+			m1[0][3], m1[1][3], m1[2][3], m1[3][3]
+		};
 	}
 
-	return rl::MatrixMultiply(rl::MatrixTranslate(worldPos.x, worldPos.y, worldPos.z),rl::MatrixMultiply(rl::MatrixRotateZYX(worldRot), rl::MatrixScale(worldScale.x, worldScale.y, worldScale.z)));
+	return world;
 }
 
-void EditorRaylib3D::UpdateDrawableElement(std::string const& name, Node* pNode)
+void EditorRaylib3D::UpdateDrawableElement(Node* pNode)
 {
 	if (dynamic_cast<Node3D*>(pNode) != nullptr) // TestTemp
 	{
-		m_loadedMeshs[name].get()->worldMatrix = FindParentWorldMatrix(pNode);
+		m_loadedMeshs[pNode->GetName()].get()->worldMatrix = FindParentWorldMatrix(pNode);
 	}
 }
+
+void EditorRaylib3D::RemoveDrawableElement(std::string const& elementName)
+{
+	 if (m_loadedMeshs.contains(elementName))
+	 {
+		 UnloadMesh(*m_loadedMeshs[elementName]->mesh.release());
+		 m_loadedMeshs.erase(elementName);
+	 }
+}
+
 
 void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3D) // NodeMesh3D
 {

@@ -7,15 +7,13 @@
 
 using json = nlohmann::json;
 
-class InspectorNodePropreties {
+class InspectorNodePropreties
+{
 public:
     bool Draw(json& publicDataJson);
     void SetWindow(int width, int height) { m_screenWidth = width; m_screenHeight = height; }
 
-    void SetInspectedObject(json& object);
-    bool IsModified();
-
-    void Draw();
+private:
 
 private:
     json inspectedObject;

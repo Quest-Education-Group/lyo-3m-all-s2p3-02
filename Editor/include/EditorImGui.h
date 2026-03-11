@@ -1,16 +1,14 @@
-﻿#ifndef __EDITORIMGUI_H
-#define __EDITORIMGUI_H
+﻿#ifndef EDITOR_EDITOR_IMGUI_H__
+#define EDITOR_EDITOR_IMGUI_H__
 
 #include "InspectorNodePropreties.h"
-#include <Serialization/SerializeObject.hpp>
 
 #include <imgui.h>
 #include <imfilebrowser.h>
-
-#include <Node.h>
-#include <Define.h>
-
 #include <string>
+#include <Define.h>
+#include <Serialization/SerializeObject.hpp>
+#include <Node.h>
 
 class Editor;
 class EditorRaylib3D;
@@ -32,27 +30,30 @@ struct EditorCommand
 	Type type = Type::NONE;
 	std::string stringParam1;  // For node type or file path
 	std::string stringParam2;  // For node name
-	Node* nodeParam = nullptr; // For parent or node to delete
+	Node* pNodeParam = nullptr; // For parent or node to delete
 
 	void Reset() 
 	{
 		type = Type::NONE;
 		stringParam1.clear();
 		stringParam2.clear();
-		nodeParam = nullptr;
+		pNodeParam = nullptr;
 	}
 };
 
-class EditorImGui {
+class EditorImGui
+{
+
 public:
 	EditorImGui(Editor* pEditor, EditorRaylib3D* pRaylibEditor);
 	~EditorImGui();
 
 	void Init();
+	void Update();
 	void Render();
 	
 	// Setter
-	void SetSceneRoot(Node* root);
+	void SetSceneRoot(Node* pRoot);
 	void SetScreenSize(int width, int height);
 	void ShowSaveAs() { m_showSaveAsPopup = true; }
 
@@ -71,18 +72,29 @@ private:
 	void DrawNodeSelector(Node& node);	
 	void DrawHierarchyNodeTree(Node& node);
 
-	void SetViewRoot(Node* node);
+	void SetViewRoot(Node* pNode);
 
+	enum class NodeCreationFlag
+	{
+		NONE,
+		PARENT,
+		SIBLING
+	};
+
+	void CreateNodePopup(Node* from, NodeCreationFlag flag);
 	void ShowCreateNodePopup();
-	void ShowCreateChildPopup(Node* parent);
-	void ShowCreateSiblingPopup(Node* sibling);
+	void ShowCreateChildPopup(Node* pParent);
+	void ShowCreateSiblingPopup(Node* pSibling);
 	void ShowSaveAsSceneBrowsing();
 	void ShowLoadSceneBrowsing();
 
-	void SelectedNode(Node* node);
-	void NewNodeSelected(Node* node);
+	void SelectedNode(Node* pNode);
+	void NewNodeSelected(Node* pNode);
 
 	void SaveSceneNoSpecialisation();
+
+	void LoadInspectorData();
+	void ApplyInspectorChanges();
 
 private:
 	EditorRaylib3D* m_pRaylibEditor;
@@ -93,8 +105,8 @@ private:
 	bool m_showCreateChildPopup = false;
 	bool m_showCreateSiblingPopup = false;
 
-	Node* m_pendingParent = nullptr;
-	Node* m_pendingSibling = nullptr;
+	Node* m_pPendingParent = nullptr;
+	Node* m_pPendingSibling = nullptr;
 	char m_nodeNameBuffer[128] = "";
 
 	bool m_showSaveAsPopup = false;
@@ -107,17 +119,17 @@ private:
 	bool m_haveFileSelected = false;
 	std::string m_scenePathBuffer;
 
-	Node* m_selectedNode = nullptr;
-	Node* m_lastSelectedNode = nullptr; 
+	Node* m_pSelectedNode = nullptr;
+	Node* m_pLastSelectedNode = nullptr; 
 
 	SerializedObject m_selectedNodeData;
 	json m_selectedNodeDataJson;
 	bool m_inspectorDirty = false;
 
-	Node* m_newNodeTypeSelected = nullptr;
+	Node* m_pNewNodeTypeSelected = nullptr;
 
-	Node* m_sceneRoot = nullptr;
-	Node* m_viewRoot = nullptr;
+	Node* m_pSceneRoot = nullptr;
+	Node* m_pViewRoot = nullptr;
 
 	// UI States
 	bool m_showHierarchy = true;
@@ -129,11 +141,7 @@ private:
 	int m_screenHeight = 900;
 
 	EditorCommand m_command;
-	InspectorNodePropreties m_Inspector;
-
-	void LoadInspectorData();
-	void ApplyInspectorChanges();
-
+	InspectorNodePropreties m_inspector;
 };
 
-#endif //__EDITORIMGUI_H
+#endif //EDITOR_EDITOR_IMGUI_H__

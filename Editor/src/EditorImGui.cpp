@@ -5,12 +5,10 @@
 #include <iostream>
 
 EditorImGui::EditorImGui(Editor* pEditor, EditorRaylib3D* pRaylibEditor) : m_pEditor(pEditor), m_pRaylibEditor(pRaylibEditor)
-{
-}
+{}
 
 EditorImGui::~EditorImGui()
-{
-}
+{}
 
 void EditorImGui::Init() 
 {
@@ -28,12 +26,12 @@ void EditorImGui::Init()
 	m_loadBrowser.SetDirectory("../Game/res");
 }
 
-void EditorImGui::SetSceneRoot(Node* root)
+void EditorImGui::SetSceneRoot(Node* pRoot)
 {
-	m_sceneRoot = root;
-	if (!m_viewRoot || m_viewRoot == m_sceneRoot)
+	m_pSceneRoot = pRoot;
+	if (!m_pViewRoot || m_pViewRoot == m_pSceneRoot)
 	{
-		m_viewRoot = root;
+		m_pViewRoot = pRoot;
 	}
 }
 
@@ -50,9 +48,24 @@ void EditorImGui::Render()
 	DrawInspectorPanel();
 
 	// Popups Node
+	//if (m_showCreatePopup)
+	//{
+	//	CreateNodePopup(nullptr, NodeCreationFlag::NONE);
+	//	m_showCreatePopup = false;
+	//}
+	//if (m_showCreateChildPopup)
+	//{
+	//	CreateNodePopup(m_pPendingParent, NodeCreationFlag::PARENT);
+	//	m_showCreatePopup = false;
+	//}
+	//if (m_showCreateSiblingPopup)
+	//{
+	//	CreateNodePopup(m_pPendingSibling, NodeCreationFlag::SIBLING);
+	//	m_showCreatePopup = false;
+	//}
 	ShowCreateNodePopup();
-	ShowCreateChildPopup(m_pendingParent);
-	ShowCreateSiblingPopup(m_pendingSibling);
+	ShowCreateChildPopup(m_pPendingParent);
+	ShowCreateSiblingPopup(m_pPendingSibling);
 
 	// File Browse 
 	ShowSaveAsSceneBrowsing();
@@ -73,48 +86,51 @@ void EditorImGui::Render()
 	ImGui::End();
 }
 
+void EditorImGui::Update()
+{
+	if (m_pSelectedNode)
+	{
+
+	}
+	else
+	{
+		m_pLastSelectedNode = nullptr;
+	}
+}
+
 void EditorImGui::DrawInspectorPanel()
 {
+	// TODO RESPONSIVE
 	if (!m_showInspector) return;
+
 	float menuBarHeight = ImGui::GetFrameHeight();
 	ImGui::SetNextWindowPos(ImVec2(m_screenWidth - 400, menuBarHeight), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(400, m_screenHeight - menuBarHeight), ImGuiCond_Always);
 
 	ImGui::Begin("Inspector", &m_showInspector, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
-	if (m_selectedNode)
+	if (m_pSelectedNode)
 	{
-		if (m_selectedNode != m_lastSelectedNode)
-		{
-			LoadInspectorData();
-			m_lastSelectedNode = m_selectedNode;
-			m_inspectorDirty = false;
-		}
-
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 1.0f, 1.0f));
 		ImGui::Text("Node Properties");
 		ImGui::PopStyleColor();
 		ImGui::Separator();
-
-		json& publicData = m_selectedNodeDataJson["PUBLIC_DATAS"];
-		bool wasModified = m_Inspector.Draw(publicData);
 		
-		if (wasModified)
+		if (m_pSelectedNode != m_pLastSelectedNode)
 		{
-			m_inspectorDirty = true;
-			ApplyInspectorChanges();
+			LoadInspectorData();
+			m_pLastSelectedNode = m_pSelectedNode;
 		}
 
-		//if (ImGui::Button("Revert", ImVec2(-1, 0)))
-		//{
-		//	LoadInspectorData();
-		//	m_inspectorDirty = false;
-		//}
+		if (m_inspector.Draw(m_selectedNodeDataJson["PUBLIC_DATAS"]))
+		{
+			ApplyInspectorChanges();
+		}
 
 		ImGui::Separator();
 
 		// Delete button
-		bool isSceneRoot = (m_selectedNode->GetParent() == nullptr);
+		bool isSceneRoot = (m_pSelectedNode->GetParent() == nullptr);
 
 		if (isSceneRoot)
 		{
@@ -126,9 +142,9 @@ void EditorImGui::DrawInspectorPanel()
 			if (!isSceneRoot)
 			{
 				m_command.type = EditorCommand::Type::DELETE_NODE;
-				m_command.nodeParam = m_selectedNode;
-				m_selectedNode = nullptr;
-				m_lastSelectedNode = nullptr;
+				m_command.pNodeParam = m_pSelectedNode;
+				m_pSelectedNode = nullptr;
+				m_pLastSelectedNode = nullptr;
 			}
 		}
 
@@ -140,7 +156,6 @@ void EditorImGui::DrawInspectorPanel()
 	}
 	else
 	{
-		m_lastSelectedNode = nullptr;
 		ImGui::TextDisabled("No node selected");
 		ImGui::Spacing();
 		ImGui::TextWrapped("Select a node in the Hierarchy panel to view and edit its properties.");
@@ -158,8 +173,8 @@ void EditorImGui::DrawMenuBar()
 			if (ImGui::MenuItem("New Scene", "Ctrl+N"))
 			{
 				m_command.type = EditorCommand::Type::CREATE_NEW_SCENE;
-				m_selectedNode = nullptr;
-				m_viewRoot = m_sceneRoot;
+				m_pSelectedNode = nullptr;
+				m_pViewRoot = m_pSceneRoot;
 			}
 
 			if (ImGui::MenuItem("Load Scene", "Ctrl+O"))
@@ -221,14 +236,14 @@ void EditorImGui::DrawHierarchyPanel()
 
 	ImGui::Begin("Hierarchy", &m_showHierarchy, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
-	if (m_viewRoot != m_sceneRoot)
+	if (m_pViewRoot != m_pSceneRoot)
 	{
 		// Button go back to parent
-		if (m_viewRoot->GetParent() != nullptr)
+		if (m_pViewRoot->GetParent() != nullptr)
 		{
 			if (ImGui::Button("< Parent"))
 			{
-				SetViewRoot(m_viewRoot->GetParent());
+				SetViewRoot(m_pViewRoot->GetParent());
 			}
 			ImGui::SameLine();
 		}
@@ -250,9 +265,9 @@ void EditorImGui::DrawHierarchyPanel()
 
 	ImGui::Separator();
 
-	if (m_viewRoot)
+	if (m_pViewRoot)
 	{
-		ImGui::TextColored(ImVec4(0.5f, 0.8f, 1.0f, 1.0f), "Viewing: %s", m_viewRoot->GetName().c_str());
+		ImGui::TextColored(ImVec4(0.5f, 0.8f, 1.0f, 1.0f), "Viewing: %s", m_pViewRoot->GetName().c_str());
 		ImGui::Separator();
 	}
 
@@ -260,7 +275,7 @@ void EditorImGui::DrawHierarchyPanel()
 	{
 		if (ImGui::MenuItem("Add Child to Root"))
 		{
-			m_pendingParent = m_viewRoot;
+			m_pPendingParent = m_pViewRoot;
 			m_showCreateChildPopup = true;
 			m_nodeNameBuffer[0] = '\0';
 		}
@@ -268,9 +283,9 @@ void EditorImGui::DrawHierarchyPanel()
 	}
 
 	// Tree
-	if (m_viewRoot)
+	if (m_pViewRoot)
 	{
-		DrawHierarchyNodeTree(*m_viewRoot);
+		DrawHierarchyNodeTree(*m_pViewRoot);
 	}
 	else
 	{
@@ -285,7 +300,7 @@ void EditorImGui::DrawNodeSelector(Node& node)
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
 		| ImGuiTreeNodeFlags_SpanAvailWidth;
 
-	if (&node == m_newNodeTypeSelected)
+	if (&node == m_pNewNodeTypeSelected)
 	{
 		flags |= ImGuiTreeNodeFlags_Selected;
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.5f, 0.8f, 0.8f));
@@ -296,7 +311,7 @@ void EditorImGui::DrawNodeSelector(Node& node)
 
 	bool nodeOpen = ImGui::TreeNodeEx(node.GetName().c_str(), flags);
 
-	if (&node == m_newNodeTypeSelected)
+	if (&node == m_pNewNodeTypeSelected)
 		ImGui::PopStyleColor();
 
 	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
@@ -320,7 +335,7 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
 		| ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-	if (&node == m_selectedNode)
+	if (&node == m_pSelectedNode)
 	{
 		flags |= ImGuiTreeNodeFlags_Selected;
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.5f, 0.8f, 0.8f));
@@ -332,7 +347,7 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 
 	bool nodeOpen = ImGui::TreeNodeEx(node.GetName().c_str(), flags);
 
-	if (&node == m_selectedNode)
+	if (&node == m_pSelectedNode)
 		ImGui::PopStyleColor();
 
 	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
@@ -351,7 +366,7 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 
 		if (ImGui::MenuItem("Add Child"))
 		{
-			m_pendingParent = &node;
+			m_pPendingParent = &node;
 			m_showCreateChildPopup = true;
 			m_nodeNameBuffer[0] = '\0';
 		}
@@ -361,7 +376,7 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 		{
 			if (!isSceneRoot)
 			{
-				m_pendingSibling = &node;
+				m_pPendingSibling = &node;
 				m_showCreateSiblingPopup = true;
 				m_nodeNameBuffer[0] = '\0';
 			}
@@ -395,7 +410,7 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 			if (!isSceneRoot)
 			{
 				m_command.type = EditorCommand::Type::DELETE_NODE;
-				m_command.nodeParam = &node;
+				m_command.pNodeParam = &node;
 			}
 		}
 
@@ -416,21 +431,92 @@ void EditorImGui::SetViewRoot(Node* node)
 {
 	if (node)
 	{
-		m_viewRoot = node;
+		m_pViewRoot = node;
 		std::cout << "[EditorImGui] View root changed to: " << node->GetName() << std::endl;
 	}
 }
 
 void EditorImGui::ResetViewRoot()
 {
-	m_viewRoot = m_sceneRoot;
+	m_pViewRoot = m_pSceneRoot;
 	std::cout << "[EditorImGui] View root reset to scene root" << std::endl;
 }
 
 void EditorImGui::ResetSelectedNode() {
 
-	m_selectedNode = nullptr;
+	m_pSelectedNode = nullptr;
 	std::cout << "[EditorImGui] Selected root reset" << std::endl;
+}
+
+void EditorImGui::CreateNodePopup(Node* from, NodeCreationFlag flag)
+{
+	std::string popupDetails = "";
+	switch (flag)
+	{
+	case EditorImGui::NodeCreationFlag::NONE:
+		break;
+	case EditorImGui::NodeCreationFlag::PARENT:
+		popupDetails = "Child";
+		break;
+	case EditorImGui::NodeCreationFlag::SIBLING:
+		popupDetails = "Sibling";
+		break;
+	default:
+		break;
+	}
+	std::string title = "Create " + popupDetails + " Node";
+	ImGui::OpenPopup(title.c_str());
+
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+	if (ImGui::BeginPopupModal(title.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		if (from)
+		{
+			std::string txtTitle = "Add " + popupDetails + "to: % s";
+			ImGui::Text(txtTitle.c_str(), from->GetName().c_str());
+			ImGui::Spacing();
+		}
+
+		DrawNodeSelector(*m_newNodeTypeSelector);
+
+		ImGui::Text("Enter node name:");
+		ImGui::Spacing();
+		std::string inputText = "##" + popupDetails + "Name";
+		bool enterPressed = ImGui::InputText("##ChildName", m_nodeNameBuffer, sizeof(m_nodeNameBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
+
+		ImGui::Spacing();
+
+		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_pNewNodeTypeSelected != nullptr)
+		{
+			bool flagCheck = false;
+			if (flag == NodeCreationFlag::NONE) flagCheck = true;
+			if (flag == NodeCreationFlag::PARENT) flagCheck = (from != nullptr);
+			if (flag == NodeCreationFlag::SIBLING) flagCheck = (from != nullptr && from->GetParent() != nullptr);
+
+			if (strlen(m_nodeNameBuffer) > 0 && flagCheck)
+			{
+				m_command.type = EditorCommand::Type::CREATE_NODE;
+				m_command.stringParam1 = m_pNewNodeTypeSelected->GetName();
+				m_command.stringParam2 = m_nodeNameBuffer;
+				m_command.pNodeParam = flag == NodeCreationFlag::SIBLING ? from->GetParent() : from;
+				m_pPendingParent = nullptr;
+				m_pNewNodeTypeSelected = nullptr;
+				ImGui::CloseCurrentPopup();
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			m_pPendingParent = nullptr;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
 }
 
 void EditorImGui::ShowCreateNodePopup()
@@ -455,15 +541,15 @@ void EditorImGui::ShowCreateNodePopup()
 
 		ImGui::Spacing();
 
-		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_newNodeTypeSelected != nullptr)
+		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_pNewNodeTypeSelected != nullptr)
 		{
 			if (strlen(m_nodeNameBuffer) > 0)
 			{
 				m_command.type = EditorCommand::Type::CREATE_NODE;
-				m_command.stringParam1 = m_newNodeTypeSelected->GetName();
+				m_command.stringParam1 = m_pNewNodeTypeSelected->GetName();
 				m_command.stringParam2 = m_nodeNameBuffer;
-				m_command.nodeParam = nullptr;
-				m_newNodeTypeSelected = nullptr;
+				m_command.pNodeParam = nullptr;
+				m_pNewNodeTypeSelected = nullptr;
 				ImGui::CloseCurrentPopup();
 			}
 		}
@@ -507,16 +593,16 @@ void EditorImGui::ShowCreateChildPopup(Node* parent)
 
 		ImGui::Spacing();
 
-		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_newNodeTypeSelected != nullptr)
+		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_pNewNodeTypeSelected != nullptr)
 		{
 			if (strlen(m_nodeNameBuffer) > 0 && parent)
 			{
 				m_command.type = EditorCommand::Type::CREATE_NODE;
-				m_command.stringParam1 = m_newNodeTypeSelected->GetName();
+				m_command.stringParam1 = m_pNewNodeTypeSelected->GetName();
 				m_command.stringParam2 = m_nodeNameBuffer;
-				m_command.nodeParam = parent;
-				m_pendingParent = nullptr;
-				m_newNodeTypeSelected = nullptr;
+				m_command.pNodeParam = parent;
+				m_pPendingParent = nullptr;
+				m_pNewNodeTypeSelected = nullptr;
 				ImGui::CloseCurrentPopup();
 			}
 		}
@@ -525,7 +611,7 @@ void EditorImGui::ShowCreateChildPopup(Node* parent)
 
 		if (ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
-			m_pendingParent = nullptr;
+			m_pPendingParent = nullptr;
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -561,16 +647,16 @@ void EditorImGui::ShowCreateSiblingPopup(Node* sibling)
 
 		ImGui::Spacing();
 
-		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_newNodeTypeSelected != nullptr)
+		if ((ImGui::Button("Create", ImVec2(120, 0)) || enterPressed) && m_pNewNodeTypeSelected != nullptr)
 		{
 			if (strlen(m_nodeNameBuffer) > 0 && sibling && sibling->GetParent())
 			{
 				m_command.type = EditorCommand::Type::CREATE_NODE;
-				m_command.stringParam1 = m_newNodeTypeSelected->GetName();
+				m_command.stringParam1 = m_pNewNodeTypeSelected->GetName();
 				m_command.stringParam2 = m_nodeNameBuffer;
-				m_command.nodeParam = sibling->GetParent();
-				m_pendingSibling = nullptr;
-				m_newNodeTypeSelected = nullptr;
+				m_command.pNodeParam = sibling->GetParent();
+				m_pPendingSibling = nullptr;
+				m_pNewNodeTypeSelected = nullptr;
 				ImGui::CloseCurrentPopup();
 			}
 		}
@@ -579,7 +665,7 @@ void EditorImGui::ShowCreateSiblingPopup(Node* sibling)
 
 		if (ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
-			m_pendingSibling = nullptr;
+			m_pPendingSibling = nullptr;
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -642,8 +728,8 @@ void EditorImGui::ShowLoadSceneBrowsing()
 			m_haveFileSelected = true;
 			m_command.type = EditorCommand::Type::LOAD_SCENE;
 			m_command.stringParam1 = m_scenePathBuffer;
-			m_selectedNode = nullptr;
-			m_viewRoot = m_sceneRoot;
+			m_pSelectedNode = nullptr;
+			m_pViewRoot = m_pSceneRoot;
 		}
 		m_loadBrowser.ClearSelected();
 		m_loadBrowser.Close();
@@ -666,38 +752,38 @@ void EditorImGui::SaveSceneNoSpecialisation()
 	}
 }
 
-void EditorImGui::SelectedNode(Node* node)
+void EditorImGui::SelectedNode(Node* pNode)
 {
-	m_selectedNode = node;
-	if (node)
+	m_pSelectedNode = pNode;
+	if (pNode)
 	{
-		std::cout << "[EditorImGui] Selected: " << node->GetName() << std::endl;
+		std::cout << "[EditorImGui] Selected: " << pNode->GetName() << std::endl;
 	}
 }
 
-void EditorImGui::NewNodeSelected(Node* node)
+void EditorImGui::NewNodeSelected(Node* pNode)
 {
-	m_newNodeTypeSelected = node;
-	if (node)
+	m_pNewNodeTypeSelected = pNode;
+	if (pNode)
 	{
-		std::cout << "[EditorImGui] Node type selected: " << node->GetName() << std::endl;
+		std::cout << "[EditorImGui] Node type selected: " << pNode->GetName() << std::endl;
 	}
 }
 
 void EditorImGui::LoadInspectorData()
 {
-	if (!m_selectedNode) return;
+	if (!m_pSelectedNode) return;
 
 	m_selectedNodeData = SerializedObject();
-	m_selectedNode->Serialize(m_selectedNodeData);
+	m_pSelectedNode->Serialize(m_selectedNodeData);
 	m_selectedNodeDataJson = m_selectedNodeData.GetJson();
 
-	std::cout << "[EditorImGui] Loaded inspector data for: " << m_selectedNode->GetName() << std::endl;
+	std::cout << "[EditorImGui] Loaded inspector data for: " << m_pSelectedNode->GetName() << std::endl;
 }
 
 void EditorImGui::ApplyInspectorChanges()
 {
-	if (!m_selectedNode || !m_inspectorDirty) return;
+	if (!m_pSelectedNode) return;
 
 	m_selectedNodeData.SetJson(m_selectedNodeDataJson);
 	
@@ -706,14 +792,12 @@ void EditorImGui::ApplyInspectorChanges()
 	
 	json cleanJson;
 	cleanJson["PUBLIC_DATAS"] = tempJson["PUBLIC_DATAS"];
-	cleanJson["PRIVATE_DATAS"]["TYPE"] = tempJson["PRIVATE_DATAS"]["TYPE"];
+	cleanJson["PRIVATE_DATAS"] = tempJson["PRIVATE_DATAS"];
 	cleanJson["PRIVATE_DATAS"]["Children"] = json::array(); // No child for safety, they are not handled by the inspector
-	cleanJson["PRIVATE_DATAS"]["m_pOwner"] = tempJson["PRIVATE_DATAS"]["m_pOwner"];
+
 	
 	m_selectedNodeData.SetJson(cleanJson);
-	m_selectedNode->Deserialize(m_selectedNodeData);
-
-	m_pRaylibEditor->UpdateDrawableElement(m_selectedNode->GetName(), m_selectedNode);
-
+	m_pSelectedNode->Deserialize(m_selectedNodeData);
+	
 	std::cout << "[EditorImGui] Applied inspector changes" << std::endl;
 }

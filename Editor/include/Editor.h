@@ -1,5 +1,5 @@
-#ifndef __EDITOR_H
-#define __EDITOR_H
+#ifndef EDITOR_EDITOR_H__
+#define EDITOR_EDITOR_H__
 
 #include "EditorImGui.h"
 #include "EditorRaylib3D.h"
@@ -28,9 +28,8 @@ private:
 
 	// Scene Management	
 	void CreateNewScene();
-	void CreateNode(std::string type, std::string const& name, Node* parent = nullptr);
-	void UpdateNode(std::string name, json const& newDatas);
-	void DeleteNode(Node* node);
+	void CreateNode(std::string const& type, std::string const& name, Node* pParent = nullptr);
+	void DeleteNode(Node* pNode);
 
 	// Load/Save
 	void LoadScene(std::string const& path);
@@ -38,10 +37,6 @@ private:
 	void SaveSceneNoSpe();
 
 	void LoadDrawableObject(Node* pNode);
-
-	json& GetNodeJson(std::string const& name);
-	void RemoveNode(std::string const& name);
-
 private:
 	// Editor Parts
 	EditorRaylib3D m_editorRaylib;

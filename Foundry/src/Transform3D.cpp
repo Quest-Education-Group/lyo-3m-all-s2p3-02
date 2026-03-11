@@ -344,28 +344,48 @@ void Transform3D::operator*=(Transform3D& other)
 
 void Transform3D::Serialize(SerializedObject& datas) const
 {
+	glm::vec3 r = m_right;
+	datas.AddPrivateElement("m_right", static_cast<glm::vec3 const*>(&r));
+	glm::vec3 u = m_up;
+	datas.AddPrivateElement("m_up", static_cast<glm::vec3 const*>(&u));
+	glm::vec3 f = m_forward;
+	datas.AddPrivateElement("m_forward", static_cast<glm::vec3 const*>(&f));
+	//glm::vec4 quat = { m_rotationQuat.x,m_rotationQuat.y,m_rotationQuat.z,m_rotationQuat.w };
+	//datas.AddPrivateElement("m_rotationQuat", static_cast<glm::vec4 const*>(&quat));
+
 	datas.SetType("Transform3D");
-	datas.AddPublicElement("m_position", static_cast<glm::vec4 const*>(&m_position));
-	datas.AddPublicElement("m_rotation", static_cast<glm::vec4 const*>(&m_rotation));
-	datas.AddPublicElement("m_scale", static_cast<glm::vec4 const*>(&m_scale));
-	datas.AddPublicElement("m_right", static_cast<glm::vec4 const*>(&m_right));
-	datas.AddPublicElement("m_up", static_cast<glm::vec4 const*>(&m_up));
-	datas.AddPublicElement("m_forward", static_cast<glm::vec4 const*>(&m_forward));
-	glm::vec4 quat = { m_rotationQuat.x,m_rotationQuat.y,m_rotationQuat.z,m_rotationQuat.w };
-	datas.AddPublicElement("m_rotationQuat", static_cast<glm::vec4 const*>(&quat));
+	glm::vec3 pos = m_position;
+	datas.AddPublicElement("m_position", static_cast<glm::vec3 const*>(&pos));
+	glm::vec3 rot = m_rotation;
+	datas.AddPublicElement("m_rotation", static_cast<glm::vec3 const*>(&rot));
+	glm::vec3 scale = m_scale;
+	datas.AddPublicElement("m_scale", static_cast<glm::vec3 const*>(&scale));
 }
 
 void Transform3D::Deserialize(SerializedObject const& datas)
 {
-	datas.GetPublicElement("m_position", static_cast<glm::vec4*>(&m_position));
-	datas.GetPublicElement("m_rotation", static_cast<glm::vec4*>(&m_rotation));
-	datas.GetPublicElement("m_scale", static_cast<glm::vec4*>(&m_scale));
-	datas.GetPublicElement("m_right", static_cast<glm::vec4*>(&m_right));
-	datas.GetPublicElement("m_up", static_cast<glm::vec4*>(&m_up));
-	datas.GetPublicElement("m_forward", static_cast<glm::vec4*>(&m_forward));
-	glm::vec4 quat ;
-	datas.GetPublicElement("m_rotationQuat", static_cast<glm::vec4*>(&quat));
-	m_rotationQuat = { quat.x,quat.y,quat.z,quat.w };
+	glm::vec3 r = {};
+	datas.GetPrivateElement("m_right", static_cast<glm::vec3*>(&r));
+	m_right = { r,1.0f };
+	glm::vec3 u = {};
+	datas.GetPrivateElement("m_up", static_cast<glm::vec3*>(&u));
+	m_up = { u,1.0f };
+	glm::vec3 f = {};
+	datas.GetPrivateElement("m_forward", static_cast<glm::vec3*>(&f));
+	m_forward = { f,1.0f };
+	//glm::vec4 quat ;
+	//datas.GetPrivateElement("m_rotationQuat", static_cast<glm::vec4*>(&quat));
+	//m_rotationQuat = { quat.x,quat.y,quat.z,quat.w };
+
+	glm::vec3 pos = {};
+	datas.GetPublicElement("m_position", static_cast<glm::vec3*>(&pos));
+	SetPosition({ pos,1.0f });
+	glm::vec3 rot = {};
+	datas.GetPublicElement("m_rotation", static_cast<glm::vec3*>(&rot));
+	SetRotation({ rot,1.0f });
+	glm::vec3 scale = { 1.0f,1.0f,1.0f };
+	datas.GetPublicElement("m_scale", static_cast<glm::vec3*>(&scale));
+	SetScale({ scale,1.0f });
 }
 
 
