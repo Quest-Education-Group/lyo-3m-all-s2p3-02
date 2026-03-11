@@ -9,13 +9,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(rlimgui)
 
-#FetchContent_Declare(
-#  rlgizmo
-#  GIT_REPOSITORY https://github.com/cloudofoz/raylib-gizmo.git
-#  GIT_TAG        origin/main
-#)
+FetchContent_Declare(
+  rlgizmo
+  GIT_REPOSITORY https://github.com/cloudofoz/raylib-gizmo.git
+  GIT_TAG        origin/main
+)
 
-#FetchContent_MakeAvailable(rlgizmo)
+FetchContent_MakeAvailable(rlgizmo)
 
 FetchContent_Declare(
   imgui-filebrowser
