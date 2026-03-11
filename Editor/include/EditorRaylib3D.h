@@ -55,17 +55,10 @@ private:
 private:
 	// List of Meshs will depends on NodeMesh for vertices later
 	
-	glm::vec3 m_currentPosition;
-	glm::vec3 m_currentScale;
-	glm::vec3 m_currentRotation;
-
-	json m_jsonElementFromRoot;
 	Camera3D m_camera;
 	Material m_defaultMaterial;
 
 	std::map<std::string, uptr<DrawableElement>> m_loadedMeshs;
-	std::map<std::string, uptr<DrawableElement>> m_colliders;
-	std::map<std::string, uptr<DrawableElement>> m_light;
 };
 
 #endif // __EDITOR_RAYLIB3D__H_

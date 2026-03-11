@@ -9,7 +9,8 @@ namespace rl
 #include <rlgl.h>
 
 EditorRaylib3D::EditorRaylib3D(){}
-EditorRaylib3D::~EditorRaylib3D(){}
+EditorRaylib3D::~EditorRaylib3D()
+{}
 
 void EditorRaylib3D::Init(float const& width, float const& height)
 {
@@ -102,8 +103,7 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 		// Custom Mesh with Mesh3D
 		UploadMesh(&m_mesh, false);
 		m_loadedMeshs[name] = std::make_unique<DrawableElement>();
-		m_loadedMeshs[name].get()->mesh = std::make_unique<Mesh>(m_mesh); // GetMesh;..
-
+		m_loadedMeshs[name].get()->mesh = std::make_unique<Mesh>(m_mesh); // GetMesh
 		m_loadedMeshs[name].get()->worldMatrix = FindParentWorldMatrix(pNodeMesh3D);
 	}
 }

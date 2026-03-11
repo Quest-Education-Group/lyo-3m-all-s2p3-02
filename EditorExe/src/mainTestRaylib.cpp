@@ -7,10 +7,9 @@ int main()
 {
     uptr<Node> rootNode = Node::CreateNode<Node>("Root");
     uptr<Node3D> rootNode1 = Node::CreateNode<Node3D>("Node3D");
-	
-	rootNode1.get()->SetWorldPosition({ 5.0f, 2.0f, 0.0f });
-	uptr<Node> castedNode = uptr<Node>(rootNode1.get());
 
+	rootNode1->SetWorldPosition({ 5.0f, 2.0f, 0.0f });
+	uptr<Node> castedNode = std::move(rootNode1);
     rootNode->AddChild(castedNode);
 
     EditorSerializer::Save("testJson", rootNode);
