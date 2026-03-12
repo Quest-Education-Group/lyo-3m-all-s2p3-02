@@ -273,7 +273,6 @@ glm::vec2 Transform2D::GetPosition() const
 
 glm::mat3& Transform2D::GetTransformationMatrix()
 {
-	Update();
 	return m_transformationMatrix;
 }
 

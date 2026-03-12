@@ -189,9 +189,9 @@ void Node2D::UpdateWorld()
 
 	if (m_isParentNode2D == false)
 	{
-		m_worldPosition		 = glm::vec3(m_transform.GetPosition(), 1.0f);
-		m_worldRotationAngle = m_transform.GetRotation();
-		m_worldScale		 = glm::vec3(m_transform.GetScale(), 1.0f);
+		//m_worldPosition		 = glm::vec3(m_transform.GetPosition(), 1.0f);
+		//m_worldRotationAngle = m_transform.GetRotation();
+		//m_worldScale		 = glm::vec3(m_transform.GetScale(), 1.0f);
 		m_worldTransform	 = m_transform.GetTransformationMatrix();
 		return;
 	}
@@ -199,6 +199,9 @@ void Node2D::UpdateWorld()
 	Node2D* parent = static_cast<Node2D*>(m_pOwner);
 	m_worldTransform = parent->m_worldTransform * m_transform.GetTransformationMatrix();
 
+	//m_worldTransform[2][1] *= -1.0f; // LIGNE QUI FONCTIONNE POUR LA ROTATION
+	 
+	
 	// m_worldPosition = glm::vec3(m_worldTransform[2][0], m_worldTransform[2][1], m_worldTransform[2][2]);
 	// float scaleX = glm::length(glm::vec3(m_worldTransform[0][0], m_worldTransform[1][0], m_worldTransform[2][0]));
 	// float scaleY = glm::length(glm::vec3(m_worldTransform[0][1], m_worldTransform[1][1], m_worldTransform[2][1]));
