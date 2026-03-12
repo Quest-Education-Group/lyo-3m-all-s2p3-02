@@ -265,13 +265,13 @@ void Editor::StartFoundry(std::string const& scenePath)
 
 	std::filesystem::path absoluteGamePath = std::filesystem::absolute(gameExePath);
 
-	ScriptPathMap scriptMap = CopyLuaScriptsToOverhead(absoluteScenePath, absoluteGamePath);
+	ScriptPathMap scriptMap = CopyScriptIntoGame(absoluteScenePath, absoluteGamePath);
 
 	std::filesystem::path playSceneDir = absoluteGamePath.parent_path() / "Overhead" / "SceneTrees";
 	std::filesystem::create_directories(playSceneDir);
 
 	std::filesystem::path playScenePath = playSceneDir / absoluteScenePath.filename();
-	if (!WritePlaySceneWithUpdatedScripts(playScenePath, scriptMap))
+	if (!WritePlayScene(playScenePath, scriptMap))
 	{
 		return;
 	}
@@ -320,7 +320,7 @@ void Editor::CollectLuaScripts(Node* pNode, std::vector<std::filesystem::path>& 
 	}
 }
 
-Editor::ScriptPathMap Editor::CopyLuaScriptsToOverhead(std::filesystem::path const& scenePath, std::filesystem::path const& gameExePath)
+Editor::ScriptPathMap Editor::CopyScriptIntoGame(std::filesystem::path const& scenePath, std::filesystem::path const& gameExePath)
 {
 	ScriptPathMap scriptMap;
 
@@ -361,7 +361,7 @@ Editor::ScriptPathMap Editor::CopyLuaScriptsToOverhead(std::filesystem::path con
 	return scriptMap;
 }
 
-bool Editor::WritePlaySceneWithUpdatedScripts(std::filesystem::path const& outputScenePath, ScriptPathMap const& scriptMap)
+bool Editor::WritePlayScene(std::filesystem::path const& outputScenePath, ScriptPathMap const& scriptMap)
 {
 	try
 	{

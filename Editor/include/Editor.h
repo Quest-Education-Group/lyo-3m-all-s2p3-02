@@ -46,8 +46,8 @@ private:
 	void StartFoundry(std::string const& path);
 
 	void CollectLuaScripts(Node* pNode, std::vector<std::filesystem::path>& outScripts);
-	ScriptPathMap CopyLuaScriptsToOverhead(std::filesystem::path const& scenePath, std::filesystem::path const& gameExePath);
-	bool WritePlaySceneWithUpdatedScripts(std::filesystem::path const& outputScenePath, ScriptPathMap const& scriptMap);
+	ScriptPathMap CopyScriptIntoGame(std::filesystem::path const& scenePath, std::filesystem::path const& gameExePath);
+	bool WritePlayScene(std::filesystem::path const& outputScenePath, ScriptPathMap const& scriptMap);
 	void UpdateScriptPathsInJson(json& nodeJson, ScriptPathMap const& scriptMap);
 
 private:
