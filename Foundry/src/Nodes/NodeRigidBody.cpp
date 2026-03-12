@@ -24,6 +24,7 @@ void NodeRigidBody::OnUpdate(double delta)
 	m_pOwner->SetPosition({ pos.x, pos.y, pos.z });
 	m_pOwner->SetRotation({ rot.x, rot.y, rot.z });
 	m_pOwner->Update(delta);
+	GetRigidBody().setLinearVelocity({ 0,0,0 });
 }
 
 void NodeRigidBody::AddBoxCollider(Vec3 halfSizes)
