@@ -1,9 +1,12 @@
 #include "EditorRaylib3D.h"
+
 #include <Nodes/AllNodes.h>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace rl
 {
-#include <raymath.h>
+	#include <raymath.h>
 }
 
 #include <rlgl.h>

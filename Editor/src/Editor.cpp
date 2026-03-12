@@ -10,8 +10,7 @@
 #include <Nodes/Node3D.h>
 
 Editor::Editor() : m_editorRaylib() ,m_editorImgui(this,&m_editorRaylib)
-{
-}
+{}
 
 Editor::~Editor()
 {

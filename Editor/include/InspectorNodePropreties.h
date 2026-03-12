@@ -1,28 +1,41 @@
-#ifndef __INSPECTOR_H
-#define __INSPECTOR_H
+#ifndef EDITOR_INSPECTOR_NODE_PROPERTIES_H__
+#define EDITOR_INSPECTOR_NODE_PROPERTIES_H__
 
 #include <string>
 #include <Serialization/json.hpp>
 #include <map>
+
+class Node;
+class EditorImGui;
 
 using json = nlohmann::json;
 
 class InspectorNodePropreties
 {
 public:
-    bool Draw(json& publicDataJson);
+    InspectorNodePropreties(EditorImGui* pImGuiEditor) : m_pImguiEditor(pImGuiEditor) {}
+
+    void DrawWindow(bool windowState, Node* pSelectedNode);
+
     void SetWindow(int width, int height) { m_screenWidth = width; m_screenHeight = height; }
 
 private:
+    bool DrawDatas(json& publicDataJson);
 
 private:
-    json inspectedObject;
+    EditorImGui* m_pImguiEditor = nullptr;
 
     int m_screenWidth = 0;
     int m_screenHeight = 0;
-    std::map<std::string, json> m_objectsJsonData;
-    std::map<std::string, bool> m_objectsStatus;
 
+    int m_windowWidth = 0;
+    int m_windowHeight = 0;
+
+    bool m_isOpen = false;
+
+    Node* m_pSelectedNode = nullptr;
+
+    json m_currentDatas;
 };
 
-#endif
+#endif //!EDITOR_INSPECTOR_NODE_PROPERTIES_H__

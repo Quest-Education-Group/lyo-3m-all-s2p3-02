@@ -49,7 +49,6 @@ public:
 	~EditorImGui();
 
 	void Init();
-	void Update();
 	void Render();
 	
 	// Setter
@@ -62,6 +61,7 @@ public:
 
 	// Command handling
 	EditorCommand& GetCommand() { return m_command; }
+	void SetCommand(EditorCommand const& command) { m_command = command; }
 	bool HasCommand() const { return m_command.type != EditorCommand::Type::NONE; }
 
 private:
@@ -81,10 +81,13 @@ private:
 		SIBLING
 	};
 
-	void CreateNodePopup(Node* from, NodeCreationFlag flag);
-	void ShowCreateNodePopup();
-	void ShowCreateChildPopup(Node* pParent);
-	void ShowCreateSiblingPopup(Node* pSibling);
+	void CreateNodePopup(Node* from, NodeCreationFlag flag, bool& open);
+	
+	// Merge into Create PopUp
+	//void ShowCreateNodePopup();
+	//void ShowCreateChildPopup(Node* pParent);
+	//void ShowCreateSiblingPopup(Node* pSibling);
+	
 	void ShowSaveAsSceneBrowsing();
 	void ShowLoadSceneBrowsing();
 
@@ -93,8 +96,8 @@ private:
 
 	void SaveSceneNoSpecialisation();
 
-	void LoadInspectorData();
-	void ApplyInspectorChanges();
+	json& LoadInspectorData();
+	void ApplyInspectorChanges(json& datas);
 
 private:
 	EditorRaylib3D* m_pRaylibEditor;
@@ -142,6 +145,8 @@ private:
 
 	EditorCommand m_command;
 	InspectorNodePropreties m_inspector;
+
+	friend InspectorNodePropreties;
 };
 
 #endif //EDITOR_EDITOR_IMGUI_H__

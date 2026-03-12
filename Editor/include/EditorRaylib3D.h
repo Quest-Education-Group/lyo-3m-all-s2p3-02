@@ -1,17 +1,10 @@
-#ifndef __EDITOR_RAYLIB3D__H_
-#define __EDITOR_RAYLIB3D__H_
+#ifndef EDITOR_EDITOR_RAYLIB3D_H__
+#define EDITOR_EDITOR_RAYLIB3D_H__
 
 #include <Serialization/json.hpp>
-
-#include <raylib.h>
-
-#include <Node.h>
 #include <Define.h>
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-
-#define RLIGHTS_IMPLEMENTATION
-#include "rlights.h"
+#include <Node.h>
+#include <raylib.h>
 
 using json = nlohmann::json;
 
@@ -49,10 +42,6 @@ private:
 	void InstanciateLight();
 
 	Matrix FindParentWorldMatrix(Node* pNode);
-
-
-	Matrix ConvertGLMValuesToRaylibMat(glm::vec3 pos, glm::vec3 scale, glm::vec3 rot);
-
 private:
 	// List of Meshs will depends on NodeMesh for vertices later
 	
