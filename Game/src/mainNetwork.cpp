@@ -16,8 +16,13 @@ void TestSyncVar()
 
 void LaunchNodeServer() 
 {
+	TestSyncVar();
 	auto serverNode = Node::CreateNode<NodeNetwork>("server");
 	serverNode->InitNetworkFor(NetworkType::SERVER, 54321);
+	
+	TestSyncVar();
+
+	serverNode->Start();
 }
 void LaunchNodeClient()
 {
@@ -26,6 +31,11 @@ void LaunchNodeClient()
 
 	clientNode->ConnectTo("10.10.133.17", 54321);
 	clientNode->SendMsgToServerInput();
+
+	while (clientNode->GetIsRunning())
+	{
+
+	}
 }
 
 

@@ -1,11 +1,20 @@
 #include "Servers/NetworkServer.h"
 #include "Multithreading/TaskGraph.h"
 
-bool NetworkServer::Init(bool isServer, int serverPort)
+bool NetworkServer::Init(NetworkType networkType, int serverPort)
 {
-	m_isServer = isServer;
+	m_type = networkType;
 
-	if (m_isServer == true)
+	switch (m_type)
+	{
+	case NetworkType::CLIENT:
+	{
+		m_pHost = enet_host_create(NULL, 1, 2, 0, 0);
+
+		PrinNetworkInfos();
+	}
+		break;
+	case NetworkType::SERVER:
 	{
 		m_address.host = ENET_HOST_ANY;
 		m_address.port = serverPort;
@@ -18,15 +27,15 @@ bool NetworkServer::Init(bool isServer, int serverPort)
 		m_pHost = enet_host_create(&enetAddress, 32, 2, 0, 0);
 
 		PrinNetworkInfos();
-
-		m_isRunning = true;
-		Loop();
 	}
-	if (m_isServer == false)
+		break;
+	case NetworkType::NOT_DEFINED:
 	{
-		m_pHost = enet_host_create(NULL, 1, 2, 0, 0);
-
-		PrinNetworkInfos();
+		std::cout << "Network haven't been defined [!]" << std::endl;
+	}
+		break;
+	default:
+		break;
 	}
 
 	if (m_pHost == NULL)
@@ -39,12 +48,19 @@ bool NetworkServer::Init(bool isServer, int serverPort)
 	return true;
 }
 
+void NetworkServer::Start()
+{
+	std::cout << "Starting network...\n";
+	m_isRunning = true;
+	Loop();
+}
+
 void NetworkServer::Close()
 {
 	if (m_pHost != NULL)
 	{
 		std::cout << "Closing session...\n";
-		if (m_isServer) m_isRunning = false;
+		m_isRunning = false;
 		enet_host_destroy(m_pHost);
 	}
 }
@@ -82,12 +98,12 @@ void NetworkServer::Loop()
 
 void NetworkServer::ReceiveConnection(ENetEvent& event)
 {
-	if (m_isServer == true) 
+	if (m_type == NetworkType::SERVER) 
 	{
 		std::cout << "New Client has joinned !" << std::endl;
 		m_clients.push_back(event.peer);
 	}
-	if (m_isServer == false) 
+	if (m_type == NetworkType::CLIENT)
 	{
 		std::cout << "Succesfully connected to Enet Server !" << std::endl;
 		SendMsgToServer("Hello");
@@ -96,13 +112,13 @@ void NetworkServer::ReceiveConnection(ENetEvent& event)
 
 void NetworkServer::ReceiveDisconnection(ENetEvent& event)
 {
-	if (m_isServer == true) 
+	if (m_type == NetworkType::SERVER)
 	{
 		std::cout << "Client disconnected !" << std::endl;
-		auto it = std::remove(m_clients.begin(), m_clients.end(), event.peer);
-		m_clients.erase(it, m_clients.end());
+		/*auto it = std::remove(m_clients.begin(), m_clients.end(), event.peer);
+		m_clients.erase(it, m_clients.end());*/
 	}
-	if (m_isServer == false) 
+	if (m_type == NetworkType::CLIENT)
 	{
 
 	}
@@ -123,14 +139,18 @@ void NetworkServer::ReceivePackage(ENetEvent& event)
 	}
 	enet_packet_destroy(event.packet);
 
-	if (m_isServer == true) 
+	if (m_type == NetworkType::SERVER)
 	{
-
+		SendMsgToClients("PackageReceived\n");
+		std::thread sendResponseToClientsThread(&NetworkServer::SendMsgToClientsInput, this);
+		sendResponseToClientsThread.detach();
 	}
-	if (m_isServer == false) 
+	if (m_type == NetworkType::CLIENT)
 	{
-
+		std::thread sendResponseToServThread(&NetworkServer::SendMsgToServerInput, this);
+		sendResponseToServThread.detach();
 	}
+
 }
 
 bool NetworkServer::ConnectingTo(const char* addressIP, int addressPort)
@@ -184,16 +204,20 @@ bool NetworkServer::SendMsgToClients(const char* message)
 	return true;
 }
 
-bool NetworkServer::SendMsgToServerInput()
+bool NetworkServer::SendMsgToClientsInput()
 {
-	std::cout << "Enter msg: "; //should be removed
 	std::string msg;
 	std::cin >> msg;
 
 	CommandManager(msg);
 
-	ENetPacket* packet = enet_packet_create(msg.c_str(), strlen(msg.c_str()) + 1, ENET_PACKET_FLAG_RELIABLE);
-	enet_peer_send(m_pServerConnection, 0, packet);
+	for (auto Network : m_clients)
+	{
+		ENetPacket* packet = enet_packet_create(msg.c_str(), strlen(msg.c_str()) + 1, ENET_PACKET_FLAG_RELIABLE);
+		enet_peer_send(Network, 0, packet);
+		enet_host_flush(m_pHost);
+	}
+
 	enet_host_flush(m_pHost);
 	return true;
 }
@@ -205,6 +229,22 @@ bool NetworkServer::SendMsgToServer(const char* message)
 	enet_host_flush(m_pHost);
 	return true;
 }
+
+bool NetworkServer::SendMsgToServerInput()
+{
+	std::cout << "Enter msg: "; //should be removed
+	std::string msg;
+	std::cin >> msg;
+
+	CommandManager(msg);
+
+	ENetPacket* packet = enet_packet_create(msg.c_str(), strlen(msg.c_str()) + 1, ENET_PACKET_FLAG_RELIABLE);
+	enet_peer_send(m_pServerConnection, 0, packet);
+	enet_host_flush(m_pHost);
+
+	return true;
+}
+
 
 void NetworkServer::CommandManager(std::string command)
 {
@@ -218,16 +258,36 @@ void NetworkServer::CommandManager(std::string command)
 		{
 			DisconnectFromServer();
 		}
-		if (command == "/sendToServ")
+		if (command == "/send")
 		{
 			SendSyncVar();
+		}
+		if (command == "/print")
+		{
+			PrintSyncVar();
 		}
 	}
 }
 
 void NetworkServer::PrinNetworkInfos()
 {
-	std::cout << "\n---[Network Type: " << (m_isServer ? "SERVER" : "CLIENT") << "]---" << std::endl;
+	std::string typeStr;
+
+	switch (m_type)
+	{
+	case NetworkType::CLIENT:
+		typeStr = "CLIENT";
+		break;
+	case NetworkType::SERVER:
+		typeStr = "SERVER";
+		break;
+	case NetworkType::NOT_DEFINED:
+		typeStr = "NOT_DEFINED";
+		break;
+	default:
+		break;
+	}
+	std::cout << "\n---[Network Type: " << typeStr << "]---" << std::endl;
 	std::cout << "PORT: " << m_address.port << std::endl;
 	std::cout << "HOST: " << m_address.host << " (0 == Listen everyone)" << std::endl;
 	std::cout << "IP  : " << GetLocalIP() << std::endl;
@@ -251,37 +311,6 @@ void NetworkServer::SendSyncVar()
 	for (auto& [name, entry] : registry)
 	{
 		Package pkg{};
-
-		/*std::memset(pkg.name, 0, sizeof(pkg.name));
-		size_t nameLen = name.size();
-		if (nameLen > sizeof(pkg.name) - 1)nameLen = sizeof(pkg.name) - 1;
-		std::memcpy(pkg.name, name.c_str(), nameLen);
-
-		if (entry.type == SyncType::STRING)
-		{
-			std::string* s = static_cast<std::string*>(entry.data);
-			size_t dataLen = s->size();
-
-			if (dataLen > sizeof(pkg.data))dataLen = sizeof(pkg.data);
-
-			pkg.dataSize = (int)dataLen;
-			pkg.type = entry.type;
-			std::memcpy(pkg.data, s->c_str(), dataLen);
-		}
-		else
-		{
-			size_t sendSize = entry.size;
-
-			if (sendSize > sizeof(pkg.data))sendSize = sizeof(pkg.data);
-
-			pkg.dataSize = (int)sendSize;
-			pkg.type = entry.type;
-			std::memcpy(pkg.data, entry.data, sendSize);
-		}
-
-		ENetPacket* packet = enet_packet_create(&pkg, sizeof(pkg), ENET_PACKET_FLAG_RELIABLE);
-		enet_peer_send(m_pServerConnection, 0, packet);
-		std::cout << "Server" << m_pServerConnection->connectID << " (syncing vars...)" << std::endl;*/
 	}
 
 	enet_host_flush(m_pHost);
@@ -303,39 +332,7 @@ void NetworkServer::PrintSyncVar()
 		std::string name = syncVar.first;
 		const Package& entry = syncVar.second;
 
-		std::cout << name.c_str() << ": ";
-		//switch (entry.type)
-		//{
-		//case SyncType::INT:
-		//{
-		//	std::cout << "INT=";
-		//	std::cout << std::to_string(*static_cast<int*>(entry.data)).c_str();
-		//	break;
-		//}
-		//case SyncType::FLOAT:
-		//{
-		//	std::cout << "FLOAT=";
-		//	std::cout << std::to_string(*static_cast<float*>(entry.data)).c_str();
-		//	break;
-		//}
-		//case SyncType::BOOL:
-		//{
-		//	std::cout << "BOOL=";
-		//	bool value = *static_cast<bool*>(entry.data);
-		//	std::cout << (value ? "true" : "false");
-		//	break;
-		//}
-		//case SyncType::STRING:
-		//{
-		//	std::cout << "STRING=";
-		//	std::cout << static_cast<std::string*>(entry.data)->c_str();
-		//	break;
-		//}
-		//default:
-		//	std::cout << "ERROR ";
-		//}
-
-		std::cout << " size=" << entry.size << std::endl;
+		std::cout << name.c_str() << " size=" << entry.size << std::endl;
 	}
 
 	std::cout << "------------" << std::endl;
@@ -365,6 +362,16 @@ std::string NetworkServer::GetLocalIP() const
 NetworkAdress NetworkServer::GetAddress() const
 {
 	return m_address;
+}
+
+bool NetworkServer::GetIsRunning() const 
+{
+	return m_isRunning;
+}
+
+NetworkType NetworkServer::GetType() const
+{
+	return m_type;
 }
 
 bool NetworkServer::StartEnet() 

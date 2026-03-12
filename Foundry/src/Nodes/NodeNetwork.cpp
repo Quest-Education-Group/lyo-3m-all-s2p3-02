@@ -12,7 +12,12 @@ void NodeNetwork::OnUpdate(double delta)
 
 void NodeNetwork::InitNetworkFor(NetworkType type, int port)
 {
-	m_network.Init(static_cast<bool>(type), port);
+	m_network.Init(type, port);
+}
+
+void NodeNetwork::Start()
+{
+	m_network.Start();
 }
 
 void NodeNetwork::SendMsgToServerInput()

@@ -31,6 +31,14 @@
 
 class NetworkServer;
 
+enum class NetworkType
+{
+	CLIENT,
+	SERVER,
+
+	NOT_DEFINED
+};
+
 struct NetworkAdress
 {
 	uint32 host = 0;
@@ -141,7 +149,8 @@ class NetworkServer : public Server<NetworkServer>
 public:
 	NetworkServer() = default;
 
-	bool Init(bool isServer = false, int serverPort = 0);
+	bool Init(NetworkType networkType = NetworkType::NOT_DEFINED, int serverPort = 0);
+	void Start();
 	void Close();
 
 	void Loop();
@@ -153,8 +162,9 @@ public:
 	void DisconnectFromServer();
 
 	bool SendMsgToClients(const char* message);
-	bool SendMsgToServerInput();
+	bool SendMsgToClientsInput();
 	bool SendMsgToServer(const char* message);
+	bool SendMsgToServerInput();
 
 	void CommandManager(std::string command);
 	void PrinNetworkInfos();
@@ -165,6 +175,8 @@ public:
 	
 	std::string GetLocalIP() const;
 	NetworkAdress GetAddress() const;
+	bool GetIsRunning() const;
+	NetworkType GetType() const;
 
 	static bool StartEnet();
 	static void StopEnet();
@@ -177,7 +189,8 @@ protected:
 	std::vector<ENetPeer*> m_clients;
 
 private:
-	bool m_isServer = false;
+	NetworkType m_type;// = NetworkType::NOT_DEFINED;
+	//bool m_isServer = false;
 	bool m_isRunning = false;
 
 	void BuildTasksImpl(TaskGraph& graph) override;
