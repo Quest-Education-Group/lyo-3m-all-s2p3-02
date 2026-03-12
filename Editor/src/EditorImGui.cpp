@@ -563,8 +563,6 @@ void EditorImGui::NewNodeSelected(Node* pNode)
 
 json& EditorImGui::LoadInspectorData()
 {
-	//if (!m_pSelectedNode) return;
-
 	m_selectedNodeData = SerializedObject();
 	m_pSelectedNode->Serialize(m_selectedNodeData);
 	m_selectedNodeDataJson = m_selectedNodeData.GetJson();

@@ -11,7 +11,7 @@
 #include "Serialization/SerializeObject.hpp"
 
 #include <EditorSerializer.h>
-
+#include <GameLoop.h>
 #include <Registries/AutomaticRegister.hpp>
 #include <memory>
 #include <iostream>
@@ -41,7 +41,10 @@ int main(int argc, char* argv[])
 
 			std::cout << "[Game] Scene loaded successfully: " << sceneRoot->GetName() << std::endl;
 			std::cout << "[Game] Number of children: " << sceneRoot->GetChildCount() << std::endl;
-			EngineServer::FlushCommands();
+
+			SceneTree defaultSceneTree(sceneRoot);
+			GameLoop loop;
+			loop.StartGame(defaultSceneTree);
 
 			std::cout << "[Game] Scene executed successfully" << std::endl;
 			std::cout << "[Game] Press Enter to exit..." << std::endl;

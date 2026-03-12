@@ -124,7 +124,6 @@ private:
 	std::string m_scenePathBuffer;
 
 	Node* m_pSelectedNode = nullptr;
-	Node* m_pLastSelectedNode = nullptr; 
 
 	SerializedObject m_selectedNodeData;
 	json m_selectedNodeDataJson;

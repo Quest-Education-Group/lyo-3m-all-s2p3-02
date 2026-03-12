@@ -155,6 +155,7 @@ void Editor::RenderUI()
 void Editor::CreateNewScene() 
 {
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
+	m_editorRaylib.ClearWindow();
 	m_editorImgui.SetSceneRoot(m_sceneRoot.get());
 	m_editorImgui.ResetViewRoot();
 	m_editorImgui.ResetSelectedNode();
@@ -197,7 +198,6 @@ void Editor::DeleteNode(Node* pNode)
 
 	std::string nodeName = pNode->GetName();
 	m_editorRaylib.RemoveDrawableElement(nodeName);
-	
 	if (pNode && pNode->GetParent())
 	{
 		pNode->Destroy();
@@ -246,8 +246,14 @@ void Editor::StartFoundry(std::string const& scenePath)
 	std::filesystem::path absoluteScenePath = std::filesystem::absolute(scenePath);
 	std::filesystem::path gameExePath;
 
+#ifdef _WIN32
+	// window "start"
 	gameExePath = "../Game/Game.exe";
-	//gameExePath = "../Game/Game";
+#else
+	// Linux ?
+	gameExePath = "../Game/Game";
+#endif
+	
 	if (!std::filesystem::exists(gameExePath))
 	{
 		std::cerr << "[Editor] Game executable not found: " << gameExePath << std::endl;
@@ -264,6 +270,9 @@ void Editor::StartFoundry(std::string const& scenePath)
 	// Linux ?
 	command = "\"" + absoluteGamePath.string() + "\" \"" + absoluteScenePath.string() + "\" &";
 #endif
+
+
+
 	std::cout << "[Editor] Executing: " << command << std::endl;
 	int result = std::system(command.c_str());
 

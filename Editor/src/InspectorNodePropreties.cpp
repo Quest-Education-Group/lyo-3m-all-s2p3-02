@@ -52,6 +52,7 @@ void InspectorNodePropreties::DrawWindow(bool windowState, Node* pNode)
 				command.type = EditorCommand::Type::DELETE_NODE;
 				command.pNodeParam = m_pSelectedNode;
 				m_pSelectedNode = nullptr;
+				m_pImguiEditor->ResetSelectedNode();
 				m_pImguiEditor->SetCommand(command);
 			}
 		}

@@ -31,6 +31,7 @@ public:
 	void AddDrawableObject(std::string const& name,Node* jsonObject);
 	void UpdateDrawableElement(Node* pNode);
 	void RemoveDrawableElement(std::string const& elementName);
+	void ClearWindow();
 
 private:
 	void DrawViewPort();

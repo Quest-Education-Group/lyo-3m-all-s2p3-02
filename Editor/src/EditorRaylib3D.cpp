@@ -118,6 +118,11 @@ void EditorRaylib3D::RemoveDrawableElement(std::string const& elementName)
 	 }
 }
 
+void EditorRaylib3D::ClearWindow()
+{
+	m_loadedMeshs.clear();
+}
+
 
 void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3D) // NodeMesh3D
 {
