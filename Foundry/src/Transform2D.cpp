@@ -301,15 +301,9 @@ void Transform2D::Update()
 		0, 0, 1
 	);
 
-	glm::mat3 Sh = glm::mat3(
-		1, m_shear.y, 0,
-		m_shear.x, 1, 0,
-		0, 0, 1
-	);
-
 	glm::mat3 R = glm::mat3(
-		cos(m_theta), sin(m_theta), 0,
-		-sin(m_theta), cos(m_theta), 0,
+		cos(m_theta), -sin(m_theta), 0,
+		sin(m_theta), cos(m_theta), 0,
 		0, 0, 1
 	);
 

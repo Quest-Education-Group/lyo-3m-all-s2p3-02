@@ -39,8 +39,9 @@ int main(int argc, char** argv)
 
 	Node2D& childRef = static_cast<Node2D&>(parent->GetChild(0));
 
-	DisableCursor();
+	EnableCursor();
 	SetTargetFPS(60);
+	SetWindowState(FLAG_WINDOW_RESIZABLE);
 
 	while (WindowShouldClose() == false)
 	{
@@ -54,11 +55,12 @@ int main(int argc, char** argv)
 		}
 		if (IsKeyDown(KEY_Z))
 		{
-			parent->SetPosition(parent->GetPosition().x, parent->GetPosition().y + 0.1f);
+			parent->SetWorldPosition(parent->GetWorldPosition() + glm::vec3(0.0, 0.1f, 0.0));
 		}
 		if (IsKeyDown(KEY_S))
 		{
-			parent->SetPosition(parent->GetPosition().x, parent->GetPosition().y - 0.1f);
+			childRef.SetWorldPosition(childRef.GetWorldPosition() - glm::vec3(0.0, 0.1f, 0.0));
+
 		}
 		
 		if (IsKeyDown(KEY_A))
@@ -88,17 +90,17 @@ int main(int argc, char** argv)
 		glm::mat3& m2 = childRef.GetTransformationMatrix();
 
 		Matrix rlMat1 = {
-			m1[0][0], m1[0][1],   0.0f,    m1[2][0],
-			m1[1][0], m1[1][1],   0.0f,    m1[2][1],
-			  0.0f,     0.0f,     1.0f,    m1[2][2],
-			  0.0f,     0.0f,     0.0f,       1.0f
+			m1[0][0], m1[1][0],   0.0f,    m1[2][0],
+			m1[0][1], m1[1][1],   0.0f,    m1[2][1],
+			  0.0f,     0.0f,     1.0f,    0.0f,
+			  0.0f,     0.0f,     0.0f,    1.0f
 		};
 		
 		Matrix rlMat2 = {
-			m2[0][0], m2[0][1],   0.0f,    m2[2][0],
-			m2[1][0], m2[1][1],   0.0f,    m2[2][1],
-			  0.0f,     0.0f,     1.0f,    m2[2][2],
-			  0.0f,     0.0f,     0.0f,       1.0f
+			m2[0][0], m2[1][0],   0.0f,    m2[2][0],
+			m2[0][1], m2[1][1],   0.0f,    m2[2][1],
+			  0.0f,     0.0f,     1.0f,    0.0f,
+			  0.0f,     0.0f,     0.0f,    1.0f
 		};
 
 

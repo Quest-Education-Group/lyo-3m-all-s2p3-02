@@ -65,7 +65,7 @@ public:
 	glm::vec2	GetPosition() const;
 
 	glm::mat3&	GetTransformationMatrix();
-	void		SetTransformationMatrix() {};
+	void		SetTransformationMatrix(glm::mat3 const& mat) { m_transformationMatrix = mat; }
 
 	void		SetStatism(bool _statism);
 	bool		IsStatic() const;
@@ -75,7 +75,7 @@ public:
 	bool GetDirty() const { return m_isDirty; }
 
 private:
-	bool m_isStatic;
+	bool m_isStatic = false;
 	bool m_isDirty;
 
 	glm::vec3 m_scale;

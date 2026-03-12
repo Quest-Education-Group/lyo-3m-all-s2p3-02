@@ -56,9 +56,13 @@ public:
 	void		UpdateLocal();
 	void		UpdateWorld();
 
-	void		SetWorldScale(glm::vec3& _worldScale);
+	void		SetWorldScale(glm::vec3 const& _worldScale);
 	void		SetWorldRotationAngle(float _worldRot);
-	void		SetWorldPosition(glm::vec3& _worldPos);
+	void		SetWorldPosition(glm::vec3 const& _worldPos);
+
+	glm::vec3 const& GetWorldPosition() const { return m_worldPosition; }
+	glm::vec3 const& GetWorldScale() const { return m_worldScale; }
+	float GetWorldRotation() const { return m_worldRotationAngle; }
 
 	virtual void OnUpdate(double _delta) override;
 	virtual void Reparent(Node& _newParent, bool _keepGlobalTransform = true) override;
@@ -68,14 +72,14 @@ public:
 private:
 	Transform2D m_transform;
 
-	glm::vec3 m_worldPosition;
-	float	  m_worldRotationAngle;
-	glm::vec3 m_worldScale;
-	glm::mat3 m_worldTransform;
+	glm::vec3 m_worldPosition {};
+	float	  m_worldRotationAngle = 0.0f;
+	glm::vec3 m_worldScale {1.0f};
+	glm::mat3 m_worldTransform {1.0f};
 
 	bool m_isParentNode2D = false;
 
-	bool m_worldDirty : 1 = true;
+	bool m_worldDirty : 1 = false;
 	bool m_localDirty : 1 = true;
 };
 
