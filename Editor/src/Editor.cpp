@@ -1,6 +1,8 @@
 #include "Editor.h"
 #include "EditorSerializer.h"
 
+#include "Debug.h"
+
 #include <Servers/EngineServer.h>
 #include <Serialization/SerializeObject.hpp>
 #include <iostream>
@@ -37,7 +39,7 @@ void Editor::Init()
 
 
 	m_running = true;
-	std::cout << "[Editor] Initialized successfully!" << std::endl;
+	DEBUG( "[Editor] Initialized successfully!" << std::endl);
 }
 
 void Editor::Run()
@@ -64,7 +66,7 @@ void Editor::Shutdown()
 		rlImGuiShutdown();
 		CloseWindow();
 		m_running = false;
-		std::cout << "[Editor] Shutdown successfully!" << std::endl;
+		DEBUG( "[Editor] Shutdown successfully!" << std::endl);
 	}
 }
 
@@ -164,7 +166,7 @@ void Editor::CreateNewScene()
 	m_editorImgui.ResetSelectedNode();
 	
 	m_scenePathBuffer = "";
-	std::cout << "[Editor] New scene created" << std::endl;
+	DEBUG( "[Editor] New scene created" << std::endl);
 }
 
 void Editor::CreateNode(std::string const& type, std::string const& name, Node* pParent)
@@ -185,13 +187,13 @@ void Editor::CreateNode(std::string const& type, std::string const& name, Node* 
 	if (pParent)
 	{
 		pParent->AddChild(newNode);
-		std::cout << "[Editor] Node '" << name << "' added as child of '" 
-		          << pParent->GetName() << "'" << std::endl;
+		DEBUG( "[Editor] Node '" << name << "' added as child of '" 
+		          << pParent->GetName() << "'" << std::endl);
 	}
 	else
 	{
 		m_sceneRoot->AddChild(newNode);
-		std::cout << "[Editor] Node '" << name << "' added to scene root" << std::endl;
+		DEBUG( "[Editor] Node '" << name << "' added to scene root" << std::endl);
 	}
 }
 
@@ -204,7 +206,7 @@ void Editor::DeleteNode(Node* pNode)
 	if (pNode && pNode->GetParent())
 	{
 		pNode->Destroy();
-		std::cout << "[Editor] Node '" << nodeName << "' deleted" << std::endl;
+		DEBUG( "[Editor] Node '" << nodeName << "' deleted" << std::endl);
 	}
 }
 
@@ -212,7 +214,10 @@ void Editor::LoadScene(std::string const& path)
 {
 	try
 	{
+
+		Node::SetStatusEditor(true);
 		m_sceneRoot = EditorSerializer::LoadFromJson(path);
+		Node::SetStatusEditor(false);
 		m_editorImgui.SetSceneRoot(m_sceneRoot.get());
 		m_editorImgui.ResetViewRoot();
 		m_editorImgui.ResetSelectedNode();
@@ -220,8 +225,8 @@ void Editor::LoadScene(std::string const& path)
 
 		// Update NodeList
 		LoadDrawableObject(m_sceneRoot.get());
-		
-		std::cout << "[Editor] Scene loaded: " << path << std::endl;
+
+		DEBUG( "[Editor] Scene loaded: " << path << std::endl);
 	}
 	catch (std::exception const& e)
 	{
@@ -284,17 +289,13 @@ void Editor::StartFoundry(std::string const& scenePath)
 	command = "\"" + absoluteGamePath.string() + "\" \"" + playScenePath.string() + "\" &";
 #endif
 
-	std::cout << "[Editor] Executing: " << command << std::endl;
+	DEBUG( "[Editor] Executing: " << command << std::endl);
 	int result = std::system(command.c_str());
 
 	if (result == 0)
-	{
-		std::cout << "[Editor] Game launched successfully" << std::endl;
-	}
+		DEBUG( "[Editor] Game launched successfully" << std::endl);
 	else
-	{
 		std::cerr << "[Editor] Failed to launch game (error code: " << result << ")" << std::endl;
-	}
 }
 
 void Editor::CollectLuaScripts(Node* pNode, std::vector<std::filesystem::path>& outScripts)
@@ -384,7 +385,7 @@ bool Editor::WritePlayScene(std::filesystem::path const& outputScenePath, Script
 		file << jsonRoot;
 		file.close();
 
-		std::cout << "[Editor] Play scene exported: " << outputScenePath << std::endl;
+		DEBUG( "[Editor] Play scene exported: " << outputScenePath << std::endl);
 		return true;
 	}
 	catch (std::exception const& e)
@@ -426,7 +427,7 @@ void Editor::SaveScene(std::string const& path)
 		{
 			EditorSerializer::Save(path, m_sceneRoot);
 			m_scenePathBuffer = path;
-			std::cout << "[Editor] Scene saved: " << path << std::endl;
+			DEBUG( "[Editor] Scene saved: " << path << std::endl);
 		}
 		else
 		{

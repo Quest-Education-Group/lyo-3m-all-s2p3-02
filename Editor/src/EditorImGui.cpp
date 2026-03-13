@@ -1,6 +1,7 @@
 ﻿#include "EditorImGui.h"
 #include "Editor.h"
 #include "EditorRaylib3D.h"
+#include "Debug.h"
 
 #include <iostream>
 
@@ -149,7 +150,7 @@ void EditorImGui::DrawMenuBar()
 			else
 			{
 				m_play = false;
-				std::cout << "[EditorImGui] Stopping game..." << std::endl;
+				DEBUG ( "[EditorImGui] Stopping game..." << std::endl);
 			}
 		}
 
@@ -160,8 +161,6 @@ void EditorImGui::DrawMenuBar()
 			m_play = false;
 
 		}
-
-
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -373,20 +372,20 @@ void EditorImGui::SetViewRoot(Node* node)
 	if (node)
 	{
 		m_pViewRoot = node;
-		std::cout << "[EditorImGui] View root changed to: " << node->GetName() << std::endl;
+		DEBUG( "[EditorImGui] View root changed to: " << node->GetName() << std::endl);
 	}
 }
 
 void EditorImGui::ResetViewRoot()
 {
 	m_pViewRoot = m_pSceneRoot;
-	std::cout << "[EditorImGui] View root reset to scene root" << std::endl;
+	DEBUG( "[EditorImGui] View root reset to scene root" << std::endl);
 }
 
 void EditorImGui::ResetSelectedNode() {
 
 	m_pSelectedNode = nullptr;
-	std::cout << "[EditorImGui] Selected root reset" << std::endl;
+	DEBUG( "[EditorImGui] Selected root reset" << std::endl);
 }
 
 void EditorImGui::CreateNodePopup(Node* from, NodeCreationFlag flag, bool& open)
@@ -548,7 +547,7 @@ void EditorImGui::SelectedNode(Node* pNode)
 	m_pSelectedNode = pNode;
 	if (pNode)
 	{
-		std::cout << "[EditorImGui] Selected: " << pNode->GetName() << std::endl;
+		DEBUG( "[EditorImGui] Selected: " << pNode->GetName() << std::endl);
 	}
 }
 
@@ -557,17 +556,18 @@ void EditorImGui::NewNodeSelected(Node* pNode)
 	m_pNewNodeTypeSelected = pNode;
 	if (pNode)
 	{
-		std::cout << "[EditorImGui] Node type selected: " << pNode->GetName() << std::endl;
+		DEBUG( "[EditorImGui] Node type selected: " << pNode->GetName() << std::endl);
 	}
 }
 
 json& EditorImGui::LoadInspectorData()
 {
+
 	m_selectedNodeData = SerializedObject();
 	m_pSelectedNode->Serialize(m_selectedNodeData);
 	m_selectedNodeDataJson = m_selectedNodeData.GetJson();
 
-	std::cout << "[EditorImGui] Loaded inspector data for: " << m_pSelectedNode->GetName() << std::endl;
+	DEBUG( "[EditorImGui] Loaded inspector data for: " << m_pSelectedNode->GetName() << std::endl);
 
 	return m_selectedNodeDataJson["PUBLIC_DATAS"];
 }
@@ -590,7 +590,10 @@ void EditorImGui::ApplyInspectorChanges(json& datas)
 
 	
 	m_selectedNodeData.SetJson(cleanJson);
+
+	Node::SetStatusEditor(true);
 	m_pSelectedNode->Deserialize(m_selectedNodeData);
+	Node::SetStatusEditor(false);
 	
-	std::cout << "[EditorImGui] Applied inspector changes" << std::endl;
+	DEBUG( "[EditorImGui] Applied inspector changes" << std::endl);
 }

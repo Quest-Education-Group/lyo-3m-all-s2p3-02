@@ -65,8 +65,10 @@ public:
 	virtual void Serialize(SerializedObject& datas) const override;
 	virtual void Deserialize(SerializedObject const& datas) override;
 
+
 	std::string GetName();
 	void SetName(std::string const& name);
+	void SetScriptPath(std::string const& path);
 	Node* GetParent();
 	SceneTree* GetSceneTree();
 
@@ -79,6 +81,8 @@ public:
 
 	static ISerializable* CreateInstance();
 	static void Test() {};
+
+	static void SetStatusEditor(bool inEditor) { s_IsInEditor = inEditor; }
 
 	//====Event======
 	Event<void(Node&)> OnSceneEnter;
@@ -99,6 +103,7 @@ protected:
 	Node& operator=(Node&& other) noexcept = delete;
 
 	std::string m_name; //unique among siblings
+	std::string m_scriptPath;
 	Node* m_pOwner = nullptr;
 	SceneTree* m_pSceneTree = nullptr;
 
@@ -110,6 +115,9 @@ protected:
 
 private:
     void AttachChildImmediate(std::unique_ptr<Node>& child);
+
+
+	static bool s_IsInEditor;
 
     friend class EngineServer;
 	friend class unique_ptr;

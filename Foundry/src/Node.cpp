@@ -13,7 +13,9 @@
 #include <utility>
 #include <vector>
 
-Node::Node(std::string const& name) : m_name(name)
+bool Node::s_IsInEditor = false;
+
+Node::Node(std::string const& name) : m_name(name) , m_scriptPath("")
 {
     DEBUG("Node : " << m_name << " has been " << ANSI_GREEN << "created !" << ANSI_RESET << std::endl);
 }
@@ -198,7 +200,8 @@ void Node::Serialize(SerializedObject& datas) const
 		parent = m_pOwner->GetName();
 
 	datas.AddPrivateElement("m_pOwner", &parent);
-	std::string scriptPath = "";
+
+	std::string scriptPath = m_scriptPath;
 	if (m_pScriptInstance.get() != nullptr)
 		scriptPath = m_pScriptInstance->GetPath();
 
@@ -211,17 +214,18 @@ void Node::Serialize(SerializedObject& datas) const
 
 }
 
+
+
 void Node::Deserialize(SerializedObject const& datas)
 {
 	// Call baseClass::Deserialize(datas) : Example Node::Deserialize(datas)
 	std::string t = datas.GetType();
 	datas.GetPublicElement("m_name",&m_name);
-	std::string path = {};
-	datas.GetPublicElement("m_scriptPath", &path);
-	if (path != "")
+	datas.GetPublicElement("m_scriptPath", &m_scriptPath);
+	if (m_scriptPath != "" && !s_IsInEditor )
 	{
-		std::cout << "ATTACH " << path << std::endl;
-		uptr<LuaScriptInstance> script = std::make_unique<LuaScriptInstance>(path);
+		DEBUG("ATTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH " << m_scriptPath << std::endl);
+		uptr<LuaScriptInstance> script = std::make_unique<LuaScriptInstance>(m_scriptPath);
 		Node::AttachScript(script, *this);
 	}
 
@@ -241,5 +245,6 @@ ISerializable* Node::CreateInstance()
 
 std::string Node::GetName() { return m_name; }
 void Node::SetName(std::string const& name) { m_name = name; }
+void Node::SetScriptPath(std::string const& path) { m_scriptPath = path;}
 Node* Node::GetParent() { return m_pOwner; }
 SceneTree* Node::GetSceneTree() { return m_pSceneTree; }
