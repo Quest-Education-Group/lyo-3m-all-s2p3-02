@@ -73,6 +73,8 @@ private:
 	void DrawNodeSelector(Node& node);	
 	void DrawHierarchyNodeTree(Node& node);
 
+	void DrawGizmoButtons();
+
 	void SetViewRoot(Node* pNode);
 
 	enum class NodeCreationFlag

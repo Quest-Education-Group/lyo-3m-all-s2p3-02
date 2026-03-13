@@ -48,6 +48,7 @@ void EditorImGui::Render()
 	DrawMenuBar();
 	DrawHierarchyPanel();
 	DrawInspectorPanel();
+	DrawGizmoButtons();
 
 	// Popups Node
 	CreateNodePopup(nullptr, NodeCreationFlag::NONE, m_showCreatePopup);
@@ -524,6 +525,37 @@ void EditorImGui::ShowLoadSceneBrowsing()
 		}
 		m_loadBrowser.ClearSelected();
 		m_loadBrowser.Close();
+	}
+}
+
+void EditorImGui::DrawGizmoButtons()
+{
+	if (m_pSelectedNode == nullptr) return;
+	bool translate = m_pRaylibEditor->IsGizmoTranslate();
+	bool scale = m_pRaylibEditor->IsGizmoScale();
+	bool rotate = m_pRaylibEditor->IsGizmoRotate();
+	bool all = translate && rotate && scale;
+
+	if (ImGui::Checkbox("All", &all) && m_pSelectedNode != nullptr)
+	{
+		m_pRaylibEditor->SetTranslateGizmo(all);
+		m_pRaylibEditor->SetScaleGizmo(all);
+		m_pRaylibEditor->SetRotateGizmo(all);
+	}
+
+	if (ImGui::Checkbox("Translate", &translate))
+	{
+		m_pRaylibEditor->SetTranslateGizmo(translate);
+	}
+	
+	if (ImGui::Checkbox("Scale", &scale))
+	{
+		m_pRaylibEditor->SetScaleGizmo(scale);
+	}
+	
+	if (ImGui::Checkbox("Rotate", &rotate))
+	{
+		m_pRaylibEditor->SetRotateGizmo(rotate);
 	}
 }
 

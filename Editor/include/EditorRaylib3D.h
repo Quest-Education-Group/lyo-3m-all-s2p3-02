@@ -14,18 +14,18 @@ struct DrawableElement
 {
 	uptr<Mesh> mesh;
 	Matrix worldMatrix;
-	Transform worldTransform;
+	Node3D* pNode;
 };
 
 enum class GizmoFlags
 {
-	TRANSLATE,
-	SCALE,
-	ROTATE
+	NONE = 0,
+	TRANSLATE = 1 << 0,
+	ROTATE = 1 << 1,
+	SCALE = 1 << 2,
+};
 
-#define ENUM_CLASS_FLAGS(GizmoFlags)
-};     
-
+ENUM_CLASS_FLAGS(GizmoFlags);
 
 class EditorRaylib3D
 {
@@ -48,6 +48,10 @@ public:
 	void SetTranslateGizmo(bool state);
 	void SetScaleGizmo(bool state);
 	void SetRotateGizmo(bool state);
+
+	bool IsGizmoTranslate() { return Any(m_gizmoFlags & GizmoFlags::TRANSLATE); }
+	bool IsGizmoScale() { return Any(m_gizmoFlags & GizmoFlags::SCALE); }
+	bool IsGizmoRotate() { return Any(m_gizmoFlags & GizmoFlags::ROTATE); }
 
 	void SetSelectedNode(std::string const& name) { m_selectedObject = name; }
 
