@@ -1,43 +1,65 @@
-#ifndef FOUNDRY_IAction__H_
-#define FOUNDRY_IAction__H_
+#ifndef FOUNDRY_ACTION__H_
+#define FOUNDRY_ACTION__H_
 
 #include "Define.h"
-#include "ISerializable.h"
+#include "Serialization/ISerializable.h"
 #include "Event.hpp"
 
 #include <glm/glm.hpp>
+#include <vector>
 
 enum class ControlType : byte
 {
-	BUTTON = 0,
-	SLIDER = 1,
-	STICK = 2
+	BUTTON = 1,
+	SLIDER = 2,
+	STICK = 3,
+
+	UNDEFINED = 0
 };
 
-
-
-class IAction /*: public ISerializable*/
+//template <typename RV, typename... Args>
+class Action /*: public ISerializable*/
 {
 public:
-	virtual IAction();
-	virtual IAction(std::string name, ControlType type, Event event);
-	virtual ~IAction();
+	Action();
+	virtual ~Action();
+	
+	template <typename RV, typename... Args>
+	Action(std::string name, ControlType type, Event<RV(Args...)> event);
+
 
 	void SetControlType(ControlType& type);
 	ControlType GetControlType() const;
 
+
 	template <typename RV, typename... Args>
-	void SetEvent<RV(Args...)>(Event& event);
-	Event& GetEvent() const;
+	void SetEvent(Event<RV(Args...)> event);
+
+	template <typename RV, typename... Args>
+	Event<RV(Args...)>& GetEvent() const;
 
 private:
 	std::string m_name;
-	ControlType m_type;
-	Event m_event;
+	std::vector<IControl*> m_controls; // besoin du 'p' si objet interfacique ? On se retrouve à la fin avec un objet pas un pointeur ?
+
+	//Event<RV, Args...> m_event; // pointeur opaque ??
 };
 
 
-class ButtonControl : public IAction
+class IControl
+{
+public:
+	IControl(ControlType type);
+	IControl() = default;
+	virtual ~IControl();
+
+protected:
+	ControlType m_type;
+
+	friend Action;
+};
+
+class ButtonControl : public IControl
 {
 public:
 	enum class ButtonState : byte
@@ -57,7 +79,7 @@ private:
 };
 
 
-class SliderControl : public IAction
+class SliderControl : public IControl
 {
 public:
 	float GetPos();
@@ -67,7 +89,7 @@ private:
 };
 
 
-class StickControl : public IAction
+class StickControl : public IControl
 {
 public:
 	bool IsFlicked() const;

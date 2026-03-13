@@ -4,10 +4,10 @@
 #include "IAction.h"
 
 #include <string_view>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
-// string ==> string_view const non modifiable readonly
 
 class ActionMap /*: public ISerializable*/
 {
@@ -22,23 +22,24 @@ public:
 	void operator=(ActionMap&& other) = delete;
 
 
-	bool			AddAction(std::string const& name, IAction* input);
-	bool			DeleteAction(std::string const& name);
+	bool			AddAction(std::string_view const& name, Action* input);
+	bool			DeleteAction(std::string_view const& name);
 
-	bool			SetAction(std::string const& name, Event* pAction);
-	void			ExecuteAction(std::string const& name) const;
+	template <typename RV, typename... Args>
+	bool			SetAction(std::string_view const& name, Event<RV(Args...)>* pAction);
+	void			ExecuteAction(std::string_view const& name) const;
 	
-	ButtonControl&  GetActionButton(std::string const& name) const;
-	SliderControl&  GetActionSlider(std::string const& name) const;
-	StickControl&   GetActionStick(std::string const& name) const;
+	ButtonControl&  GetActionButton(std::string_view const& name) const;
+	SliderControl&  GetActionSlider(std::string_view const& name) const;
+	StickControl&   GetActionStick(std::string_view const& name) const;
 	
 
-	void			Length() const { return m_actions.size(); }
-	void			Pop(std::string const& name);
-	void			Replace(std::string const& old, std::string const& name);
+	int64			Length() const { return m_actions.size(); }
+	void			Pop(std::string_view const& name);
+	void			Replace(std::string_view const& old, std::string_view const& name);
 
 private:
-	std::unordered_map<std::string, std::vector<IAction*>> m_actions;
+	std::unordered_map<std::string, std::vector<Action*>> m_actions;
 };
 
 
