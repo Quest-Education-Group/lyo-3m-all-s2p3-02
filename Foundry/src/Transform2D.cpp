@@ -289,12 +289,6 @@ void Transform2D::Update()
 {
 	if (m_isStatic || m_isDirty == false) return;
 
-	m_transformationMatrix = glm::mat3(
-		1, 0, 0,
-		0, 1, 0,
-		0, 0, 1 
-	);
-
 	glm::mat3 S = glm::mat3(
 		m_scale.x, 0, 0,
 		0, m_scale.y, 0,
@@ -307,9 +301,12 @@ void Transform2D::Update()
 		0, 0, 1
 	);
 
+	float const c = cos(m_theta);
+	float const s = sin(m_theta);
+
 	glm::mat3 R = glm::mat3(
-		cos(m_theta), -sin(m_theta), 0,
-		sin(m_theta), cos(m_theta), 0,
+		c, -s, 0,
+		s, c, 0,
 		0, 0, 1
 	);
 
