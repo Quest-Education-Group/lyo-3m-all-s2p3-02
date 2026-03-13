@@ -3,7 +3,7 @@
 
 #include "Define.h"
 #include "ISerializable.h"
-#include "Core/Event.hpp"
+#include "Event.hpp"
 
 #include <glm/glm.hpp>
 
@@ -19,12 +19,19 @@ enum class ControlType : byte
 class IAction /*: public ISerializable*/
 {
 public:
-	ControlType GetType() const
-	{
-		return m_type;
-	}
+	virtual IAction();
+	virtual IAction(std::string name, ControlType type, Event event);
+	virtual ~IAction();
+
+	void SetControlType(ControlType& type);
+	ControlType GetControlType() const;
+
+	template <typename RV, typename... Args>
+	void SetEvent<RV(Args...)>(Event& event);
+	Event& GetEvent() const;
 
 private:
+	std::string m_name;
 	ControlType m_type;
 	Event m_event;
 };
@@ -45,8 +52,6 @@ public:
 
 	ButtonState GetCurrentState();
 
-	Event m_event;
-
 private:
 	uint16 m_keyCode; // KEY_A
 };
@@ -56,8 +61,6 @@ class SliderControl : public IAction
 {
 public:
 	float GetPos();
-
-	Event m_event;
 
 private:
 	float m_pos; // [-1;1]
@@ -69,8 +72,6 @@ class StickControl : public IAction
 public:
 	bool IsFlicked() const;
 	glm::vec2 GetPos() const;
-
-	Event m_event;
 
 private:
 	glm::vec2 m_pos; // [(-1; -1), (1; 1)]
