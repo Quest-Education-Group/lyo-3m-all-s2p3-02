@@ -115,8 +115,8 @@ void NetworkServer::ReceiveDisconnection(ENetEvent& event)
 	if (m_type == NetworkType::SERVER)
 	{
 		std::cout << "Client disconnected !" << std::endl;
-		/*auto it = std::remove(m_clients.begin(), m_clients.end(), event.peer);
-		m_clients.erase(it, m_clients.end());*/
+		auto it = std::remove(m_clients.begin(), m_clients.end(), event.peer);
+		m_clients.erase(it, m_clients.end());
 	}
 	if (m_type == NetworkType::CLIENT)
 	{
@@ -131,7 +131,7 @@ void NetworkServer::ReceivePackage(ENetEvent& event)
 		Package* package = reinterpret_cast<Package*>(event.packet->data);
 
 		ReceiveSyncVar(package);
-		PrintSyncVar();
+		//PrintSyncVar();
 	}
 	else
 	{
@@ -245,7 +245,6 @@ bool NetworkServer::SendMsgToServerInput()
 	return true;
 }
 
-
 void NetworkServer::CommandManager(std::string command)
 {
 	if (command[0] == '/')
@@ -266,28 +265,17 @@ void NetworkServer::CommandManager(std::string command)
 		{
 			PrintSyncVar();
 		}
+		if (command == "/value")
+		{
+			PrintSyncVarValues();
+		}
 	}
 }
 
 void NetworkServer::PrinNetworkInfos()
 {
-	std::string typeStr;
 
-	switch (m_type)
-	{
-	case NetworkType::CLIENT:
-		typeStr = "CLIENT";
-		break;
-	case NetworkType::SERVER:
-		typeStr = "SERVER";
-		break;
-	case NetworkType::NOT_DEFINED:
-		typeStr = "NOT_DEFINED";
-		break;
-	default:
-		break;
-	}
-	std::cout << "\n---[Network Type: " << typeStr << "]---" << std::endl;
+	std::cout << "\n---[Network Type: " << TypeToStr() << "]---" << std::endl;
 	std::cout << "PORT: " << m_address.port << std::endl;
 	std::cout << "HOST: " << m_address.host << " (0 == Listen everyone)" << std::endl;
 	std::cout << "IP  : " << GetLocalIP() << std::endl;
@@ -297,11 +285,20 @@ void NetworkServer::PrinNetworkInfos()
 void NetworkServer::ReceiveSyncVar(Package* package)
 {
 	std::cout << "Receiving syncVars..." << std::endl;
+
 	auto& registry = SyncRegistry::Instance().Get();
 
-	std::memcpy(registry[package->name].data, package->data, package->size);
+	auto it = registry.find(package->name);
+	if (it != registry.end())
+	{
+		std::memcpy(it->second.data, package->data, package->size);
 
-	std::cout << "Received pkg: " << package->name << " size=" << package->size << std::endl;
+		std::cout << "Received pkg: " << package->name << " size=" << package->size << std::endl;
+	}
+	else
+	{
+		std::cout << "SyncVar not found: " << package->name << std::endl;
+	}
 }
 
 void NetworkServer::SendSyncVar()
@@ -310,10 +307,37 @@ void NetworkServer::SendSyncVar()
 
 	for (auto& [name, entry] : registry)
 	{
-		Package pkg{};
-	}
+		std::cout << "Sending SyncVars." << std::endl;
 
-	enet_host_flush(m_pHost);
+		Package pkg{};
+
+		// name
+		strcpy_s(pkg.name, name.c_str());
+		// size
+		pkg.size = entry.size;
+		// data
+		std::memcpy(pkg.data, entry.data, entry.size);
+
+		if (m_type == NetworkType::SERVER) 
+		{
+			for (auto client : m_clients)
+			{
+				// packet enet
+				ENetPacket* packet = enet_packet_create(&pkg, sizeof(Package), ENET_PACKET_FLAG_RELIABLE);
+				enet_peer_send(client, 0, packet);
+				enet_host_flush(m_pHost);
+			}
+		}
+
+		if (m_type == NetworkType::CLIENT) 
+		{
+			// packet enet
+			ENetPacket* packet = enet_packet_create(&pkg, sizeof(Package), ENET_PACKET_FLAG_RELIABLE);
+			enet_peer_send(m_pServerConnection, 0, packet);
+			enet_host_flush(m_pHost);
+		}
+
+	}
 }
 
 void NetworkServer::PrintSyncVar()
@@ -338,6 +362,62 @@ void NetworkServer::PrintSyncVar()
 	std::cout << "------------" << std::endl;
 }
 
+void NetworkServer::PrintSyncVarValues()
+{
+	std::cout << "---SyncVar Values---\n";
+	
+	auto& registry = SyncRegistry::Instance().Get();
+
+	for (auto& [name, entry] : registry)
+	{
+		std::cout << name << " = ";
+
+		if (entry.size == sizeof(int))
+		{
+			int v; 
+			std::memcpy(&v, entry.data, sizeof(int));
+			std::cout << v;
+		}
+		else if (entry.size == sizeof(float))
+		{
+			float v; 
+			std::memcpy(&v, entry.data, sizeof(float));
+			std::cout << v;
+		}
+		else if (entry.size == sizeof(bool))
+		{
+			bool v;
+			std::memcpy(&v, entry.data, sizeof(bool));
+			if (v) 
+			{
+				std::cout << "TRUE";
+			}
+			else
+			{
+				std::cout << "FALSE";
+			}
+			
+		}
+		else if (entry.size == sizeof(char))
+		{
+			std::cout << entry.data[0];
+		}
+		else if (entry.size == sizeof(std::string))
+		{
+			std::string value(reinterpret_cast<char*>(entry.data) + 5, entry.size);
+			std::cout << value;
+		}
+		else
+		{
+			std::cout << "TypeError";
+		}
+
+		std::cout << "\n";
+	}
+
+	std::cout << "--------------------\n";
+}
+
 std::string NetworkServer::GetLocalIP() const
 {
 	char hostname[256];
@@ -357,6 +437,28 @@ std::string NetworkServer::GetLocalIP() const
 	freeaddrinfo(result);
 
 	return std::string(ip);
+}
+
+std::string NetworkServer::TypeToStr() const 
+{
+	std::string typeStr;
+
+	switch (m_type)
+	{
+	case NetworkType::CLIENT:
+		typeStr = "CLIENT";
+		break;
+	case NetworkType::SERVER:
+		typeStr = "SERVER";
+		break;
+	case NetworkType::NOT_DEFINED:
+		typeStr = "NOT_DEFINED";
+		break;
+	default:
+		break;
+	}
+
+	return typeStr;
 }
 
 NetworkAdress NetworkServer::GetAddress() const

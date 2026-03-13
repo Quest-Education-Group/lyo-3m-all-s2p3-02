@@ -172,8 +172,10 @@ public:
 	void ReceiveSyncVar(Package* package);
 	void SendSyncVar();
 	void PrintSyncVar();
+	void PrintSyncVarValues();
 	
 	std::string GetLocalIP() const;
+	std::string TypeToStr() const;
 	NetworkAdress GetAddress() const;
 	bool GetIsRunning() const;
 	NetworkType GetType() const;
@@ -189,8 +191,7 @@ protected:
 	std::vector<ENetPeer*> m_clients;
 
 private:
-	NetworkType m_type;// = NetworkType::NOT_DEFINED;
-	//bool m_isServer = false;
+	NetworkType m_type = NetworkType::NOT_DEFINED;
 	bool m_isRunning = false;
 
 	void BuildTasksImpl(TaskGraph& graph) override;

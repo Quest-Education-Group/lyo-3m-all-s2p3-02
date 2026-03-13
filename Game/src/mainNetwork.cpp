@@ -16,18 +16,33 @@ void TestSyncVar()
 
 void LaunchNodeServer() 
 {
-	TestSyncVar();
 	auto serverNode = Node::CreateNode<NodeNetwork>("server");
 	serverNode->InitNetworkFor(NetworkType::SERVER, 54321);
 	
-	TestSyncVar();
-
+	// == SYNCVARS ==
+	SyncVar(std::string, "Name") playerName("Player1");
+	SyncVar(int, "HP") playerHp = 10;
+	playerHp = 55;
+	SyncVar(float, "PosX") playerPosX = 5.56f;
+	SyncVar(bool, "IsDead") playerIsDead = false;
+	// ==============
+	
 	serverNode->Start();
 }
+
 void LaunchNodeClient()
 {
 	auto clientNode = Node::CreateNode<NodeNetwork>("client");
 	clientNode->InitNetworkFor(NetworkType::CLIENT);
+
+	// == SYNCVARS ==
+	SyncVar(std::string, "Name") playerName("Player2");
+	SyncVar(std::string, "MyCar") playerCar("VoitureKangou");
+	SyncVar(std::string, "Letter") playerLetter("A");
+	SyncVar(int, "HP") playerHp = 0;
+	SyncVar(float, "PosX") playerPosX = 0;
+	SyncVar(bool, "IsDead") playerIsDead = true;
+	// ==============
 
 	clientNode->ConnectTo("10.10.133.17", 54321);
 	clientNode->SendMsgToServerInput();
