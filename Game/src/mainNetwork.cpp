@@ -4,16 +4,6 @@
 #include "Servers/NetworkServer.h"
 #include "Nodes/NodeNetwork.h"
 
-void TestSyncVar()
-{
-	// var sync with clients
-	SyncVar(std::string, "Name") playerName("Player1");
-	SyncVar(int, "HP") playerHp = 10;
-	playerHp = 55;
-	SyncVar(float, "PosX") playerPosX = 5.56f;
-	SyncVar(bool, "IsDead") playerIsDead = false;
-}
-
 void LaunchNodeServer() 
 {
 	auto serverNode = Node::CreateNode<NodeNetwork>("server");
@@ -25,6 +15,11 @@ void LaunchNodeServer()
 	playerHp = 55;
 	SyncVar(float, "PosX") playerPosX = 5.56f;
 	SyncVar(bool, "IsDead") playerIsDead = false;
+
+
+	//TODO Retirer apres les tests
+	if (GetAsyncKeyState('A'))
+		playerHp = 50;
 	// ==============
 	
 	serverNode->Start();

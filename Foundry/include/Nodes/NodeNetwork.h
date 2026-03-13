@@ -16,10 +16,7 @@ public:
 	void Start();
 	void ConnectTo(const char* addressIP, int addressPort);
 	void CloseNetwork();
-	void PrintNetworkInfos();
 	void SendMsgToServerInput();
-	void SendMsgToServer(const char* message);
-	void SendMsgToClients(const char* message);
 
 	NetworkServer& GetNetwork() { return m_network; };
 	std::string GetLocalIP() const { return m_network.GetLocalIP(); };
@@ -28,7 +25,7 @@ public:
 protected:
 
 private:
-
+	// TODO : Remove that to only use instance
 	NetworkServer m_network;
 };
 

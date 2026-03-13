@@ -97,14 +97,13 @@ public:
 		SyncRegistry::Instance().Unregister(Name);
 	}
 
-	void OnChange();
 
 	Syncvar& operator=(const T& other)
 	{
 		if (m_Data != other)
 		{
 			m_Data = other;
-			OnChange();
+			//NetworkServer::SendSyncVar(); need thinking
 		}
 
 		return *this;
@@ -138,9 +137,11 @@ Syncvar<type, CONCAT(__name__, __LINE__)>
 template <>
 struct Command<class NetworkServer>
 {
-	enum class CmdType { INIT, CONNECTTO, SENDMSGCLIENTS, SENDMSGSERVER, PRINTINFO, CLOSE } Type;
-	const char* inputCharacter;
-	int inputInt;
+	enum class CmdType { INIT, START, CLOSE, CONNECTTO, SENDMSGCLIENTS, SENDMSGSERVER, PRINTINFO } Type;
+	const char* inputChar;
+	int32 inputInt;
+	int32 inputPort;
+	NetworkType inputType;
 };
 using CommandType = Command<NetworkServer>::CmdType;
 
@@ -149,28 +150,31 @@ class NetworkServer : public Server<NetworkServer>
 public:
 	NetworkServer() = default;
 
-	bool Init(NetworkType networkType = NetworkType::NOT_DEFINED, int serverPort = 0);
-	void Start();
-	void Close();
+	static bool Init(NetworkType networkType = NetworkType::NOT_DEFINED, int serverPort = 0);
+
+	static void Start();
+	static void Close();
+
+	static bool ConnectingTo(const char* addressIP, int addressPort);
+
+	static bool SendMsgToClientsInput();
+	static bool SendMsgToServerInput();
 
 	void Loop();
 	void ReceiveConnection(ENetEvent& event);
 	void ReceiveDisconnection(ENetEvent& event);
 	void ReceivePackage(ENetEvent& event);
 
-	bool ConnectingTo(const char* addressIP, int addressPort);
 	void DisconnectFromServer();
 
 	bool SendMsgToClients(const char* message);
-	bool SendMsgToClientsInput();
 	bool SendMsgToServer(const char* message);
-	bool SendMsgToServerInput();
 
 	void CommandManager(std::string command);
 	void PrinNetworkInfos();
 
 	void ReceiveSyncVar(Package* package);
-	void SendSyncVar();
+	void SendSyncVar(std::string const& name);
 	void PrintSyncVar();
 	void PrintSyncVarValues();
 	
@@ -196,12 +200,13 @@ private:
 
 	void BuildTasksImpl(TaskGraph& graph) override;
 	void FlushCommandsImpl() override;
-};
 
-template <typename T, const char* Name>
-void Syncvar<T, Name>::OnChange()
-{
-	//NetworkServer::Instance().SyncVarsToClients();
-}
+	bool Command_Init(NetworkType networkType, int serverPort);
+	bool Command_Start();
+	void Command_Close();
+	bool Command_ConnectingTo(const char* addressIP, int addressPort);
+	bool Command_SendMsgToClientsInput();
+	bool Command_SendMsgToServerInput();
+};
 
 #endif
