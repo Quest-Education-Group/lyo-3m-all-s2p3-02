@@ -2,7 +2,6 @@
 #define RHI_ISHADER__H_
 
 #include <string>
-#include <fstream>
 #include <glm/glm.hpp>
 
 class IShader 
@@ -24,4 +23,7 @@ public:
     virtual void SetMat3(std::string const& name, glm::mat3 const& value) = 0;
     virtual void SetMat4(std::string const& name, glm::mat4 const& value) = 0;
 };
+
+inline IShader::~IShader() {}
+
 #endif //!RHI_ISHADER__H_

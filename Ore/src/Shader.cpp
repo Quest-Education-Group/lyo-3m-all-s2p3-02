@@ -1,6 +1,8 @@
 #include "Shader.h"
+#include "Logger.hpp"
 
 #include <glad/glad.h>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -11,23 +13,54 @@ Shader::Shader(std::string const& vertBinaryPath, std::string const& fragBinaryP
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
 
-    // open files
+    if(!std::filesystem::exists(vertBinaryPath))
+    {
+        Logger::LogWithLevel(LogLevel::ERROR, "Vertex shader at path : ", vertBinaryPath, " file doesn't exist");
+        return;
+    }
+ 
+    if(!std::filesystem::exists(fragBinaryPath))
+    {
+        Logger::LogWithLevel(LogLevel::ERROR, "Fragment shader at path : ", fragBinaryPath, " file doesn't exist");
+        return;
+    }   
+
     vShaderFile.open(vertBinaryPath);
     fShaderFile.open(fragBinaryPath);
     std::stringstream vShaderStream, fShaderStream;
-    // read file's buffer contents into streams
+
     vShaderStream << vShaderFile.rdbuf();
     fShaderStream << fShaderFile.rdbuf();		
-    // close file handlers
+
     vShaderFile.close();
     fShaderFile.close();
-    // convert stream into string
     vertexBinary = vShaderStream.str();
     fragmentBinary = fShaderStream.str();	
 
+    Logger::Log("Start Shader");
+
     uint32 vertex, fragment;
-    glShaderBinary(1, &vertex, GL_SHADER_BINARY_FORMAT_SPIR_V, vertexBinary.c_str(), vertexBinary.size() * sizeof(char));
-    glShaderBinary(1, &fragment, GL_SHADER_BINARY_FORMAT_SPIR_V, fragmentBinary.c_str(), vertexBinary.size() * sizeof(char));
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderBinary(1, &vertex, GL_SHADER_BINARY_FORMAT_SPIR_V, vertexBinary.c_str(), vertexBinary.size());
+
+    std::string vsEntryPoint = "main";
+    glSpecializeShader(vertex, (const GLchar*)vsEntryPoint.c_str(), 0, nullptr, nullptr);
+
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderBinary(1, &fragment, GL_SHADER_BINARY_FORMAT_SPIR_V, fragmentBinary.c_str(), fragmentBinary.size());
+
+    std::string fsEntryPoint = "main";
+    glSpecializeShader(fragment, (const GLchar*)fsEntryPoint.c_str(), 0, nullptr, nullptr);
+
+    GLint isCompiled;
+    glGetShaderiv(vertex, GL_COMPILE_STATUS, &isCompiled);
+    if(isCompiled == GL_FALSE)
+        Logger::LogWithLevel(LogLevel::ERROR, "Shader is not compiled");
+
+    glGetShaderiv(fragment, GL_COMPILE_STATUS, &isCompiled);
+    if(isCompiled == GL_FALSE)
+        Logger::LogWithLevel(LogLevel::ERROR, "Shader is not compiled");
+
 
     m_programId = glCreateProgram();
     glAttachShader(m_programId, vertex);
@@ -35,8 +68,24 @@ Shader::Shader(std::string const& vertBinaryPath, std::string const& fragBinaryP
 
     glLinkProgram(m_programId);
 
+    GLint isLinked;
+    glGetProgramiv(m_programId, GL_LINK_STATUS, (int*)&isLinked);
+    if(isLinked == GL_FALSE)
+    {
+        Logger::LogWithLevel(LogLevel::ERROR, "Program is not linked");
+    }
+
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+}
+
+void Shader::Use()
+{
+    glUseProgram(m_programId);
+}
+
+Shader::~Shader()
+{
 }
 
 void Shader::SetBool(std::string const& name, bool value)

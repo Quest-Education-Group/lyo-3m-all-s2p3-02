@@ -11,6 +11,7 @@ public:
     ~Shader() override;
 
     void Use() override;
+    uint32 GetProgramId() { return m_programId; }
 
     void SetBool(std::string const& name, bool value) override;
     void SetInt(std::string const& name, int value) override;
