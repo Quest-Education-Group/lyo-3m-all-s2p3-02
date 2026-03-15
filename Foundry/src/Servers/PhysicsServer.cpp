@@ -1,34 +1,44 @@
 #include "Servers/PhysicsServer.h"
 #include "Nodes/NodeRigidBody.h"
 
-reactphysics3d::PhysicsWorld* PhysicsServer::m_pWorld = nullptr;
+reactphysics3d::PhysicsWorld* PhysicsServer::m_pPhysicsWorld = nullptr;
 reactphysics3d::PhysicsCommon PhysicsServer::m_physicsCommon;
 
 
 PhysicsServer::PhysicsServer() : Server()
 {
-    //m_pWorld = m_physicsCommon.createPhysicsWorld(); JAMAIS APPELE
 }
 
 PhysicsServer::~PhysicsServer()
 {
-    PhysicsServer::GetPhysicsCommon().destroyPhysicsWorld(m_pWorld);
+    PhysicsServer::GetPhysicsCommon().destroyPhysicsWorld(m_pPhysicsWorld);
+}
+
+void PhysicsServer::OnInitialize()
+{
+  /*  rp3d::PhysicsWorld::WorldSettings settings;
+    settings.defaultVelocitySolverNbIterations = 300;
+    settings.defaultPositionSolverNbIterations = 150;
+    settings.isSleepingEnabled = true;
+    settings.gravity = rp3d::Vector3(0, -9.81, 0);
+    m_pWorld = m_physicsCommon.createPhysicsWorld(settings);*/
+    m_pPhysicsWorld = m_physicsCommon.createPhysicsWorld();
 }
 
 void PhysicsServer::Init()
 {
-  /*  rp::PhysicsWorld::WorldSettings settings;
+  /*  rp3d::PhysicsWorld::WorldSettings settings;
     settings.defaultVelocitySolverNbIterations = 300;
     settings.defaultPositionSolverNbIterations = 150;
     settings.isSleepingEnabled = true;
-    settings.gravity = rp::Vector3(0, -9.81, 0);
+    settings.gravity = rp3d::Vector3(0, -9.81, 0);
     m_pWorld = m_physicsCommon.createPhysicsWorld(settings);*/
-    m_pWorld = m_physicsCommon.createPhysicsWorld();
+    m_pPhysicsWorld = m_physicsCommon.createPhysicsWorld();
 }
-rp::RigidBody* PhysicsServer::CreateRigidBody(const rp::Transform& transform, Node* const To)
+rp3d::RigidBody* PhysicsServer::CreateRigidBody(const rp3d::Transform& transform, Node* const To)
 {
     //Instance().m_commands.push({ CommandType::CREATERIGIDBODY, To });
-	return m_pWorld->createRigidBody(transform);
+	return m_pPhysicsWorld->createRigidBody(transform);
 }
 
 void PhysicsServer::FlushCommandsImpl()

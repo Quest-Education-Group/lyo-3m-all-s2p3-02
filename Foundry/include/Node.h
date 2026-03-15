@@ -141,12 +141,18 @@ void Node::AttachScript(uptr<LuaScriptInstance>& script, T& node)
 template <NodeType T>
 OptionalRef<T> Node::FindChild()
 {
-	for (auto&[nodeName, nodePtr] : m_children)
+	//for (auto&[nodeName, nodePtr] : m_children)
+	//{
+	//	if (dynamic_cast<T*>(nodePtr.get()))
+	//		return {*nodePtr.get()};
+	//}
+	//return {};
+	for (auto& [nodeName, nodePtr] : m_children)
 	{
-		if (dynamic_cast<T*>(nodePtr.get()))
-			return {*nodePtr.get()};
+		if (T* casted = dynamic_cast<T*>(nodePtr.get()))
+			return std::ref(*casted); 
 	}
-	return {};
+	return std::nullopt;
 }
 
 template <NodeType T>

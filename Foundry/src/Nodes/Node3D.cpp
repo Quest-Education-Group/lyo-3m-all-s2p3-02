@@ -113,7 +113,7 @@ glm::vec3 Node3D::GetWorldRotation() const
 {
 	return glm::eulerAngles(m_worldRotation);
 }
-glm::quat Node3D::GetWorldRotationQuaternion() const
+ glm::quat const& Node3D::GetWorldRotationQuaternion() const
 {
 	return m_worldRotation;
 }
@@ -132,19 +132,29 @@ void Node3D::SetWorldScale(glm::vec3 const& worldScale)
 }
 void Node3D::SetWorldRotation(glm::vec3 const& worldRot)
 {
-	m_worldRotation = glm::quat(worldRot);
+	float pitch = worldRot.x * pi_t<long double> / 180;
+	float yaw = worldRot.y * pi_t<long double> / 180;
+	float roll = worldRot.z * pi_t<long double> / 180;
+
+	m_worldRotation = glm::quat(glm::vec3(pitch, yaw, roll));
+	m_worldDirty = true;
+	UpdateLocalTransform();
+}
+void Node3D::SetWorldRotationQuaternion(glm::quat const& worldRotQuat)
+{
+	m_worldRotation = worldRotQuat;
 	m_worldDirty = true;
 	UpdateLocalTransform();
 }
 
-Node3D::operator reactphysics3d::Transform()
-{
-	reactphysics3d::Transform reactTr;
-	reactTr.setPosition({ m_worldPosition.x, m_worldPosition.y, m_worldPosition.z });
-	reactTr.setOrientation({ m_worldRotation.x, m_worldRotation.y, m_worldRotation.z, m_worldRotation.w });
-
-	return reactTr;
-}
+//Node3D::operator reactphysics3d::Transform()
+//{
+//	reactphysics3d::Transform reactTr;
+//	reactTr.setPosition({ m_worldPosition.x, m_worldPosition.y, m_worldPosition.z });
+//	reactTr.setOrientation({ m_worldRotation.x, m_worldRotation.y, m_worldRotation.z, m_worldRotation.w });
+//
+//	return reactTr;
+//}
 ISerializable* Node3D::CreateInstance()
 {
 	return CreateNode<Node3D>("Node3D").release();

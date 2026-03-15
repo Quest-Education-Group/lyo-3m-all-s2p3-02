@@ -8,7 +8,6 @@
 #include <memory>
 
 #include <reactphysics3d/reactphysics3d.h>
-namespace rp = reactphysics3d;
 
 template <>
 struct Command<class PhysicsServer>
@@ -28,22 +27,24 @@ public:
     PhysicsServer();
     ~PhysicsServer();
 
+    // FONCTION TEMPORAIRE
     static void Init();
 
-    static rp::RigidBody* CreateRigidBody(const rp::Transform& transform, Node* const To);
+    static rp3d::RigidBody* CreateRigidBody(const rp3d::Transform& transform, Node* const To);
 
-    static rp::PhysicsCommon& GetPhysicsCommon() { return m_physicsCommon; }
-    static rp::PhysicsWorld& GetPhysicsWorld() { return *m_pWorld; }
+    static rp3d::PhysicsCommon& GetPhysicsCommon() { return m_physicsCommon; }
+    static rp3d::PhysicsWorld& GetPhysicsWorld() { return *m_pPhysicsWorld; }
+    static void UpdatePhysicsWorld(double dt) { m_pPhysicsWorld->update(dt); }
 
 private:
     void FlushCommandsImpl() override;
     void BuildTasksImpl(TaskGraph& graph) override {};
-    void OnInitialize() override {}
+    void OnInitialize() override;
     
 
 private:    
-    static rp::PhysicsCommon m_physicsCommon;
-    static rp::PhysicsWorld* m_pWorld;
+    static rp3d::PhysicsCommon m_physicsCommon;
+    static rp3d::PhysicsWorld* m_pPhysicsWorld;
 
 
 };
