@@ -16,7 +16,11 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, glm::vec3 forward, float yaw, f
     UpdateVectors();
 }
 
-glm::mat4 Camera::GetProjectionMatrix(ProjectionType type, uint16 screenWidth, uint16 screenHeight, float near, float far)
+Camera::~Camera()
+{
+}
+
+glm::mat4 Camera::GetProjectionMatrix(ProjectionType type, uint16 screenWidth, uint16 screenHeight, float near, float far) const
 {
     glm::mat4 projMatrix;
 
@@ -33,7 +37,7 @@ glm::mat4 Camera::GetProjectionMatrix(ProjectionType type, uint16 screenWidth, u
     return projMatrix;
 }
 
-glm::mat4 Camera::GetViewMatrix()
+glm::mat4 Camera::GetViewMatrix() const
 {
     return glm::lookAt(m_position, m_position + m_forward, m_up);
 }
