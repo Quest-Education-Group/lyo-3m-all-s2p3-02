@@ -10,6 +10,7 @@ class VertexArrayObject final : public IVertexArrayObject
 {
 public:
     VertexArrayObject(uint32 id);
+    VertexArrayObject(VertexArrayObject const& other);
     ~VertexArrayObject() override;
 
     void Bind() override;

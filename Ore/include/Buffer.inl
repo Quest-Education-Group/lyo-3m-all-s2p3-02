@@ -1,14 +1,25 @@
-#include "Buffer.h" 
-
-#include <glad/glad.h>
-
 template <typename T>
 Buffer<T>::Buffer(std::vector<T> const& data, uint32 id, BufferType type, bool isDataPersistant)
 {
     m_id = id;
     m_type = type;    
-    isDataPersistant ? m_dataPersistanceFlag = GL_MAP_PERSISTENT_BIT|GL_MAP_COHERENT_BIT : m_dataPersistanceFlag = GL_DYNAMIC_STORAGE_BIT;
+    isDataPersistant ? m_dataPersistanceFlag = GL_MAP_PERSISTENT_BIT|GL_MAP_COHERENT_BIT|GL_MAP_READ_BIT : m_dataPersistanceFlag = GL_DYNAMIC_STORAGE_BIT;
+
+    Bind();
     StoreData(data);
+}
+
+template<typename T>
+Buffer<T>::Buffer(Buffer<T> const& other)
+{
+    m_id = other.m_id;
+    m_type = other.m_type;
+    m_dataPersistanceFlag = other.m_dataPersistanceFlag;
+}
+
+template <typename T>
+Buffer<T>::~Buffer()
+{
 }
 
 template <typename T>
@@ -33,6 +44,6 @@ void Buffer<T>::Unmap()
 template<typename T>
 void Buffer<T>::StoreData(std::vector<T> const& data)
 {
-    glBufferStorage((int)m_type, sizeof(data.data()), data.data(), m_dataPersistanceFlag);
+    glBufferStorage((int)m_type, data.size() * sizeof(T), data.data(), m_dataPersistanceFlag);
 }
 
