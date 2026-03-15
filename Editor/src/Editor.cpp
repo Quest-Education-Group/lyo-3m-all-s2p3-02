@@ -1,6 +1,7 @@
 #include "Editor.h"
 #include "EditorSerializer.h"
 
+
 #include "Debug.h"
 
 #include <Servers/EngineServer.h>
@@ -14,6 +15,14 @@
 #include <rlImGuiColors.h>
 #include <Nodes/Node3D.h>
 
+#if OPERATING_SYSTEM == OPERATING_SYSTEM_WINDOWS
+
+extern "C" __declspec(dllimport)
+int __stdcall SetFileAttributesW(const wchar_t* lpFileName, unsigned long dwFileAttributes);
+constexpr unsigned long FILE_ATTRIBUTE_HIDDEN = 0x2;
+
+#endif
+
 
 Editor::Editor() : m_editorRaylib() ,m_editorImgui(this,&m_editorRaylib)
 {}
@@ -23,26 +32,27 @@ Editor::~Editor()
 	Shutdown();
 }
 
-void Editor::Init() 
-{
-	// Initialize Raylib window
-	m_editorRaylib.Init(m_screenWidth, m_screenHeight);
+	void Editor::Init() 
+	{
+		m_editorRaylib.Init(m_screenWidth, m_screenHeight);
+		m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
 
-	// DefaultNode
-	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
+		rlImGuiSetup(true);
 
-	rlImGuiSetup(true);
+		m_editorImgui.Init();
+		m_editorImgui.SetSceneRoot(m_sceneRoot.get());
+		m_editorImgui.SetScreenSize(m_screenWidth, m_screenHeight);
 
-	m_editorImgui.Init();
-	m_editorImgui.SetSceneRoot(m_sceneRoot.get());
-	m_editorImgui.SetScreenSize(m_screenWidth, m_screenHeight);
+		std::filesystem::path ScriptStock = "ScriptStock/.foundry";
+		std::filesystem::create_directories(ScriptStock);
 
-	std::filesystem::path ScriptStock = "ScriptStock/.foundry";
-	std::filesystem::create_directories(ScriptStock);
+		#if OPERATING_SYSTEM == OPERATING_SYSTEM_WINDOWS
+			::SetFileAttributesW(ScriptStock.wstring().c_str(), FILE_ATTRIBUTE_HIDDEN);
+		#endif
 
-	m_running = true;
-	DEBUG( "[Editor] Initialized successfully!" << std::endl);
-}
+		m_running = true;
+		DEBUG("[Editor] Initialized successfully!" << std::endl);
+	}
 
 void Editor::Run()
 {
@@ -257,9 +267,9 @@ void Editor::StartFoundry(std::string const& scenePath)
 	std::filesystem::path absoluteScenePath = std::filesystem::absolute(scenePath);
 	std::filesystem::path gameExePath;
 
-#ifdef _WIN32
+#if OPERATING_SYSTEM == OPERATING_SYSTEM_WINDOWS
 	gameExePath = "../Game/Game.exe";
-#else
+#elif OPERATING_SYSTEM == OPERATING_SYSTEM_LINUX
 	gameExePath = "../Game/Game";
 #endif
 
@@ -285,9 +295,9 @@ void Editor::StartFoundry(std::string const& scenePath)
 
 	std::string command;
 
-#ifdef _WIN32
+#if OPERATING_SYSTEM == OPERATING_SYSTEM_WINDOWS
 	command = "start \"Foundry Game\" \"" + absoluteGamePath.string() + "\" \"" + playScenePath.string() + "\"";
-#else
+#elif OPERATING_SYSTEM == OPERATING_SYSTEM_LINUX
 	command = "\"" + absoluteGamePath.string() + "\" \"" + playScenePath.string() + "\" &";
 #endif
 

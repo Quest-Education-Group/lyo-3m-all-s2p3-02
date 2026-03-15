@@ -64,6 +64,23 @@ inline constexpr int32 operator""_kg(unsigned long long val) { return val * 1000
 #define STRINGIFY2(X) STRINGIFY(X)
 #define STRINGIFY(X) #X
 
+//====================
+// OS Macros
+//====================
+
+#define OPERATING_SYSTEM_OTHER    0
+#define OPERATING_SYSTEM_LINUX    1
+#define OPERATING_SYSTEM_WINDOWS  2
+
+#if defined(_WIN32) || defined(_WIN64)
+#define OPERATING_SYSTEM OPERATING_SYSTEM_WINDOWS
+#elif defined(__linux__)
+#define OPERATING_SYSTEM OPERATING_SYSTEM_LINUX
+#else
+#define OPERATING_SYSTEM OPERATING_SYSTEM_OTHER
+#error "Not Supported"
+#endif
+
 
 #define ENUM_CLASS_FLAGS(EnumType)                                                \
 using T = std::underlying_type_t<EnumType>;                                       \

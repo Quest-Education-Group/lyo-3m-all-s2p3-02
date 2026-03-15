@@ -1,7 +1,7 @@
 ﻿#ifndef EDITOR_EDITOR_IMGUI_H__
 #define EDITOR_EDITOR_IMGUI_H__
 
-#include "InspectorNodePropreties.h"
+#include "InspectorNodeProperties.h"
 
 #include <imgui.h>
 #include <imfilebrowser.h>
@@ -146,9 +146,9 @@ private:
 	bool m_play = false;
 
 	EditorCommand m_command;
-	InspectorNodePropreties m_inspector;
+	InspectorNodeProperties m_inspector;
 
-	friend InspectorNodePropreties;
+	friend InspectorNodeProperties;
 };
 
 #endif //EDITOR_EDITOR_IMGUI_H__

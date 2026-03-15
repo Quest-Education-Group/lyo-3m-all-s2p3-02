@@ -1,4 +1,4 @@
-﻿#include "InspectorNodePropreties.h"
+﻿#include "InspectorNodeProperties.h"
 #include "EditorImGui.h"
 
 #include <Node.h>
@@ -6,7 +6,7 @@
 #include <iostream>
 #include <imgui.h>
 
-InspectorNodePropreties::InspectorNodePropreties(EditorImGui* pImGuiEditor)
+InspectorNodeProperties::InspectorNodeProperties(EditorImGui* pImGuiEditor)
     : m_pImguiEditor(pImGuiEditor),
       m_luaBrowser(ImGuiFileBrowserFlags_ConfirmOnEnter)
 {
@@ -15,7 +15,7 @@ InspectorNodePropreties::InspectorNodePropreties(EditorImGui* pImGuiEditor)
     m_luaBrowser.SetDirectory("../Game/res");
 }
 
-void InspectorNodePropreties::DrawWindow(bool windowState, Node* pNode)
+void InspectorNodeProperties::DrawWindow(bool windowState, Node* pNode)
 {
     m_isOpen = windowState;
     if (!m_isOpen) return;
@@ -84,7 +84,7 @@ void InspectorNodePropreties::DrawWindow(bool windowState, Node* pNode)
     ImGui::End();
 }
 
-bool InspectorNodePropreties::DrawDatas(json& publicDataJson)
+bool InspectorNodeProperties::DrawDatas(json& publicDataJson)
 {
 	bool wasModified = false;
 	for (auto& [key, value] : publicDataJson.items())
@@ -162,7 +162,7 @@ bool InspectorNodePropreties::DrawDatas(json& publicDataJson)
 	return wasModified;
 }
 
-bool InspectorNodePropreties::DrawLuaScriptPicker(json& publicDataJson)
+bool InspectorNodeProperties::DrawLuaScriptPicker(json& publicDataJson)
 {
     bool wasModified = false;
 
