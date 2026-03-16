@@ -22,7 +22,7 @@ public:
 private:
 	void UpdateViewport() const;
 
-private:
+protected:
 	uptr<Viewport> m_pViewPort;
 };
 

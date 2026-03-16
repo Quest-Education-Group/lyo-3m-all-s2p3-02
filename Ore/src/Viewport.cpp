@@ -1,9 +1,7 @@
 #include "Viewport.h"
 #include "Logger.hpp"
-#include "Window.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 Viewport::Viewport(uint16 x, uint16 y, uint16 width, uint16 height, Color const& backgroundColor)
 {
@@ -12,8 +10,6 @@ Viewport::Viewport(uint16 x, uint16 y, uint16 width, uint16 height, Color const&
     m_width = width;
     m_height = height;
     m_backgroundColor = backgroundColor;
-
-    Setup();
 }
 
 Viewport::~Viewport()

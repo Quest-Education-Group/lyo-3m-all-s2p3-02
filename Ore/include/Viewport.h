@@ -23,8 +23,8 @@ public:
     
     void AddPass(sptr<Pass> pPass);
 
-protected:
-    void Setup() override; 
+    void Setup() override;
+
 };
 
 #endif

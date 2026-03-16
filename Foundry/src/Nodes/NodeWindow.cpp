@@ -1,8 +1,12 @@
 #include "Nodes/NodeWindow.h"
 
+#include "Servers/GraphicServer.h"
+
 NodeWindow::NodeWindow(std::string const& name) : NodeViewport(name)
 {
     m_pWindow = std::make_unique<Window>(1920, 1080, name);
+    m_pWindow->AddViewport(*m_pViewPort);
+    GraphicServer::OpenWindow(m_pWindow.get());
 }
 
 NodeWindow::~NodeWindow()
@@ -15,6 +19,8 @@ void NodeWindow::OnUpdate(double const delta)
     if (m_transform.GetDirty())
         UpdateWindow();
     NodeViewport::OnUpdate(delta);
+    GraphicServer::Clear(m_pWindow.get());
+    GraphicServer::Present(m_pWindow.get());
 }
 
 void NodeWindow::AddViewport(Viewport& viewport) const
