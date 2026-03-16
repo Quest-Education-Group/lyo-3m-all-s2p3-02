@@ -78,6 +78,7 @@ void Window::Open()
 
 void Window::Clear()
 {
+    glfwMakeContextCurrent(m_pWindow);
     for(Viewport const* pViewport : m_viewports)
     {
         pViewport->Clear();
