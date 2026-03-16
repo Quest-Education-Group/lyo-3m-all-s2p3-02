@@ -34,9 +34,7 @@ public:
 
 
 
-	// -------------------------------------------------------
-	// Getters
-	// -------------------------------------------------------
+	// =========== Getters ===========
 
 	glm::vec3 GetPosition() const					{ return m_transform.GetPosition(); }
 	float GetX() const								{ return m_transform.GetX(); }
@@ -65,9 +63,7 @@ public:
 	glm::vec3 GetLocalForward() const				{ return m_transform.GetForward(); }
 
 
-	// -------------------------------------------------------
-	// Setters
-	// -------------------------------------------------------
+	// =========== Setters ===========
 
 	void SetLocalPosition(glm::vec3 const pos)		{ m_transform.SetPosition(glm::vec4(pos, 1.0f)); }
 	void SetLocalX(float const x)					{ m_transform.SetX(x); }

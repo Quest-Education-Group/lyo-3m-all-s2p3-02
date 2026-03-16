@@ -1,12 +1,11 @@
 
-
 class NodeRigidBody::Proxy : public Node::Proxy
 {
 public:
 	struct ProxyBinding;
 
 	Proxy(Node& node) : Node::Proxy(node) {}
-	void Test();
+	void Test() {};
 
 private:
 	NodeRigidBody* m_pNode;

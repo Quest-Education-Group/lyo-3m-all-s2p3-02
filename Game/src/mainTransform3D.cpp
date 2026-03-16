@@ -15,16 +15,13 @@
 #include "Transform3D.h"
 #include "Nodes/Node3D.h"
 #include "Nodes/NodeRigidBody.h"
+#include <Nodes/NodeCollider.h>
 #include "Clock.hpp"
 #include <Debug.h>
-//
-//namespace rp = reactphysics3d;
 
 
-
-#include "raymath.h"
-#include "rlgl.h"
-#include <Nodes/NodeCollider.h>
+//#include "raymath.h"
+//#include "rlgl.h"
 
 class OverlapCB : public rp3d::OverlapCallback {
 public:
@@ -40,28 +37,6 @@ public:
 		hit = (data.getNbContactPairs() > 0);
 	}
 };
-
-//void MoveCharacter(rp3d::RigidBody* rb, const glm::vec3& direction, float speed)
-//{
-//	reactphysics3d::Vector3 currentVel = rb->getLinearVelocity();
-//
-//	rb->setLinearVelocity(reactphysics3d::Vector3(
-//		direction.x * speed,
-//		currentVel.y,          
-//		direction.z * speed
-//	));
-//
-//	rb->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 0, 0));
-//}
-//void Jump(rp3d::RigidBody* rb, float force)
-//{
-//	reactphysics3d::Vector3 currentVel = rb->getLinearVelocity();
-//	rb->setLinearVelocity(reactphysics3d::Vector3(
-//		currentVel.x,
-//		force,         
-//		currentVel.z
-//	));
-//}
 
 int main() {
 	InitWindow(1280, 720, "Cube");
@@ -98,7 +73,7 @@ int main() {
 
 	player->SetLocalPosition({ 0.0f, 1.0f, 0.0f });
 
-	C_player->SetBoxShape({ 1.0f, 1.0f, 1.0f });   // configure la shape AVANT d'attacher
+	C_player->SetBoxShape({ 1.0f, 1.0f, 1.0f });
 
 
 	RB_player->SetOwner(player.get());
@@ -108,8 +83,16 @@ int main() {
 	RB_player->GetRigidBody().setAngularDamping(2.0f);
 	RB_player->GetRigidBody().setAngularLockAxisFactor(rp3d::Vector3(1.0, 1.0, 1.0));
 
-	RB_player->AddChild(std::move(C_player)); // ← OnSceneEnter déclenché ici, auto-attach
+	//RB_player->AddChild(std::move(C_player));
+	RB_player->AddChild(std::move(C_player));
+	//C_player->Reparent(*RB_player.get());
 
+	//auto ref_player = static_cast<NodeCollider*>(&player->FindChild<NodeCollider>()->get());
+
+	//auto ref_collider = static_cast<NodeCollider*>(&RB_player->FindChild<NodeCollider>()->get());
+	//auto ref_collider = static_cast<NodeCollider*>(&RB_player->GetChild(0));
+	//if (ref_collider)
+	//	ref_collider->init();
 
 	//  Mur statique 
 	const Vector3   WALL_POS = { 3.0f, 1.0f, 0.0f };
@@ -139,7 +122,7 @@ int main() {
 	RB_wall->AddChild(std::move(C_wall));
 
 
-		//  Sol statique 
+	//  Sol statique 
 	const Vector3   FLOOR_POS = { 0.0f, -1.0f, 0.0f };
 	const float     FLOOR_W = 100.0f;
 	const float     FLOOR_H = 2.0f;
@@ -180,10 +163,32 @@ int main() {
 	Mesh cubeMesh = GenMeshCube(2.0f, 2.0f, 2.0f);
 	Material cubeMaterial = LoadMaterialDefault();
 
-	while (!WindowShouldClose()) {
+	EngineServer::FlushCommands();
+
+	auto ref_collider = static_cast<NodeCollider*>(&RB_player->GetChild(0));
+	if (ref_collider)
+		ref_collider->init();
+
+	int d = 0;
+
+	while (!WindowShouldClose())
+	{
 		float dt = GetFrameTime();
 		if (dt <= 0.0f || dt > 0.1f) dt = FIXED_DT;
 
+		//if (d < 2)
+		//{
+		//	if(d==1)
+		//	{
+		//		auto ref_collider = static_cast<NodeCollider*>(&RB_player->GetChild(0));
+		//		if (ref_collider)
+		//			ref_collider->init();
+		//	}
+		//	d++;
+		//}
+
+
+		RB_player->SetBodyType(RigidBodyType::DYNAMIC);
 		// --- move  ---
 		rp3d::Vector3 currentVel = RB_wall->GetRigidBody().getLinearVelocity();
 
@@ -224,17 +229,25 @@ int main() {
 
 		if (IsKeyDown(KEY_C))  RB_player->ApplyLocalTorque({ 30,0,0 });
 
+		//if (IsKeyDown(KEY_G))
+		//{
+		//	auto collider = RB_floor->FindChild<NodeCollider>();
+		//	if (collider)
+		//		collider->get().SetBounciness(collider->get().GetBounciness() + 0.1);
+		//}
+		//if (IsKeyDown(KEY_H))
+		//{
+		//	auto collider = RB_floor->FindChild<NodeCollider>();
+		//	if (collider)
+		//		collider->get().SetBounciness(collider->get().GetBounciness() - 0.1);
+		//}
 		if (IsKeyDown(KEY_G))
 		{
-			auto collider = RB_floor->FindChild<NodeCollider>();
-			if (collider)
-				collider->get().SetBounciness(collider->get().GetBounciness() + 0.1);
+			RB_player->LockAngularAxis(true, true, true);
 		}
 		if (IsKeyDown(KEY_H))
 		{
-			auto collider = RB_floor->FindChild<NodeCollider>();
-			if (collider)
-				collider->get().SetBounciness(collider->get().GetBounciness() - 0.1);
+			RB_player->LockLinearAxis(true, true, true);
 		}
 
 
@@ -247,6 +260,13 @@ int main() {
 		//playerBody->applyLocalForceAtLocalPosition({ 0.0,0.0,-1.0 }, { 1.0,0.0,0.0 }); // yaw
 
 
+		RB_player->Update(dt);
+		player->Update(dt);
+
+		RB_wall->Update(dt);
+		wall->Update(dt);
+		RB_floor->Update(dt);
+		floor->Update(dt);
 		// --- update physics ---
 		accumulator += dt;
 		while (accumulator >= FIXED_DT) {
@@ -255,13 +275,6 @@ int main() {
 			PhysicsServer::UpdatePhysicsWorld(FIXED_DT);
 			accumulator -= FIXED_DT;
 		}
-		RB_player->Update(dt);
-		player->Update(dt);
-
-		RB_wall->Update(dt);
-		wall->Update(dt);
-		RB_floor->Update(dt);
-		floor->Update(dt);
 
 		//rp3d::Vector3 p = playerBody->getTransform().getPosition();
 		rp3d::Vector3 p = RB_player->GetRigidBody().getTransform().getPosition();
@@ -300,8 +313,7 @@ int main() {
 				DrawMesh(cubeMesh, cubeMaterial, mat);
 			};
 
-
-		draw(rlMat_player, BEIGE);
+		draw(rlMat_player, isColliding ? RED : BEIGE);
 
 		// Mur
 		DrawCube(WALL_POS, WALL_W, WALL_H, WALL_D, { 180, 140, 80, 255 });
@@ -319,7 +331,8 @@ int main() {
 		else
 			DrawText("Aucune collision", 20, 118, 20, GREEN);
 
-		DrawText(TextFormat("RB_Pos: (%.1f, %.1f, %.1f)", pos.x, pos.y, pos.z),
+		//DrawText(TextFormat("RB_Pos: (%.1f, %.1f, %.1f)", pos.x, pos.y, pos.z),
+		DrawText(TextFormat("RB_Pos: (%.1f, %.1f, %.1f)", RB_player->Getposition().x, RB_player->Getposition().y, RB_player->Getposition().z),
 			10, GetScreenHeight() - 48, 16, BLACK);
 		DrawText(TextFormat("PlayerPos: (%.1f, %.1f, %.1f)", player->GetPosition().x, player->GetPosition().y, player->GetPosition().z),
 			10, GetScreenHeight() - 26, 16, BLACK);

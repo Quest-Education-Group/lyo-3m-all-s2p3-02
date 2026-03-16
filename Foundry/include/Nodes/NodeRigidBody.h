@@ -38,9 +38,7 @@ public:
 
 
 
-	// -------------------------------------------------------
-	// Forces and Torques
-	// -------------------------------------------------------
+	// =========== Forces and Torques ===========
 
 	void ApplyLocalForceAtCenterOfMass(const glm::vec3& force);
 	void ApplyLocalForceAtLocalPosition(const glm::vec3& force, const glm::vec3& point);
@@ -75,9 +73,7 @@ public:
 	void ResetForces();
 	void ResetTorque();
 
-	// -------------------------------------------------------
-	// Mass and Body Type
-	// -------------------------------------------------------
+	// =========== Mass and Body Type ===========
 
 	float GetMass() const;
 	void  SetMass(float mass);
@@ -85,9 +81,8 @@ public:
 	RigidBodyType GetBodyType() const;
 	void          SetBodyType(RigidBodyType type);
 
-	// -------------------------------------------------------
-	// Sleeping and Gravity
-	// -------------------------------------------------------
+
+	// =========== Sleeping and Gravity ===========
 
 	bool IsSleeping() const;
 	bool IsAllowedToSleep() const;
@@ -96,6 +91,11 @@ public:
 	void SetSleepingEnabled(bool enabled);
 	void SetSleepingState(bool isSleeping);
 	void SetIsGravityEnabled(bool enabled);
+
+	glm::vec3 Getposition() const 
+	{ 
+		return rp3dToGlm(m_pRigidBody->getTransform().getPosition());
+	}
 
 
 protected:
@@ -107,5 +107,7 @@ private:
 };
 
 REGISTER_ISERIALIZABLE(NodeRigidBody, NodeRigidBody::CreateInstance);
+
+#include "Scripting/Proxies/NodeRigidBodyProxy.inl"
 
 #endif // -FOUNDRY_NODERIGIDBODY__H_

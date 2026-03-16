@@ -10,7 +10,18 @@ NodeRigidBody::~NodeRigidBody()
 
 NodeRigidBody::NodeRigidBody(std::string const& name) : Node(name)
 {
+	OnParentChange.Subscribe([this](Node& self)
+		{
+		//	if (auto* rigidBody = dynamic_cast<NodeRigidBody*>(m_pOwner))
+		//		AttachToRigidBody(&rigidBody->GetRigidBody());
+		});
 
+	OnSceneLeave.Subscribe([this](Node& self)
+		{
+			PhysicsServer::GetPhysicsWorld().destroyRigidBody(m_pRigidBody);
+			 m_pRigidBody = nullptr;
+			 m_pNode3D = nullptr;
+		});
 }
 
 NodeRigidBody::NodeRigidBody(std::string const& name, Node3D* owner) : Node(name)
@@ -23,7 +34,7 @@ void NodeRigidBody::SetOwner(Node3D* owner)
 	m_pNode3D = owner;
 	m_pNode3D->Update(0.016);
 	//m_pRigidBody = PhysicsServer::CreateRigidBody(*owner, this);
-	
+
 	reactphysics3d::Transform reactTr;
 	auto pos = owner->GetWorldPosition();
 	auto rot = owner->GetWorldRotationQuaternion();
@@ -31,12 +42,12 @@ void NodeRigidBody::SetOwner(Node3D* owner)
 	reactTr.setOrientation({ rot.x, rot.y, rot.z, rot.w });
 	m_pRigidBody = PhysicsServer::CreateRigidBody(reactTr, this);
 
-	m_pRigidBody->setType(rp3d::BodyType::STATIC);
-	m_pRigidBody->enableGravity(true);
-	m_pRigidBody->setLinearDamping(0.5f);
-	m_pRigidBody->setAngularDamping(0.5f);
-	m_pRigidBody->setMass(1.0f);
-	m_pRigidBody->setIsAllowedToSleep(true);
+	//m_pRigidBody->setType(rp3d::BodyType::STATIC);
+	//m_pRigidBody->enableGravity(true);
+	//m_pRigidBody->setLinearDamping(0.5f);
+	//m_pRigidBody->setAngularDamping(0.5f);
+	//m_pRigidBody->setMass(1.0f);
+	//m_pRigidBody->setIsAllowedToSleep(true);
 }
 void NodeRigidBody::OnUpdate(double delta)
 {
@@ -68,45 +79,45 @@ void NodeRigidBody::OnUpdate(double delta)
 
 void NodeRigidBody::ApplyLocalForceAtCenterOfMass(const glm::vec3& force)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->applyLocalForceAtCenterOfMass(glmToRp3d(force));
+	if (m_pNode3D)
+		m_pRigidBody->applyLocalForceAtCenterOfMass(glmToRp3d(force));
 }
 void NodeRigidBody::ApplyLocalForceAtLocalPosition(const glm::vec3& force, const glm::vec3& point)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->applyLocalForceAtLocalPosition(glmToRp3d(force), glmToRp3d(point));
+	if (m_pNode3D)
+		m_pRigidBody->applyLocalForceAtLocalPosition(glmToRp3d(force), glmToRp3d(point));
 }
 void NodeRigidBody::ApplyLocalForceAtWorldPosition(const glm::vec3& force, const glm::vec3& point)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->applyLocalForceAtWorldPosition(glmToRp3d(force), glmToRp3d(point));
+	if (m_pNode3D)
+		m_pRigidBody->applyLocalForceAtWorldPosition(glmToRp3d(force), glmToRp3d(point));
 }
 
 void NodeRigidBody::ApplyWorldForceAtCenterOfMass(const glm::vec3& force)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->applyWorldForceAtCenterOfMass(glmToRp3d(force));
+	if (m_pNode3D)
+		m_pRigidBody->applyWorldForceAtCenterOfMass(glmToRp3d(force));
 }
 void NodeRigidBody::ApplyWorldForceAtLocalPosition(const glm::vec3& force, const glm::vec3& point)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->applyWorldForceAtLocalPosition(glmToRp3d(force), glmToRp3d(point));
+	if (m_pNode3D)
+		m_pRigidBody->applyWorldForceAtLocalPosition(glmToRp3d(force), glmToRp3d(point));
 }
 void NodeRigidBody::ApplyWorldForceAtWorldPosition(const glm::vec3& force, const glm::vec3& point)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->applyWorldForceAtWorldPosition(glmToRp3d(force), glmToRp3d(point));
+	if (m_pNode3D)
+		m_pRigidBody->applyWorldForceAtWorldPosition(glmToRp3d(force), glmToRp3d(point));
 }
 
 void NodeRigidBody::ApplyLocalTorque(const glm::vec3& torque)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->applyLocalTorque(glmToRp3d(torque));
+	if (m_pNode3D)
+		m_pRigidBody->applyLocalTorque(glmToRp3d(torque));
 }
 void NodeRigidBody::ApplyWorldTorque(const glm::vec3& torque)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->applyWorldTorque(glmToRp3d(torque));
+	if (m_pNode3D)
+		m_pRigidBody->applyWorldTorque(glmToRp3d(torque));
 }
 
 glm::vec3 const NodeRigidBody::GetLinearVelocity() const
@@ -141,25 +152,25 @@ glm::vec3 const NodeRigidBody::GetTotalForce() const
 
 void NodeRigidBody::SetLinearVelocity(const glm::vec3& velocity)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setLinearVelocity(glmToRp3d(velocity));
+	if (m_pNode3D)
+		m_pRigidBody->setLinearVelocity(glmToRp3d(velocity));
 }
 void NodeRigidBody::SetAngularVelocity(const glm::vec3& velocity)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setAngularVelocity(glmToRp3d(velocity));
+	if (m_pNode3D)
+		m_pRigidBody->setAngularVelocity(glmToRp3d(velocity));
 }
 /// Set the linear decelerating factor
 void  NodeRigidBody::SetLinearDamping(float linearDamping)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setLinearDamping(linearDamping);
+	if (m_pNode3D)
+		m_pRigidBody->setLinearDamping(linearDamping);
 }
 /// Set the angular decelerating factor
 void  NodeRigidBody::SetAngularDamping(float angularDamping)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setAngularDamping(angularDamping);
+	if (m_pNode3D)
+		m_pRigidBody->setAngularDamping(angularDamping);
 }
 
 float NodeRigidBody::GetMass() const
@@ -169,8 +180,8 @@ float NodeRigidBody::GetMass() const
 }
 void  NodeRigidBody::SetMass(float mass)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setMass(mass);
+	if (m_pNode3D)
+		m_pRigidBody->setMass(mass);
 }
 
 RigidBodyType NodeRigidBody::GetBodyType() const
@@ -207,13 +218,13 @@ void NodeRigidBody::SetBodyType(RigidBodyType type)
 
 void NodeRigidBody::LockLinearAxis(bool x, bool y, bool z)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setLinearLockAxisFactor(rp3d::Vector3{ x == false ? 0.0f : 1.0f, y == false ? 0.0f : 1.0f, z == false ? 0.0f : 1.0f });
+	if (m_pNode3D)
+		m_pRigidBody->setLinearLockAxisFactor(rp3d::Vector3{ x == false ? 0.0f : 1.0f, y == false ? 0.0f : 1.0f, z == false ? 0.0f : 1.0f });
 }
 void NodeRigidBody::LockAngularAxis(bool x, bool y, bool z)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setAngularLockAxisFactor(rp3d::Vector3{ x == false ? 0.0f : 1.0f, y == false ? 0.0f : 1.0f, z == false ? 0.0f : 1.0f });
+	if (m_pNode3D)
+		m_pRigidBody->setAngularLockAxisFactor(rp3d::Vector3{ x == false ? 0.0f : 1.0f, y == false ? 0.0f : 1.0f, z == false ? 0.0f : 1.0f });
 }
 
 bool NodeRigidBody::IsSleeping() const
@@ -228,35 +239,36 @@ bool NodeRigidBody::IsAllowedToSleep() const
 }
 void NodeRigidBody::SetSleepingEnabled(bool enabled)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setIsAllowedToSleep(enabled);
+	if (m_pNode3D)
+		m_pRigidBody->setIsAllowedToSleep(enabled);
 }
 void NodeRigidBody::SetSleepingState(bool isSleeping)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->setIsSleeping(isSleeping);
+	if (m_pNode3D)
+		m_pRigidBody->setIsSleeping(isSleeping);
 }
 
 bool NodeRigidBody::IsGravityEnabled()
 {
-	if (m_pNode3D == nullptr) return false;
-	return m_pRigidBody->isGravityEnabled();
+	if (m_pNode3D)
+		return m_pRigidBody->isGravityEnabled();
 }
 void NodeRigidBody::SetIsGravityEnabled(bool enabled)
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->enableGravity(enabled);
+	if (m_pNode3D)
+		m_pRigidBody->enableGravity(enabled);
 }
 
 
 void NodeRigidBody::ResetForces()
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->resetForce();
+	if (m_pNode3D)
+		m_pRigidBody->resetForce();
 }
 void NodeRigidBody::ResetTorque()
 {
-	if (m_pNode3D == nullptr) return;
-	m_pRigidBody->resetTorque();
+
+	if (m_pNode3D)
+		m_pRigidBody->resetTorque();
 }
 

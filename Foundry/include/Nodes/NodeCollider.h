@@ -15,37 +15,33 @@ public:
     NodeCollider(std::string const& name);
     ~NodeCollider() override;
 
+    void init();
+
     void AttachToRigidBody(rp3d::RigidBody* rigidBody);
     void Detach();
     bool IsAttached() const { return m_pCollider != nullptr; }
     
-    //rp3d::Collider* GetRp3dCollider() const { return m_pCollider; }
+    //rp3d::Collider* GetCollider() const { return m_pCollider; }
 
     // Engine
     ////////////////////////////////////////////////////////////
 
 
 
-    // -------------------------------------------------------
-    // Shapes
-    // -------------------------------------------------------
+    // =========== Shapes ===========
 
     void SetBoxShape(const glm::vec3& halfExtents);
     void SetSphereShape(float radius);
     void SetCapsuleShape(float radius, float height);
 
-    // -------------------------------------------------------
-    // Local transform (offset from RigidBody)
-    // -------------------------------------------------------
+    // =========== Local transform (offset from RigidBody) ===========
 
     void SetLocalPosition(const glm::vec3& pos);
     void SetLocalRotation(const glm::quat& rot);
     glm::vec3 const& GetLocalPosition() const { return m_localPosition; }
     glm::quat const& GetLocalRotation() const { return m_localRotation; }
 
-    // -------------------------------------------------------
-    // Material
-    // -------------------------------------------------------
+    // =========== Material ===========
 
     void  SetBounciness(float bounciness);
     float GetBounciness() const;
@@ -54,9 +50,7 @@ public:
     void  SetMassDensity(float density);
     float GetMassDensity() const;
 
-    // -------------------------------------------------------
-	// Collider behavior
-    // -------------------------------------------------------
+    // =========== Collider behavior ===========
 
     void SetIsTrigger(bool trigger);
     bool IsTrigger() const;
@@ -65,9 +59,8 @@ public:
     void SetIsWorldQueryCollider(bool enabled);
     bool IsWorldQueryCollider() const;
 
-    // -------------------------------------------------------
-    // Collision filtering
-    // -------------------------------------------------------
+
+    // =========== Collision filtering ===========
 
     void     SetCollisionCategoryBits(uint16_t category);
     uint16_t GetCollisionCategoryBits() const;
@@ -75,13 +68,12 @@ public:
     uint16_t GetCollisionBitsMask() const;
 
 
-
 private:
     void              DestroyShape();
     rp3d::Transform   GetLocalRp3dTransform() const;
 
     rp3d::Collider* m_pCollider = nullptr;
-    rp3d::CollisionShape* m_pShape = nullptr;
+    rp3d::CollisionShape* m_pShape = nullptr;   // A GARDER PLUTOT DANS LE SERV POUR UNE SUELE INSTANTE DE CHAQUE SHAPE ?
     rp3d::RigidBody* m_pRigidBody = nullptr;
 
     glm::vec3 m_localPosition{ 0.0f, 0.0f, 0.0f };
@@ -90,5 +82,7 @@ private:
 
 
 REGISTER_ISERIALIZABLE(NodeCollider, NodeCollider::CreateInstance);
+
+#include "Scripting/Proxies/NodeColliderProxy.inl"
 
 #endif // !NODECOLLIDER__H_

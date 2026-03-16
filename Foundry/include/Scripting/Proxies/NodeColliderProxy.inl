@@ -6,7 +6,7 @@ public:
 	struct ProxyBinding;
 
 	Proxy(Node& node) : Node::Proxy(node) {}
-	void Test();
+	void Test() {};
 
 private:
 	NodeCollider* m_pNode;
