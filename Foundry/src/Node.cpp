@@ -191,7 +191,7 @@ void Node::Serialize(SerializedObject& datas) const
 {
 	// Call baseClass::Serialize(datas) : Example Node::Serialize(datas)
 	datas.SetType("Node");
-	datas.AddPublicElement("m_name", &m_name);
+	datas.AddPublicElement("Name", &m_name);
 	datas.AddPrivateArray("Children");
 	std::string parent = "";
 	if (m_pOwner != nullptr)
@@ -215,7 +215,7 @@ void Node::Deserialize(SerializedObject const& datas)
 {
 	// Call baseClass::Deserialize(datas) : Example Node::Deserialize(datas)
 	std::string t = datas.GetType();
-	datas.GetPublicElement("m_name",&m_name);
+	datas.GetPublicElement("Name",&m_name);
 	std::string path = {};
 	datas.GetPrivateElement("m_scriptPath", &path);
 	if (path != "")

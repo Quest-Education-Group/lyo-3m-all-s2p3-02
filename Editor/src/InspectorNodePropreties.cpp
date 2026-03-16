@@ -148,7 +148,6 @@ bool InspectorNodePropreties::DrawDatas(json& publicDataJson)
 		}
 		ImGui::PopID();
 		ImGui::Spacing();
-
 	}
 	return wasModified;
 }

@@ -43,6 +43,7 @@ public:
 
 	void AddDrawableObject(std::string const& name,Node* jsonObject);
 	void UpdateDrawableElement(Node* pNode);
+	void UpdateElementName(std::string const& oldName,Node* pNode);
 	void RemoveDrawableElement(std::string const& elementName);
 	void ClearWindow();
 
@@ -84,6 +85,7 @@ private:
 	CameraMode m_cameraMode = CAMERA_CUSTOM;
 
 	RaylibAxis m_currentAxis = X;
+	float m_gizmoSize = 1.0f;
 
 	Material m_defaultMaterial;
 

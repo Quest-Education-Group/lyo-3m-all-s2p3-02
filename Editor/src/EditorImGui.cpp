@@ -676,9 +676,14 @@ void EditorImGui::ApplyInspectorChanges(json& datas)
 	cleanJson["PRIVATE_DATAS"] = tempJson["PRIVATE_DATAS"];
 	cleanJson["PRIVATE_DATAS"]["Children"] = json::array(); // No child for safety, they are not handled by the inspector
 
-	
+	std::string oldName = m_pSelectedNode->GetName();
 	m_selectedNodeData.SetJson(cleanJson);
 	m_pSelectedNode->Deserialize(m_selectedNodeData);
+
+	if (oldName != m_pSelectedNode->GetName())
+	{
+		m_pRaylibEditor->UpdateElementName(oldName, m_pSelectedNode);
+	}
 	
 	std::cout << "[EditorImGui] Applied inspector changes" << std::endl;
 }

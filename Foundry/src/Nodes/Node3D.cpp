@@ -159,7 +159,7 @@ void Node3D::Serialize(SerializedObject& datas) const
 	//glm::vec3 rotation = GetWorldRotation();
 	//datas.AddPublicElement("m_worldRotation", static_cast<glm::vec3 const*>(&rotation));
 	
-	datas.AddPublicElement("m_transform", static_cast<ISerializable const*>(&m_transform));
+	datas.AddPublicElement("Transform", static_cast<ISerializable const*>(&m_transform));
 }
 
 
@@ -180,7 +180,7 @@ void Node3D::Deserialize(SerializedObject const& datas)
 	//datas.GetPublicElement("m_worldRotation", static_cast<glm::vec3*>(&rotation));
 	//SetWorldRotation(rotation);
 
-	datas.GetPublicElement("m_transform", static_cast<ISerializable*>(&m_transform));
+	datas.GetPublicElement("Transform", static_cast<ISerializable*>(&m_transform));
 
 }
 

@@ -9,6 +9,8 @@
 
 bool AreMatrixEqual(Matrix const& m1, Matrix const& m2)
 {
+	return memcmp(&m1, &m2, sizeof(Matrix)) == 0;
+
 	float EPS = 0.0001f;
 	return ((m1.m0 - m2.m0) < EPS && (m2.m0 - m1.m0) < EPS) && ((m1.m1 - m2.m1) < EPS && (m2.m1 - m1.m1) < EPS) && ((m1.m2 - m2.m2) < EPS && (m2.m2 - m1.m2) < EPS) && ((m1.m3 - m2.m3) < EPS && (m2.m3 - m1.m3) < EPS) &&
 		   ((m1.m4 - m2.m4) < EPS && (m2.m4 - m1.m4) < EPS) && ((m1.m5 - m2.m5) < EPS && (m2.m5 - m1.m5) < EPS) && ((m1.m6 - m2.m6) < EPS && (m2.m6 - m1.m6) < EPS) && ((m1.m7 - m2.m7) < EPS && (m2.m7 - m1.m7) < EPS) &&
@@ -16,23 +18,12 @@ bool AreMatrixEqual(Matrix const& m1, Matrix const& m2)
 		   ((m1.m12 - m2.m12) < EPS && (m2.m12 - m1.m12) < EPS) && ((m1.m13 - m2.m13) < EPS && (m2.m13 - m1.m13) < EPS) && ((m1.m14 - m2.m14) < EPS && (m2.m14 - m1.m14) < EPS) && ((m1.m15 - m2.m15) < EPS && (m2.m15 - m1.m15) < EPS);
 }
 
-
-bool AreMatrixEqual(glm::mat4x4 const& m1, Matrix const& m2)
-{
-	return (m1[0][0] == m2.m0) && (m1[0][1] == m2.m1) && (m1[0][2] == m2.m2) && (m1[0][3] == m2.m3) &&
-		(m1[1][0] == m2.m4) && (m1[1][1] == m2.m5) && (m1[1][2] == m2.m6) && (m1[1][3] == m2.m7) &&
-		(m1[2][0] == m2.m8) && (m1[2][1] == m2.m9) && (m1[2][2] == m2.m10) && (m1[2][3] == m2.m11) &&
-		(m1[3][0] == m2.m12) && (m1[3][1] == m2.m13) && (m1[3][2] == m2.m14) && (m1[3][3] == m2.m15);
-}
-
 Matrix GlmToMatrix(glm::mat4x4 const& m1)
 {
-	return {
-			m1[0][0], m1[1][0], m1[2][0], m1[3][0],
-			m1[0][1], m1[1][1], m1[2][1], m1[3][1],
-			m1[0][2], m1[1][2], m1[2][2], m1[3][2],
-			m1[0][3], m1[1][3], m1[2][3], m1[3][3]
-	};
+	glm::mat4x4 mat = glm::transpose(m1);
+	Matrix res = {};
+	memcpy(&res, &mat, sizeof(glm::mat4x4));
+	return res;
 }
 
 bool AreTransform3DMAtrixEqual(Transform3D const* m1, Node3D const* m2)
@@ -90,6 +81,7 @@ void EditorRaylib3D::ChangeCamera(CameraState state)
 		m_camera.up = { 0.0f, 1.0f, 0.0f };
 		m_camera.fovy = 45.0f;
 		m_camera.projection = CAMERA_PERSPECTIVE;
+		m_gizmoSize = 1.0f;
 		UpdateCamera(&m_camera, CAMERA_PERSPECTIVE);
 		break;
 	case EditorRaylib3D::ORTHOGRAPHIC:
@@ -191,6 +183,15 @@ void EditorRaylib3D::UpdateDrawableElement(Node* pNode)
 	}
 }
 
+void EditorRaylib3D::UpdateElementName(std::string const& oldName, Node* pNode)
+{
+	if (!m_loadedMeshs.contains(oldName)) return;
+
+	AddDrawableObject(pNode->GetName(), pNode);
+	m_loadedMeshs.erase(oldName);
+	m_selectedObject = pNode->GetName();
+}
+
 void EditorRaylib3D::RemoveDrawableElement(std::string const& elementName)
 {
 	 if (m_loadedMeshs.contains(elementName))
@@ -220,13 +221,14 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 		m_loadedMeshs[name] = std::make_unique<DrawableElement>();
 		m_loadedMeshs[name]->gizmoTransform = RayGizmo::GizmoIdentity();
 		m_loadedMeshs[name]->mesh = std::make_unique<Mesh>(m_mesh); // GetMesh
-		m_loadedMeshs[name]->worldMatrix = RayGizmo::GizmoToMatrix(RayGizmo::GizmoIdentity()); // GetMesh
+		m_loadedMeshs[name]->worldMatrix = {}; // GetMesh
+
 		Node3D* pNode3D = static_cast<Node3D*>(FindNode3DWorldMatrix(pNodeMesh3D, m_loadedMeshs[name].get()->worldMatrix));
 		if (pNode3D != nullptr)
 		{
 			m_loadedMeshs[name]->gizmoTransform.translation = Vector3{ pNode3D->GetWorldPosition().x,pNode3D->GetWorldPosition().y,pNode3D->GetWorldPosition().z };
 			m_loadedMeshs[name]->gizmoTransform.scale = Vector3{ pNode3D->GetWorldScale().x,pNode3D->GetWorldScale().y,pNode3D->GetWorldScale().z };
-			m_loadedMeshs[name]->gizmoTransform.rotation = Quaternion{ pNode3D->GetWorldRotationQuat().x, pNode3D->GetWorldRotationQuat().y,pNode3D->GetWorldRotationQuat().z,pNode3D->GetWorldRotationQuat().w };
+			m_loadedMeshs[name]->gizmoTransform.rotation = Quaternion{ pNode3D->GetWorldRotationQuat().x,pNode3D->GetWorldRotationQuat().y,pNode3D->GetWorldRotationQuat().z,pNode3D->GetWorldRotationQuat().w };
 		}
 
 	}
@@ -253,6 +255,7 @@ void EditorRaylib3D::Render()
 		DrawMesh(*it->second->mesh.get(), m_defaultMaterial, it->second->worldMatrix);
 		if (it->first == m_selectedObject)
 		{
+			RayGizmo::SetGizmoSize(m_gizmoSize);
 			if(RayGizmo::DrawGizmo3D(static_cast<int>(m_gizmoFlags), &it->second->gizmoTransform))
 			{
 				m_loadedMeshs[it->first]->gizmoUpdated = true;
@@ -289,6 +292,7 @@ void EditorRaylib3D::SetRotateGizmo(bool state)
 
 void EditorRaylib3D::SetCameraOnAxis(RaylibAxis axis)
 {
+	m_gizmoSize = 10.0f;
 	m_camera.projection = CAMERA_ORTHOGRAPHIC;
 	m_camera.fovy = 5.0f;
 	switch (axis)
