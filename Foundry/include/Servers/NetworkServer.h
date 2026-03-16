@@ -202,7 +202,7 @@ private:
 	void FlushCommandsImpl() override;
 
 	bool Command_Init(NetworkType networkType, int serverPort);
-	bool Command_Start();
+	void Command_Start();
 	void Command_Close();
 	bool Command_ConnectingTo(const char* addressIP, int addressPort);
 	bool Command_SendMsgToClientsInput();

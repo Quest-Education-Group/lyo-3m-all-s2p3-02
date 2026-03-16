@@ -3,6 +3,7 @@
 
 #include "Servers/NetworkServer.h"
 #include "Nodes/NodeNetwork.h"
+#include <Debug.h>
 
 void LaunchNodeServer() 
 {
@@ -42,7 +43,7 @@ void LaunchNodeClient()
 	clientNode->ConnectTo("10.10.133.17", 54321);
 	clientNode->SendMsgToServerInput();
 
-	while (clientNode->GetIsRunning())
+	while (true)
 	{
 
 	}
@@ -73,6 +74,12 @@ int main(int argc, char** argv)
 	}
 
 	NetworkServer::StopEnet();
+
+	//DEBUG_WHILE_TRUE
+	while (true)
+	{
+		NetworkServer::FlushCommands();
+	}
 
 	return 0;
 }

@@ -138,12 +138,12 @@ void NetworkServer::ReceivePackage(ENetEvent& event)
 	if (m_type == NetworkType::SERVER)
 	{
 		SendMsgToClients("PackageReceived\n");
-		std::thread sendResponseToClientsThread(&NetworkServer::SendMsgToClientsInput, this);
+		std::thread sendResponseToClientsThread(NetworkServer::SendMsgToClientsInput);
 		sendResponseToClientsThread.detach();
 	}
 	if (m_type == NetworkType::CLIENT)
 	{
-		std::thread sendResponseToServThread(&NetworkServer::SendMsgToServerInput, this);
+		std::thread sendResponseToServThread(NetworkServer::SendMsgToServerInput);
 		sendResponseToServThread.detach();
 	}
 
@@ -358,13 +358,17 @@ void NetworkServer::PrintSyncVarValues()
 std::string NetworkServer::GetLocalIP() const
 {
 	char hostname[256];
-	gethostname(hostname, sizeof(hostname));
+	if (gethostname(hostname, sizeof(hostname)) != 0)
+		return "127.0.0.1";
 
-	addrinfo hints = {};
+	addrinfo hints{};
 	hints.ai_family = AF_INET;
 
 	addrinfo* result = nullptr;
-	getaddrinfo(hostname, NULL, &hints, &result);
+
+	int res = getaddrinfo(hostname, NULL, &hints, &result);
+	if (res != 0 || result == nullptr)
+		return "127.0.0.1";
 
 	char ip[INET_ADDRSTRLEN] = { 0 };
 
@@ -530,7 +534,7 @@ bool NetworkServer::Command_Init(NetworkType networkType, int serverPort)
 	return true;
 }
 
-bool NetworkServer::Command_Start() 
+void NetworkServer::Command_Start() 
 {
 	auto& inst = Instance();
 
@@ -576,7 +580,7 @@ bool NetworkServer::Command_ConnectingTo(const char* addressIP, int addressPort)
 
 	// Thread background
 	//std::thread clientLoopThread(&NetworkServer::Loop, inst); <- a tester
-	std::thread clientLoopThread(&NetworkServer::Loop, this);
+	std::thread clientLoopThread(&NetworkServer::Loop, &Instance());
 	clientLoopThread.detach();
 
 	return true;

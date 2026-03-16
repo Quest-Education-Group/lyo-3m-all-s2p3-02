@@ -18,15 +18,15 @@ public:
 	void CloseNetwork();
 	void SendMsgToServerInput();
 
-	NetworkServer& GetNetwork() { return m_network; };
-	std::string GetLocalIP() const { return m_network.GetLocalIP(); };
-	bool GetIsRunning() const { return m_network.GetIsRunning(); };
+	//NetworkServer& GetNetwork() { return m_network; };
+	//std::string GetLocalIP() const { return m_network.GetLocalIP(); };
+	//bool GetIsRunning() const { return m_network.GetIsRunning(); };
 
 protected:
 
 private:
 	// TODO : Remove that to only use instance
-	NetworkServer m_network;
+	//NetworkServer m_network;
 };
 
 #endif
