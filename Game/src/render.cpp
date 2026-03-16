@@ -33,24 +33,23 @@ void pos(int32 x, int32 y)
 int main()
 {
 	Window window(800, 600, "ORE ORE OREORE ORE ORE OREORE OREORE");
-	//EventManager::GetGamepadName(GamepadId::GAMEPAD_1);
-	//EventManager::GetGamepadName(GamepadId::GAMEPAD_2);
-	//EventManager::gamepadConnected.Subscribe(hello);
-	//EventManager::gamepadDisconnected.Subscribe(goodbye);
+    window.Open();
+
+    Viewport viewport(0,0,400,600, Color::BLUE);
+    Viewport viewport1(400, 0, 400, 600, Color::SKY_BLUE);
+
+    window.AddViewport(viewport);
+    window.AddViewport(viewport1);
+
     EventManager::getKey.Subscribe(key);
     EventManager::getMouse.Subscribe(mouse);
     EventManager::getCursorPos.Subscribe(pos);
+
 	while (window.IsOpen())
 	{
-		//EventManager::CheckGamepad();
-		//EventManager::GetGamepadAxes(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_LEFT_X);
-		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_A);
-		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_B);
-		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_X);
-		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_Y);
-		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_DPAD_DOWN);
-		//EventManager::GetButton(GamepadId::GAMEPAD_1, EventInput::GAMEPAD_LEFT_BUMPER);
+        window.Clear();
 		window.Present();
 	}
+
 	window.Close();
 }

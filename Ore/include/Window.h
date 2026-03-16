@@ -13,23 +13,24 @@ public:
     Window(int width, int height, std::string name, bool enableTransparency = false);
     ~Window() override;
 
+    void Clear() override;
     void Close() override;
     bool IsOpen() override;
     void Present() override;
-    void AddViewport(Viewport& viewport) {}; 
+
+    void AddViewport(Viewport const& viewport) {m_viewports.push_back(&viewport);} 
+    void RemoveViewport(Viewport const& viewport);
 
     void SetDecoration(bool hasDecoration) override;
     void SetIcon(std::string const& path) override {};
     void SetSize(uint16 width, uint16 height) override;
     static void FrameBufferResizeCallback(GLFWwindow* pWindow, int width, int height);
-
-protected:
     void Open() override;
 
 private:
-    GLFWwindow* Get() const { return m_pWindow;}
     static std::unordered_map<GLFWwindow*, Window*> s_windows;
     GLFWwindow* m_pWindow;
+    std::vector<Viewport const*> m_viewports;
 
     friend class Viewport;
     friend class EventManager;

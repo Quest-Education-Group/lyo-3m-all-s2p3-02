@@ -14,6 +14,7 @@ public:
     
     virtual void Close() = 0;
     virtual bool IsOpen() = 0; 
+    virtual void Clear() = 0;
     virtual void Present() = 0; 
 
     virtual void SetDecoration(bool hasDecoration) = 0;
@@ -23,8 +24,6 @@ public:
     Event<void()> onOpenEvent;
     Event<void()> onCloseEvent;
     Event<void()> onResizeEvent;
-
-protected:
     virtual void Open() = 0;
 
 protected:

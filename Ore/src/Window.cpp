@@ -3,21 +3,9 @@
 #include "Define.h"
 #include <glad/glad.h>
 #include "EventManager.h"
+#include "Ore.h"
 
-void GLAPIENTRY
-MessageCallback( GLenum source,
-                 GLenum type,
-                 GLuint id,
-                 GLenum severity,
-                 GLsizei length,
-                 const GLchar* message,
-                 const void* userParam )
-{
-    Logger::Log("GL CALLBACK: ",( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ) ,
-            " type = ", type,
-            " severity = ", severity,
-            " message = ", message);
-}
+
 
 std::unordered_map<GLFWwindow*, Window*> Window::s_windows = {};
 Window::Window(int width, int height, std::string name, bool enableTransparency)
@@ -32,7 +20,6 @@ Window::Window(int width, int height, std::string name, bool enableTransparency)
 	m_height = height;
 	m_name = name;
 
-	Open();
 }
 
 Window::~Window()
@@ -73,17 +60,37 @@ void Window::Open()
     glfwSetMouseButtonCallback(m_pWindow, EventManager::GetMouseButtonCallBack);
     glfwSetCursorPosCallback(m_pWindow, EventManager::GetCursorPosCallBack);
 
-//#ifdef DEBUG_BUILD
-//    glEnable(GL_DEBUG_OUTPUT);
-//    glDebugMessageCallback(MessageCallback, 0);
-//#endif
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		Logger::LogWithLevel(LogLevel::ERROR, "Failed to initialize GLAD");
+		return;
+	}
+
+#ifdef DEBUG_BUILD
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(Ore::MessageCallback, 0);
+#endif
 
     s_windows[m_pWindow] = this;
 	onOpenEvent();
 }
 
+void Window::Clear()
+{
+    for(Viewport const* pViewport : m_viewports)
+    {
+        pViewport->Clear();
+    }
+}
+
 void Window::Present()
 {
+    for(Viewport const* pViewport : m_viewports)
+    {
+        pViewport->Present();
+    }
+
 	glfwSwapBuffers(m_pWindow);
 	glfwPollEvents();
 }
@@ -105,4 +112,13 @@ void Window::FrameBufferResizeCallback(GLFWwindow* pWindow, int width, int heigh
 void Window::SetDecoration(bool hasDecoration)
 {
     glfwWindowHint(GLFW_DECORATED, hasDecoration);
+}
+
+void Window::RemoveViewport(Viewport const& viewport)
+{
+    auto it = std::find(m_viewports.begin(), m_viewports.end(), &viewport);
+    if(it != m_viewports.end())
+    {
+        m_viewports.erase(it, m_viewports.end());
+    }
 }

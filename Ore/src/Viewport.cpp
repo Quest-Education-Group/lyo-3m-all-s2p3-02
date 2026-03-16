@@ -28,17 +28,10 @@ void Viewport::SetSize(uint16 width, uint16 height)
 
 void Viewport::Setup()
 {
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		Logger::LogWithLevel(LogLevel::ERROR, "Failed to initialize GLAD");
-		return;
-	}
-
     glViewport(m_x, m_y, m_width, m_height);
 }
 
-void Viewport::Clear()
+void Viewport::Clear() const
 {
     glEnable(GL_SCISSOR_TEST);
     glScissor(m_x, m_y, m_width, m_height);
@@ -47,6 +40,6 @@ void Viewport::Clear()
     glDisable(GL_SCISSOR_TEST);
 }
 
-void Viewport::Present()
+void Viewport::Present() const
 {
 }

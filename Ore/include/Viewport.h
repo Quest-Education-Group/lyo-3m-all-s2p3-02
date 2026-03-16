@@ -18,8 +18,8 @@ public:
     uint16 GetWidth() override {return m_width;} 
     uint16 GetHeight() override  {return m_height;}
 
-    void Clear() override;
-    void Present() override;
+    void Clear() const override;
+    void Present() const override;
     
     void AddPass(sptr<Pass> pPass);
 
