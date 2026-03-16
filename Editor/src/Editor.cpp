@@ -453,9 +453,15 @@ void Editor::SaveScene(std::string const& path)
 	{
 		if (m_sceneRoot)
 		{
-			EditorSerializer::Save(path, m_sceneRoot);
-			m_scenePathBuffer = path;
-			DEBUG( "[Editor] Scene saved: " << path << std::endl);
+			std::string tmp = path;
+			if (path.size() >= 5 && path.substr(path.size() - 5) == ".json")
+			{
+				tmp = path.substr(0, path.size() - 5);
+			}
+			EditorSerializer::Save(tmp, m_sceneRoot);
+			m_scenePathBuffer = tmp;
+
+			DEBUG( "[Editor] Scene saved: " << m_scenePathBuffer << ".json" << std::endl);
 		}
 		else
 		{
