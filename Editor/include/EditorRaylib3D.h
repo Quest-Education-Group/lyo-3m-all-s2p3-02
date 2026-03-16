@@ -57,6 +57,9 @@ public:
 
 	void SetCameraOnAxis(RaylibAxis axis);
 
+	enum CameraState{ FREE, ORTHOGRAPHIC, ORBITAL, PERSPECTIVE };
+	void ChangeCamera(CameraState state);
+
 	bool IsGizmoTranslate() { return Any(m_gizmoFlags & GizmoFlags::TRANSLATE); }
 	bool IsGizmoScale() { return Any(m_gizmoFlags & GizmoFlags::SCALE); }
 	bool IsGizmoRotate() { return Any(m_gizmoFlags & GizmoFlags::ROTATE); }
@@ -73,11 +76,15 @@ private:
 	void Instanciate3DMesh(std::string const& name, Node* nodeMesh3D);
 	void InstanciateCollider3D();
 	void InstanciateLight();
-
 	Node* FindNode3DWorldMatrix(Node* pNode, Matrix& outMatrix);
 private:
 	// List of Meshs will depends on NodeMesh for vertices later
 	Camera3D m_camera;
+	Camera2D m_cam;
+	CameraMode m_cameraMode = CAMERA_CUSTOM;
+
+	RaylibAxis m_currentAxis = X;
+
 	Material m_defaultMaterial;
 
 	std::map<std::string, uptr<DrawableElement>> m_loadedMeshs;

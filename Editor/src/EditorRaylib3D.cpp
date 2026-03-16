@@ -73,6 +73,38 @@ void EditorRaylib3D::Update(float deltaTime)
 	if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
 		UpdateCamera(&m_camera, CAMERA_ORBITAL);
 	}
+
+	if (IsKeyDown(KEY_O))
+	{
+		//ChangeCameraState();
+	}
+}
+
+void EditorRaylib3D::ChangeCamera(CameraState state)
+{
+	switch (state)
+	{
+	case EditorRaylib3D::PERSPECTIVE:
+		m_camera.position = { 10.0f, 10.0f, 10.0f };
+		m_camera.target = { 0.0f, 0.0f, 0.0f };
+		m_camera.up = { 0.0f, 1.0f, 0.0f };
+		m_camera.fovy = 45.0f;
+		m_camera.projection = CAMERA_PERSPECTIVE;
+		UpdateCamera(&m_camera, CAMERA_PERSPECTIVE);
+		break;
+	case EditorRaylib3D::ORTHOGRAPHIC:
+		SetCameraOnAxis(m_currentAxis);
+		break;
+	case EditorRaylib3D::FREE:
+		m_cameraMode = CAMERA_FREE;
+		break;
+	case EditorRaylib3D::ORBITAL:
+		m_cameraMode = CAMERA_ORBITAL;
+		break;
+
+	default:
+		break;
+	}
 }
 
 void EditorRaylib3D::UpdateDisplay(Node* pNode)
@@ -152,7 +184,7 @@ void EditorRaylib3D::UpdateDrawableElement(Node* pNode)
 			m_loadedMeshs[name]->gizmoUpdated = false;
 			pNode3D->SetWorldPosition({ m_loadedMeshs[name]->gizmoTransform.translation.x,m_loadedMeshs[name]->gizmoTransform.translation.y,m_loadedMeshs[name]->gizmoTransform.translation.z });
 			pNode3D->SetWorldScale({ m_loadedMeshs[name]->gizmoTransform.scale.x,m_loadedMeshs[name]->gizmoTransform.scale.y,m_loadedMeshs[name]->gizmoTransform.scale.z });
-			pNode3D->SetWorldRotationQuat({ m_loadedMeshs[name]->gizmoTransform.rotation.w,m_loadedMeshs[name]->gizmoTransform.rotation.x,m_loadedMeshs[name]->gizmoTransform.rotation.y,m_loadedMeshs[name]->gizmoTransform.rotation.z });
+			pNode3D->SetWorldRotation(glm::eulerAngles(glm::quat{ m_loadedMeshs[name]->gizmoTransform.rotation.w,m_loadedMeshs[name]->gizmoTransform.rotation.x,m_loadedMeshs[name]->gizmoTransform.rotation.y,m_loadedMeshs[name]->gizmoTransform.rotation.z }));
 			m_gizmoDirty = true;
 		}
 		m_loadedMeshs[name]->worldMatrix = GlmToMatrix(pNode3D->GetWorldMatrix());
@@ -212,6 +244,7 @@ void EditorRaylib3D::InstanciateLight()
 
 void EditorRaylib3D::Render()
 {
+	//UpdateCamera(&m_camera, m_cameraMode);
 	BeginMode3D(m_camera);
 	DrawViewPort();
 
@@ -256,31 +289,28 @@ void EditorRaylib3D::SetRotateGizmo(bool state)
 
 void EditorRaylib3D::SetCameraOnAxis(RaylibAxis axis)
 {
-	Vector3 pos = m_loadedMeshs[m_selectedObject]->gizmoTransform.translation;
+	m_camera.projection = CAMERA_ORTHOGRAPHIC;
+	m_camera.fovy = 5.0f;
 	switch (axis)
 	{
 	case EditorRaylib3D::X:
-		pos.x += 2.0f;
-		m_camera.position = pos;
+		m_camera.position = { 1.0f,0.0f,0.0f };
 		m_camera.target = Vector3(0.0f, 0.0f, 0.0f);
 		m_camera.up = Vector3(0.0f, 1.0f, 0.0f);
 		break;
 	case EditorRaylib3D::Y:
-		pos.y += 2.0f;
-		m_camera.position = pos;
+		m_camera.position = { 0.0f,1.0f,0.0f };
 		m_camera.target = Vector3(0.0f, 0.0f, 0.0f);
 		m_camera.up = Vector3(0.0f, 0.0f, 1.0f);
 		break;
 	case EditorRaylib3D::Z:
-		pos.z += 2.0f;
-		m_camera.position = pos;
+		m_camera.position = { 0.0f,0.0f,1.0f };
 		m_camera.target = Vector3(0.0f, 0.0f, 0.0f);
 		m_camera.up = Vector3(0.0f, 1.0f, 0.0f);
 		break;
 	default:
 		break;
 	}
-	//m_camera.projection = CAMERA_ORTHOGRAPHIC;
 }
 
 void EditorRaylib3D::Shutdown()
