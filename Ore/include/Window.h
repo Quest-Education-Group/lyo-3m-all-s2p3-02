@@ -18,9 +18,9 @@ public:
     bool IsOpen() override;
     void Present() override;
 
-    void AddViewport(Viewport& viewport) {m_viewports.push_back(&viewport);}
+    void AddViewport(Viewport& viewport) {m_viewports.push_back(&viewport);} 
     void RemoveViewport(Viewport const& viewport);
-    Viewport* GetViewport(uint32 const index) const { return m_viewports[index]; }
+    Viewport* GetWiewport(uint32 index) const {return m_viewports[index];}
 
     void SetDecoration(bool hasDecoration) override;
     void SetIcon(std::string const& path) override {};

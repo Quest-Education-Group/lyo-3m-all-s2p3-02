@@ -6,7 +6,7 @@ NodeWindow::NodeWindow(std::string const& name) : NodeViewport(name)
 {
     m_pWindow = std::make_unique<Window>(1920, 1080, name);
     m_pWindow->AddViewport(*m_pViewPort);
-    //m_pWindow->onResizeEvent += [&]() {  }
+    m_pWindow->onResizeEvent += [&](uint32 const width, uint32 const height) { m_pViewPort->SetSize(width, height); };
     GraphicServer::OpenWindow(m_pWindow.get());
 }
 
@@ -48,4 +48,5 @@ void NodeWindow::UpdateWindow() const
 {
     glm::vec2 const& scale = m_transform.GetScale();
     m_pWindow->SetSize(scale.x, scale.y);
+    m_pViewPort->SetSize(scale.x, scale.y);
 }

@@ -22,8 +22,7 @@ public:
     void Present() const override;
     
     void AddPass(sptr<Pass> pPass);
-
-    void Setup() override;
+    void Setup() override; 
 
 };
 

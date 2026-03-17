@@ -108,7 +108,7 @@ void Window::SetSize(uint16 width, uint16 height)
 void Window::FrameBufferResizeCallback(GLFWwindow* pWindow, int width, int height)
 {
     Window* pCurrentWindow = s_windows[pWindow];
-    pCurrentWindow->onResizeEvent();
+    pCurrentWindow->onResizeEvent(width, height);
 }
 
 void Window::SetDecoration(bool hasDecoration)
