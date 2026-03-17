@@ -200,6 +200,7 @@ private:
 
 	void BuildTasksImpl(TaskGraph& graph) override;
 	void FlushCommandsImpl() override;
+	void OnInitialize() override {}
 
 	bool Command_Init(NetworkType networkType, int serverPort);
 	void Command_Start();
