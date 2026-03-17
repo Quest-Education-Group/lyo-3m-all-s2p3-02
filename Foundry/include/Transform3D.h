@@ -1,6 +1,8 @@
 #ifndef FOUNDRY_TRANSFORM3D__H_
 #define FOUNDRY_TRANSFORM3D__H_
 
+#include "Serialization/ISerializable.h"
+#include "Registries/AutomaticRegister.hpp"
 
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
@@ -11,7 +13,7 @@
 /// /////////////////////////////////////////////////////////////////////////////////
 
 
-class Transform3D
+class Transform3D : public ISerializable
 {
 public:
 
@@ -69,6 +71,10 @@ public:
 
 	void Update();
 
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
+	static ISerializable* CreateInstance();
+
 private:
 	glm::vec4 m_position;
 	glm::vec4 m_rotation;
@@ -92,6 +98,8 @@ private:
 	void UpdateTransform();
 	void UpdateInvTransform();
 };
+
+inline REGISTER_ISERIALIZABLE(Transform3D, Transform3D::CreateInstance);
 
 
 #endif //FOUNDRY_TRANSFORM3D__H_

@@ -67,6 +67,8 @@ public:
 	void AddScale(glm::vec3 const scale)		{ m_transform.AddScale(glm::vec4(scale, 1.0f)); }
 
 	virtual void Reparent(Node& newParent, bool keepGlobalTransform = true) override;
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
 
 	// Engine ------------------------------------------------------------------
 

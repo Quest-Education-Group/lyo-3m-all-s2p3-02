@@ -4,14 +4,14 @@
 #include <Servers/EngineServer.h>
 #include <Serialization/SerializeObject.hpp>
 #include <iostream>
-#include <cstring>
-using namespace rl;
+#include <filesystem>
+
 #include <rlImGui.h>
 #include <rlImGuiColors.h>
+#include <Nodes/Node3D.h>
 
-Editor::Editor()
-{
-}
+Editor::Editor() : m_editorRaylib() ,m_editorImgui(this,&m_editorRaylib)
+{}
 
 Editor::~Editor()
 {
@@ -21,7 +21,7 @@ Editor::~Editor()
 void Editor::Init() 
 {
 	// Initialize Raylib window
-	m_editorRaylib.InitWindow(m_screenWidth, m_screenHeight);
+	m_editorRaylib.Init(m_screenWidth, m_screenHeight);
 
 	// DefaultNode
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
@@ -39,18 +39,18 @@ void Editor::Init()
 
 void Editor::Run()
 {
-	while (m_running && !rl::WindowShouldClose())
+	while (m_running && !WindowShouldClose())
 	{
-		float deltaTime = rl::GetFrameTime();
+		float deltaTime = GetFrameTime();
 		Update(deltaTime);
 		
-		rl::BeginDrawing();
-		rl::ClearBackground(rl::DARKGRAY);
+		BeginDrawing();
+		ClearBackground(DARKGRAY);
 
 		Render3D();
 		RenderUI();
 		
-		rl::EndDrawing();
+		EndDrawing();
 	}
 }
 
@@ -59,7 +59,7 @@ void Editor::Shutdown()
 	if (m_running)
 	{
 		rlImGuiShutdown();
-		rl::CloseWindow();
+		CloseWindow();
 		m_running = false;
 		std::cout << "[Editor] Shutdown successfully!" << std::endl;
 	}
@@ -67,11 +67,14 @@ void Editor::Shutdown()
 
 void Editor::Update(float deltaTime)
 {
+	m_sceneRoot->Update(deltaTime);
+	m_editorRaylib.Update(deltaTime);
+	m_editorRaylib.UpdateDisplay(m_sceneRoot.get());
 
 	// Keyboard shortcuts
-	if (rl::IsKeyDown(rl::KEY_LEFT_CONTROL) && rl::IsKeyPressed(rl::KEY_S))
+	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S))
 	{
-		if (rl::IsKeyDown(rl::KEY_LEFT_SHIFT))
+		if (IsKeyDown(KEY_LEFT_SHIFT))
 		{
 			m_editorImgui.ShowSaveAs();
 		}
@@ -81,7 +84,7 @@ void Editor::Update(float deltaTime)
 		}
 	}
 
-	if (rl::IsKeyDown(rl::KEY_LEFT_CONTROL) && rl::IsKeyPressed(rl::KEY_N))
+	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_N))
 	{
 		CreateNewScene();
 	}
@@ -91,8 +94,6 @@ void Editor::Update(float deltaTime)
 	EngineServer::FlushCommands();
 }
 
-// void EditorRaylib3D::UpdateJson(json const& newJson)
-// {}
 
 void Editor::ProcessUICommands()
 {
@@ -104,11 +105,11 @@ void Editor::ProcessUICommands()
 	switch (cmd.type)
 	{
 	case EditorCommand::Type::CREATE_NODE:
-		CreateNode(cmd.stringParam1, cmd.stringParam2, cmd.nodeParam);
+		CreateNode(cmd.stringParam1, cmd.stringParam2, cmd.pNodeParam);
 		break;
 
 	case EditorCommand::Type::DELETE_NODE:
-		DeleteNode(cmd.nodeParam);
+		DeleteNode(cmd.pNodeParam);
 		break;
 
 	case EditorCommand::Type::CREATE_NEW_SCENE:
@@ -123,6 +124,10 @@ void Editor::ProcessUICommands()
 		LoadScene(cmd.stringParam1);
 		break;
 
+	case EditorCommand::Type::LUNCH_GAME:
+		StartFoundry(cmd.stringParam1);
+		break;
+
 	case EditorCommand::Type::EXIT_EDITOR:
 		m_running = false;
 		break;
@@ -131,10 +136,8 @@ void Editor::ProcessUICommands()
 		break;
 	}
 
-
 	cmd.Reset();
 }
-
 
 void Editor::Render3D()
 {
@@ -152,29 +155,35 @@ void Editor::RenderUI()
 void Editor::CreateNewScene() 
 {
 	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
+	m_editorRaylib.ClearWindow();
 	m_editorImgui.SetSceneRoot(m_sceneRoot.get());
+	m_editorImgui.ResetViewRoot();
+	m_editorImgui.ResetSelectedNode();
+	
 	m_scenePathBuffer = "";
 	std::cout << "[Editor] New scene created" << std::endl;
 }
 
-void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
+void Editor::CreateNode(std::string const& type, std::string const& name, Node* pParent)
 {
 	if (!m_sceneRoot) 
 	{
 		std::cerr << "[Editor] Cannot create node: no scene root" << std::endl;
 		return;
 	}
-	std::string typefi = "class " + type;
-	ISerializable* outObject = ISerializable::s_constructors[typefi]();
+
+	ISerializable* outObject = AutomaticRegisterISerializable<ISerializable>::create(type);
 	uptr<Node> newNode = uptr<Node>(static_cast<Node*>(outObject));
 	newNode.get()->SetName(name);
+
+	
 	m_editorRaylib.AddDrawableObject(name, newNode.get());
 
-	if (parent)
+	if (pParent)
 	{
-		parent->AddChild(newNode);
+		pParent->AddChild(newNode);
 		std::cout << "[Editor] Node '" << name << "' added as child of '" 
-		          << parent->GetName() << "'" << std::endl;
+		          << pParent->GetName() << "'" << std::endl;
 	}
 	else
 	{
@@ -183,15 +192,15 @@ void Editor::CreateNode(std::string type, std::string const& name, Node* parent)
 	}
 }
 
-void Editor::DeleteNode(Node* node)
+void Editor::DeleteNode(Node* pNode)
 {
-	if (!node) return;
+	if (!pNode) return;
 
-	std::string nodeName = node->GetName();
-	
-	if (node && node->GetParent())
+	std::string nodeName = pNode->GetName();
+	m_editorRaylib.RemoveDrawableElement(nodeName);
+	if (pNode && pNode->GetParent())
 	{
-		node->Destroy();
+		pNode->Destroy();
 		std::cout << "[Editor] Node '" << nodeName << "' deleted" << std::endl;
 	}
 }
@@ -202,6 +211,8 @@ void Editor::LoadScene(std::string const& path)
 	{
 		m_sceneRoot = EditorSerializer::LoadFromJson(path);
 		m_editorImgui.SetSceneRoot(m_sceneRoot.get());
+		m_editorImgui.ResetViewRoot();
+		m_editorImgui.ResetSelectedNode();
 		m_scenePathBuffer = path;
 
 		// Update NodeList
@@ -221,6 +232,57 @@ void Editor::LoadDrawableObject(Node* pNode)
 	for (uint32 i = 0; i < pNode->GetChildCount(); i++)
 	{
 		LoadDrawableObject(&pNode->GetChild(i));
+	}
+}
+
+void Editor::StartFoundry(std::string const& scenePath)
+{
+	if (!std::filesystem::exists(scenePath))
+	{
+		std::cerr << "[Editor] Scene file not found: " << scenePath << std::endl;
+		return;
+	}
+
+	std::filesystem::path absoluteScenePath = std::filesystem::absolute(scenePath);
+	std::filesystem::path gameExePath;
+
+#ifdef _WIN32
+	// window "start"
+	gameExePath = "../Game/Game.exe";
+#else
+	// Linux ?
+	gameExePath = "../Game/Game";
+#endif
+	
+	if (!std::filesystem::exists(gameExePath))
+	{
+		std::cerr << "[Editor] Game executable not found: " << gameExePath << std::endl;
+		std::cerr << "[Editor] Make sure to build the Game project first!" << std::endl;
+		return;
+	}
+	std::filesystem::path absoluteGamePath = std::filesystem::absolute(gameExePath);
+	std::string command;
+
+#ifdef _WIN32
+	// window "start"
+	command = "start \"Foundry Game\" \"" + absoluteGamePath.string() + "\" \"" + absoluteScenePath.string() + "\"";
+#else
+	// Linux ?
+	command = "\"" + absoluteGamePath.string() + "\" \"" + absoluteScenePath.string() + "\" &";
+#endif
+
+
+
+	std::cout << "[Editor] Executing: " << command << std::endl;
+	int result = std::system(command.c_str());
+
+	if (result == 0)
+	{
+		std::cout << "[Editor] Game launched successfully" << std::endl;
+	}
+	else
+	{
+		std::cerr << "[Editor] Failed to launch game (error code: " << result << ")" << std::endl;
 	}
 }
 

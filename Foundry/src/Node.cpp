@@ -190,7 +190,7 @@ std::unique_ptr<Node> Node::Clone()
 void Node::Serialize(SerializedObject& datas) const
 {
 	// Call baseClass::Serialize(datas) : Example Node::Serialize(datas)
-	datas.SetType<Node>();
+	datas.SetType("Node");
 	datas.AddPublicElement("m_name", &m_name);
 	datas.AddPrivateArray("Children");
 	std::string parent = "";
@@ -198,6 +198,11 @@ void Node::Serialize(SerializedObject& datas) const
 		parent = m_pOwner->GetName();
 
 	datas.AddPrivateElement("m_pOwner", &parent);
+	std::string scriptPath = "";
+	if (m_pScriptInstance.get() != nullptr)
+		scriptPath = m_pScriptInstance->GetPath();
+
+	datas.AddPrivateElement("m_scriptPath", &scriptPath);
 
 	for (uint32 i = 0; i < m_children.size(); i++)
 	{
@@ -211,6 +216,14 @@ void Node::Deserialize(SerializedObject const& datas)
 	// Call baseClass::Deserialize(datas) : Example Node::Deserialize(datas)
 	std::string t = datas.GetType();
 	datas.GetPublicElement("m_name",&m_name);
+	std::string path = {};
+	datas.GetPrivateElement("m_scriptPath", &path);
+	if (path != "")
+	{
+		std::cout << "ATTACH " << path << std::endl;
+		uptr<LuaScriptInstance> script = std::make_unique<LuaScriptInstance>(path);
+		Node::AttachScript(script, *this);
+	}
 
 	std::vector<ISerializable*> tempList = datas.GetPrivateArray<ISerializable*>("Children");
 	for (uint32 i = 0; i < tempList.size(); i++)

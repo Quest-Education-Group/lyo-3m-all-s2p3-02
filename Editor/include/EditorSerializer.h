@@ -1,5 +1,5 @@
-#ifndef _EDITORSERIALIZER__H
-#define _EDITORSERIALIZER__H
+#ifndef EDITOR_EDITOR_SERIALIZER_H__
+#define EDITOR_EDITOR_SERIALIZER_H__
 
 #include <Define.h>
 #include <Node.h>
