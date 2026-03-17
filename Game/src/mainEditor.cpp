@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
 
 		try
 		{
+			Node::SetStatusEditor(false);
 			uptr<Node> sceneRoot = EditorSerializer::LoadFromJson(scenePath);
 
 			std::cout << "[Game] Scene loaded successfully: " << sceneRoot->GetName() << "\n";

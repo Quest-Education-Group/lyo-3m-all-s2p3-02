@@ -29,11 +29,11 @@ struct EditorCommand
 	};
 
 	Type type = Type::NONE;
-	std::string stringParam1;  // For node type or file path
-	std::string stringParam2;  // For node name
-	Node* pNodeParam = nullptr; // For parent or node to delete
+	std::string stringParam1;
+	std::string stringParam2;
+	Node* pNodeParam = nullptr;
 
-	void Reset() 
+	void Reset()
 	{
 		type = Type::NONE;
 		stringParam1.clear();
@@ -51,8 +51,7 @@ public:
 
 	void Init();
 	void Render();
-	
-	// Setter
+
 	void SetSceneRoot(Node* pRoot);
 	void SetScreenSize(int width, int height);
 	void ShowSaveAs() { m_showSaveAsPopup = true; }
@@ -60,7 +59,6 @@ public:
 	void ResetViewRoot();
 	void ResetSelectedNode();
 
-	// Command handling
 	EditorCommand& GetCommand() { return m_command; }
 	void SetCommand(EditorCommand const& command) { m_command = command; }
 	bool HasCommand() const { return m_command.type != EditorCommand::Type::NONE; }
@@ -70,7 +68,7 @@ private:
 	void DrawHierarchyPanel();
 	void DrawInspectorPanel();
 
-	void DrawNodeSelector(Node& node);	
+	void DrawNodeSelector(Node& node);
 	void DrawHierarchyNodeTree(Node& node);
 
 	void DrawGizmoButtons();
@@ -85,12 +83,7 @@ private:
 	};
 
 	void CreateNodePopup(Node* from, NodeCreationFlag flag, bool& open);
-	
-	// Merge into Create PopUp
-	//void ShowCreateNodePopup();
-	//void ShowCreateChildPopup(Node* pParent);
-	//void ShowCreateSiblingPopup(Node* pSibling);
-	
+
 	void ShowSaveAsSceneBrowsing();
 	void ShowLoadSceneBrowsing();
 
@@ -101,6 +94,11 @@ private:
 
 	json& LoadInspectorData();
 	void ApplyInspectorChanges(json& datas);
+
+	void BeginHierarchyDragSource(Node& node);
+	void HandleHierarchyDropTarget(Node& targetNode);
+	void HandleHierarchyRootDropTarget();
+	bool IsDescendant(Node const& potentialAncestor, Node const& node) const;
 
 private:
 	EditorRaylib3D* m_pRaylibEditor;
@@ -136,12 +134,10 @@ private:
 	Node* m_pSceneRoot = nullptr;
 	Node* m_pViewRoot = nullptr;
 
-	// UI States
 	bool m_showHierarchy = true;
 	bool m_showInspector = true;
 	bool m_showViewport = true;
 
-	// Screen size for UI positioning
 	int m_screenWidth = 1900;
 	int m_screenHeight = 900;
 

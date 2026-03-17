@@ -7,6 +7,15 @@
 #include <iostream>
 #include <imgui.h>
 
+InspectorNodeProperties::InspectorNodeProperties(EditorImGui* pImGuiEditor)
+    : m_pImguiEditor(pImGuiEditor),
+      m_luaBrowser(ImGuiFileBrowserFlags_ConfirmOnEnter)
+{
+    m_luaBrowser.SetTitle("Select Lua Script");
+    m_luaBrowser.SetTypeFilters({ ".lua" });
+    m_luaBrowser.SetDirectory("../Game/res");
+}
+
 void InspectorNodeProperties::DrawWindow(bool windowState, Node* pNode)
 {
 	m_isOpen = windowState;
@@ -31,10 +40,13 @@ void InspectorNodeProperties::DrawWindow(bool windowState, Node* pNode)
 			m_pImguiEditor->m_pRaylibEditor->UpdateDirtyGizmo();
 		}
 
-		if (DrawDatas(m_currentDatas))
-		{
-			m_pImguiEditor->ApplyInspectorChanges(m_currentDatas);
-		}
+        bool wasModified = DrawDatas(m_currentDatas);
+        wasModified |= DrawLuaScriptPicker(m_currentDatas);
+
+        if (wasModified)
+        {
+            m_pImguiEditor->ApplyInspectorChanges(m_currentDatas);
+        }
 
 		ImGui::Separator();
 
@@ -75,20 +87,62 @@ void InspectorNodeProperties::DrawWindow(bool windowState, Node* pNode)
 	ImGui::End();
 }
 
+static std::string FormatInspectorLabel(std::string const& key)
+{
+    if (key.empty()) return {};
+
+    std::string label;
+    size_t index = 0;
+
+    if (key.rfind("m_", 0) == 0 && key.size() > 2)
+        index = 2;
+
+    for (; index < key.size(); ++index)
+    {
+        char c = key[index];
+        if (c == '_')
+        {
+            if (!label.empty() && label.back() != ' ')
+                label.push_back(' ');
+            continue;
+        }
+
+        unsigned char uc = static_cast<unsigned char>(c);
+
+        if (label.empty())
+            label.push_back(static_cast<char>(std::toupper(uc)));
+        else
+        {
+            if (std::isupper(uc) && label.back() != ' ')
+                label.push_back(' ');
+            label.push_back(c);
+        }
+    }
+
+    return label.empty() ? key : label;
+
+}
+
 bool InspectorNodeProperties::DrawDatas(json& publicDataJson)
 {
 	bool wasModified = false;
 	for (auto& [key, value] : publicDataJson.items())
 	{
+		if (key == "m_scriptPath")
+		{
+			continue;
+		}
+
 		ImGui::PushID(key.c_str());
+        std::string const label = FormatInspectorLabel(key);
 
 		if (value.is_number_float())
 		{
 			float floatVal = value.get<float>();
 			
-			if (ImGui::DragFloat(key.c_str(), &floatVal, 0.1f))
+			if (ImGui::DragFloat(label.c_str(), &floatVal, 0.1f))
 			{
-				// Direcly the JSON
+				// Directly update the JSON
 				publicDataJson[key] = floatVal;
 				wasModified = true;
 			}
@@ -97,7 +151,7 @@ bool InspectorNodeProperties::DrawDatas(json& publicDataJson)
 		{
 			int intVal = value.get<int>();
 			
-			if (ImGui::DragInt(key.c_str(), &intVal))
+			if (ImGui::DragInt(label.c_str(), &intVal))
 			{
 				publicDataJson[key] = intVal;
 				wasModified = true;
@@ -107,7 +161,7 @@ bool InspectorNodeProperties::DrawDatas(json& publicDataJson)
 		{
 			bool boolVal = value.get<bool>();
 			
-			if (ImGui::Checkbox(key.c_str(), &boolVal))
+			if (ImGui::Checkbox(label.c_str(), &boolVal))
 			{
 				publicDataJson[key] = boolVal;
 				wasModified = true;
@@ -118,7 +172,7 @@ bool InspectorNodeProperties::DrawDatas(json& publicDataJson)
 			std::string strVal = value.get<std::string>();
 			char buffer[256];
 			strncpy(buffer, strVal.c_str(), sizeof(buffer));
-			ImGui::InputText(key.c_str(), buffer, sizeof(buffer), 32);
+			ImGui::InputText(label.c_str(), buffer, sizeof(buffer), 32);
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
 				publicDataJson[key] = std::string(buffer);
@@ -148,6 +202,85 @@ bool InspectorNodeProperties::DrawDatas(json& publicDataJson)
 		}
 		ImGui::PopID();
 		ImGui::Spacing();
+
 	}
 	return wasModified;
+}
+
+bool InspectorNodeProperties::DrawLuaScriptPicker(json& publicDataJson)
+{
+    bool wasModified = false;
+
+    ImGui::Separator();
+    ImGui::Text("Script");
+
+    std::string scriptPath = "";
+    if (publicDataJson.contains("m_scriptPath"))
+    {
+        scriptPath = publicDataJson["m_scriptPath"].get<std::string>();
+    }
+
+    char scriptBuffer[256] = {};
+    strncpy(scriptBuffer, scriptPath.c_str(), sizeof(scriptBuffer) - 1);
+
+    bool const isSceneRoot = (m_pSelectedNode != nullptr && m_pSelectedNode->GetParent() == nullptr);
+
+    if (isSceneRoot)
+    {
+        ImGui::BeginDisabled();
+    }
+
+    ImGui::InputText("Lua Script", scriptBuffer, sizeof(scriptBuffer), ImGuiInputTextFlags_ReadOnly);
+
+    ImGui::SameLine();
+    bool const browseClicked = ImGui::Button("Browse");
+
+    ImGui::SameLine();
+    bool const clearClicked = ImGui::Button("Clear");
+
+    if (isSceneRoot)
+    {
+        ImGui::EndDisabled();
+
+        if (!scriptPath.empty())
+        {
+            publicDataJson["m_scriptPath"] = "";
+            wasModified = true;
+        }
+
+        m_showLuaBrowser = false;
+        ImGui::TextDisabled("No Script for Root");
+        return wasModified;
+    }
+
+    if (browseClicked)
+    {
+        m_showLuaBrowser = true;
+    }
+
+    if (clearClicked)
+    {
+        publicDataJson["m_scriptPath"] = "";
+        wasModified = true;
+    }
+
+    if (m_showLuaBrowser)
+    {
+        m_luaBrowser.Open();
+        m_showLuaBrowser = false;
+    }
+
+    m_luaBrowser.SetWindowSize(m_fileBrowsingSizeX, m_fileBrowsingSizeY);
+    m_luaBrowser.SetWindowPos(m_screenWidth / 2 - m_fileBrowsingSizeX / 2, m_screenHeight / 2 - m_fileBrowsingSizeY / 2);
+    m_luaBrowser.Display();
+
+    if (m_luaBrowser.HasSelected())
+    {
+        publicDataJson["m_scriptPath"] = m_luaBrowser.GetSelected().string();
+        wasModified = true;
+        m_luaBrowser.ClearSelected();
+        m_luaBrowser.Close();
+    }
+
+    return wasModified;
 }
