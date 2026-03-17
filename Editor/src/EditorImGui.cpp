@@ -1,21 +1,27 @@
 ﻿#include "EditorImGui.h"
 #include "Editor.h"
 #include "EditorRaylib3D.h"
+#include "Debug.h"
 
 #include <iostream>
 
-EditorImGui::EditorImGui(Editor* pEditor, EditorRaylib3D* pRaylibEditor) : m_pEditor(pEditor), m_pRaylibEditor(pRaylibEditor) , m_inspector(this)
+namespace
+{
+	constexpr char kHierarchyNodePayloadId[] = "EDITOR_HIERARCHY_NODE";
+}
+
+EditorImGui::EditorImGui(Editor* pEditor, EditorRaylib3D* pRaylibEditor)
+	: m_pEditor(pEditor), m_pRaylibEditor(pRaylibEditor), m_inspector(this)
 {}
 
 EditorImGui::~EditorImGui()
 {}
 
-void EditorImGui::Init() 
+void EditorImGui::Init()
 {
-	//Node Tree For Available Nodes
 	m_newNodeTypeSelector = Node::CreateNode<Node>("Node");
 	m_newNodeTypeSelector.get()->AddChild(Node::CreateNode<Node>("Node3D"));
-	
+
 	ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
 
 	ImGui::FileBrowser SaveBrowseWindow(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir | ImGuiFileBrowserFlags_ConfirmOnEnter);
@@ -48,34 +54,30 @@ void EditorImGui::Render()
 	DrawMenuBar();
 	DrawHierarchyPanel();
 	DrawInspectorPanel();
+	DrawGizmoButtons();
 
-	// Popups Node
 	CreateNodePopup(nullptr, NodeCreationFlag::NONE, m_showCreatePopup);
 	CreateNodePopup(m_pPendingParent, NodeCreationFlag::PARENT, m_showCreateChildPopup);
 	CreateNodePopup(m_pPendingSibling, NodeCreationFlag::SIBLING, m_showCreateSiblingPopup);
 
-	// File Browse 
 	ShowSaveAsSceneBrowsing();
 	ShowLoadSceneBrowsing();
 
 	ImGui::SetNextWindowPos(ImVec2(m_screenWidth - 120.0f, m_screenHeight - 40.0f));
 	ImGui::SetNextWindowSize(ImVec2(110, 30));
-	ImGui::Begin("##FPS", nullptr, 
-		ImGuiWindowFlags_NoTitleBar | 
-		ImGuiWindowFlags_NoResize | 
-		ImGuiWindowFlags_NoMove | 
-		ImGuiWindowFlags_NoScrollbar | 
+	ImGui::Begin("##FPS", nullptr,
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoSavedSettings |
 		ImGuiWindowFlags_NoBackground);
-	
-	//needs access to GetFPS() from Raylib
-	// ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "FPS: %d", GetFPS());
+
 	ImGui::End();
 }
 
 void EditorImGui::DrawInspectorPanel()
 {
-	// TODO RESPONSIVE
 	if (!m_showInspector) return;
 	m_inspector.DrawWindow(m_showInspector, m_pSelectedNode);
 }
@@ -136,7 +138,7 @@ void EditorImGui::DrawMenuBar()
 			}
 			ImGui::EndMenu();
 		}
-		for (int x =0 ; x < 90 ; x++)
+		for (int x = 0; x < 90; x++)
 			ImGui::Spacing();
 
 		if (ImGui::Button(m_play ? "Stop" : "Play", ImVec2(60, 0)))
@@ -144,12 +146,12 @@ void EditorImGui::DrawMenuBar()
 			if (!m_play)
 			{
 				SaveSceneNoSpecialisation();
-				m_play = true; // Activer le flag
+				m_play = true;
 			}
 			else
 			{
 				m_play = false;
-				std::cout << "[EditorImGui] Stopping game..." << std::endl;
+				DEBUG("[EditorImGui] Stopping game..." << std::endl);
 			}
 		}
 
@@ -160,8 +162,6 @@ void EditorImGui::DrawMenuBar()
 			m_play = false;
 
 		}
-
-
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -170,7 +170,6 @@ void EditorImGui::DrawHierarchyPanel()
 {
 	if (!m_showHierarchy) return;
 
-	// On the left just below the menu bar
 	float menuBarHeight = ImGui::GetFrameHeight();
 	ImGui::SetNextWindowPos(ImVec2(0, menuBarHeight), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(350, m_screenHeight - menuBarHeight), ImGuiCond_Always);
@@ -179,7 +178,6 @@ void EditorImGui::DrawHierarchyPanel()
 
 	if (m_pViewRoot != m_pSceneRoot)
 	{
-		// Button go back to parent
 		if (m_pViewRoot->GetParent() != nullptr)
 		{
 			if (ImGui::Button("< Parent"))
@@ -189,7 +187,6 @@ void EditorImGui::DrawHierarchyPanel()
 			ImGui::SameLine();
 		}
 
-		// Button go back to root
 		if (ImGui::Button("< Scene Root"))
 		{
 			ResetViewRoot();
@@ -223,7 +220,6 @@ void EditorImGui::DrawHierarchyPanel()
 		ImGui::EndPopup();
 	}
 
-	// Tree
 	if (m_pViewRoot)
 	{
 		DrawHierarchyNodeTree(*m_pViewRoot);
@@ -233,10 +229,18 @@ void EditorImGui::DrawHierarchyPanel()
 		ImGui::TextDisabled("No scene loaded");
 	}
 
+	if (m_pSceneRoot)
+	{
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Selectable("Drop here for root node", false, ImGuiSelectableFlags_Disabled, ImVec2(300, 0));
+		HandleHierarchyRootDropTarget();
+	}
+
 	ImGui::End();
 }
 
-void EditorImGui::DrawNodeSelector(Node& node) 
+void EditorImGui::DrawNodeSelector(Node& node)
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
 		| ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -260,7 +264,6 @@ void EditorImGui::DrawNodeSelector(Node& node)
 		NewNodeSelected(&node);
 	}
 
-	// Recursively draw children if open
 	if (nodeOpen)
 	{
 		for (uint32 i = 0; i < node.GetChildCount(); ++i)
@@ -282,7 +285,6 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.5f, 0.8f, 0.8f));
 	}
 
-	// If no child == leaf
 	if (node.GetChildCount() == 0)
 		flags |= ImGuiTreeNodeFlags_Leaf;
 
@@ -312,7 +314,6 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 			m_nodeNameBuffer[0] = '\0';
 		}
 
-		// No sibling for default root 
 		if (ImGui::MenuItem("Add Sibling", nullptr, false, !isSceneRoot))
 		{
 			if (!isSceneRoot)
@@ -323,7 +324,6 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 			}
 		}
 
-		// no duplicate for default root
 		ImGui::BeginDisabled(isSceneRoot);
 		if (ImGui::MenuItem("Duplicate"))
 		{
@@ -345,7 +345,6 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 
 		ImGui::Separator();
 
-		// no delete for default root
 		if (ImGui::MenuItem("Delete", nullptr, false, !isSceneRoot))
 		{
 			if (!isSceneRoot)
@@ -357,7 +356,10 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 
 		ImGui::EndPopup();
 	}
-	// Recursively draw children if open
+
+	BeginHierarchyDragSource(node);
+	HandleHierarchyDropTarget(node);
+
 	if (nodeOpen)
 	{
 		for (uint32 i = 0; i < node.GetChildCount(); ++i)
@@ -373,20 +375,20 @@ void EditorImGui::SetViewRoot(Node* node)
 	if (node)
 	{
 		m_pViewRoot = node;
-		std::cout << "[EditorImGui] View root changed to: " << node->GetName() << std::endl;
+		DEBUG( "[EditorImGui] View root changed to: " << node->GetName() << std::endl);
 	}
 }
 
 void EditorImGui::ResetViewRoot()
 {
 	m_pViewRoot = m_pSceneRoot;
-	std::cout << "[EditorImGui] View root reset to scene root" << std::endl;
+	DEBUG( "[EditorImGui] View root reset to scene root" << std::endl);
 }
 
 void EditorImGui::ResetSelectedNode() {
 
 	m_pSelectedNode = nullptr;
-	std::cout << "[EditorImGui] Selected root reset" << std::endl;
+	DEBUG( "[EditorImGui] Selected root reset" << std::endl);
 }
 
 void EditorImGui::CreateNodePopup(Node* from, NodeCreationFlag flag, bool& open)
@@ -527,9 +529,95 @@ void EditorImGui::ShowLoadSceneBrowsing()
 	}
 }
 
+void EditorImGui::DrawGizmoButtons()
+{
+	if (m_pSelectedNode == nullptr) return;
+	bool translate = m_pRaylibEditor->IsGizmoTranslate();
+	bool scale = m_pRaylibEditor->IsGizmoScale();
+	bool rotate = m_pRaylibEditor->IsGizmoRotate();
+	bool all = translate && rotate && scale;
+	bool isopen = true;
+	ImGui::SetNextWindowSize(ImVec2(700,100), ImGuiCond_Always);
+	ImGui::Begin("Gizmo", &isopen, ImGuiWindowFlags_NoResize);
+
+	if (ImGui::Checkbox("All", &all) && m_pSelectedNode != nullptr)
+	{
+		m_pRaylibEditor->SetTranslateGizmo(all);
+		m_pRaylibEditor->SetScaleGizmo(all);
+		m_pRaylibEditor->SetRotateGizmo(all);
+	}
+	ImGui::SameLine();
+	if (ImGui::Checkbox("Translate", &translate))
+	{
+		m_pRaylibEditor->SetTranslateGizmo(translate);
+	}
+	ImGui::SameLine();
+	if (ImGui::Checkbox("Scale", &scale))
+	{
+		m_pRaylibEditor->SetScaleGizmo(scale);
+	}
+	ImGui::SameLine();
+	if (ImGui::Checkbox("Rotate", &rotate))
+	{
+		m_pRaylibEditor->SetRotateGizmo(rotate);
+	}
+
+	ImGui::Text("Set Camera On Axis:");
+	ImGui::SameLine();
+	ImGui::Text("\t \t Choose Camera State:");
+
+	if (ImGui::Button("Axis X")) //ImVec4(0.90f,0.16f,0.21f,1.0f)
+	{
+		m_pRaylibEditor->SetCameraOnAxis(EditorRaylib3D::RaylibAxis::X);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Axis Y")) // ImVec4(0.0f, 0.89f, 0.18f, 1.0f)
+	{
+		m_pRaylibEditor->SetCameraOnAxis(EditorRaylib3D::RaylibAxis::Y);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Axis Z")) // ImVec4(0.0f, 0.47f, 0.94f, 1.0f)
+	{
+		m_pRaylibEditor->SetCameraOnAxis(EditorRaylib3D::RaylibAxis::Z);
+	}
+	ImGui::SameLine();
+	ImGui::Text("\t  ");
+	ImGui::SameLine();
+	if (ImGui::Button("Camera OrthoGraphic"))
+	{
+		m_pRaylibEditor->ChangeCamera(EditorRaylib3D::CameraState::ORTHOGRAPHIC);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Camera PERSPECTIVE"))
+	{
+		m_pRaylibEditor->ChangeCamera(EditorRaylib3D::CameraState::PERSPECTIVE);
+	}
+
+
+
+	//if (ImGui::Button("Show Axis X", ImVec2(50, 20)))
+	//{
+	//	m_pRaylibEditor->SetTranslateGizmo(all);
+	//	m_pRaylibEditor->SetScaleGizmo(all);
+	//	m_pRaylibEditor->SetRotateGizmo(all);
+	//}
+	//ImGui::SameLine();
+	//if (ImGui::Button("Show Axis Y", ImVec2(50, 20)))
+	//{
+	//	m_pRaylibEditor->SetTranslateGizmo(translate);
+	//}
+	//ImGui::SameLine();
+	//if (ImGui::Button("Show Axis Z", ImVec2(50, 20)))
+	//{
+	//	m_pRaylibEditor->SetScaleGizmo(scale);
+	//}
+
+	ImGui::End();
+}
+
 void EditorImGui::SaveSceneNoSpecialisation()
 {
-	if (m_haveFileSelected && m_scenePathBuffer.length() != 0) 
+	if (m_haveFileSelected && m_scenePathBuffer.length() != 0)
 	{
 		m_command.type = EditorCommand::Type::SAVE_SCENE;
 		if (m_scenePathBuffer.substr(m_scenePathBuffer.length() - 5) == ".json") {
@@ -537,7 +625,7 @@ void EditorImGui::SaveSceneNoSpecialisation()
 		}
 		m_command.stringParam1 = m_scenePathBuffer;
 	}
-	else 
+	else
 	{
 		m_showSaveAsPopup = true;
 	}
@@ -546,9 +634,10 @@ void EditorImGui::SaveSceneNoSpecialisation()
 void EditorImGui::SelectedNode(Node* pNode)
 {
 	m_pSelectedNode = pNode;
+	m_pRaylibEditor->SetSelectedNode(pNode->GetName());
 	if (pNode)
 	{
-		std::cout << "[EditorImGui] Selected: " << pNode->GetName() << std::endl;
+		DEBUG( "[EditorImGui] Selected: " << pNode->GetName() << std::endl);
 	}
 }
 
@@ -557,7 +646,7 @@ void EditorImGui::NewNodeSelected(Node* pNode)
 	m_pNewNodeTypeSelected = pNode;
 	if (pNode)
 	{
-		std::cout << "[EditorImGui] Node type selected: " << pNode->GetName() << std::endl;
+		DEBUG( "[EditorImGui] Node type selected: " << pNode->GetName() << std::endl);
 	}
 }
 
@@ -567,7 +656,7 @@ json& EditorImGui::LoadInspectorData()
 	m_pSelectedNode->Serialize(m_selectedNodeData);
 	m_selectedNodeDataJson = m_selectedNodeData.GetJson();
 
-	std::cout << "[EditorImGui] Loaded inspector data for: " << m_pSelectedNode->GetName() << std::endl;
+	DEBUG( "[EditorImGui] Loaded inspector data for: " << m_pSelectedNode->GetName() << std::endl);
 
 	return m_selectedNodeDataJson["PUBLIC_DATAS"];
 }
@@ -579,18 +668,126 @@ void EditorImGui::ApplyInspectorChanges(json& datas)
 	m_selectedNodeDataJson["PUBLIC_DATAS"] = datas;
 
 	m_selectedNodeData.SetJson(m_selectedNodeDataJson);
-	
-	// temporary
+
 	json tempJson = m_selectedNodeDataJson;
-	
+
 	json cleanJson;
 	cleanJson["PUBLIC_DATAS"] = tempJson["PUBLIC_DATAS"];
 	cleanJson["PRIVATE_DATAS"] = tempJson["PRIVATE_DATAS"];
-	cleanJson["PRIVATE_DATAS"]["Children"] = json::array(); // No child for safety, they are not handled by the inspector
+	cleanJson["PRIVATE_DATAS"]["Children"] = json::array();
 
-	
+	std::string oldName = m_pSelectedNode->GetName();
 	m_selectedNodeData.SetJson(cleanJson);
+
+	Node::SetStatusEditor(true);
 	m_pSelectedNode->Deserialize(m_selectedNodeData);
+
+	if (oldName != m_pSelectedNode->GetName())
+	{
+		m_pRaylibEditor->UpdateElementName(oldName, m_pSelectedNode);
+	}
 	
 	std::cout << "[EditorImGui] Applied inspector changes" << std::endl;
+	Node::SetStatusEditor(false);
+
+	//DEBUG("[EditorImGui] Applied inspector changes" << std::endl);
 }
+
+void EditorImGui::BeginHierarchyDragSource(Node& node)
+{
+	if (node.GetParent() == nullptr)
+	{
+		return;
+	}
+
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+	{
+		Node* payload = &node;
+		ImGui::SetDragDropPayload(kHierarchyNodePayloadId, &payload, sizeof(Node*));
+		ImGui::TextUnformatted(node.GetName().c_str());
+		ImGui::EndDragDropSource();
+	}
+}
+
+void EditorImGui::HandleHierarchyDropTarget(Node& targetNode)
+{
+	if (!ImGui::BeginDragDropTarget())
+	{
+		return;
+	}
+
+	if (ImGuiPayload const* payload = ImGui::AcceptDragDropPayload(kHierarchyNodePayloadId))
+	{
+		if (payload && payload->DataSize == sizeof(Node*))
+		{
+			Node* dragged = *static_cast<Node* const*>(payload->Data);
+			bool const canDrop =
+				dragged != nullptr &&
+				dragged != &targetNode &&
+				!IsDescendant(*dragged, targetNode) &&
+				dragged->GetParent() != &targetNode;
+
+			if (canDrop)
+			{
+				dragged->Reparent(targetNode, true);
+				m_pRaylibEditor->UpdateDrawableElement(dragged);
+				m_inspector.SetDirty();
+				SelectedNode(dragged);
+				dragged->Update(1.0f / 60.0f);
+			}
+		}
+	}
+
+	ImGui::EndDragDropTarget();
+}
+
+void EditorImGui::HandleHierarchyRootDropTarget()
+{
+	if (!m_pSceneRoot)
+	{
+		return;
+	}
+
+	if (!ImGui::BeginDragDropTarget())
+	{
+		return;
+	}
+
+	if (ImGuiPayload const* payload = ImGui::AcceptDragDropPayload(kHierarchyNodePayloadId))
+	{
+		if (payload && payload->DataSize == sizeof(Node*))
+		{
+			Node* dragged = *static_cast<Node* const*>(payload->Data);
+			bool const canDrop =
+				dragged != nullptr &&
+				dragged != m_pSceneRoot &&
+				dragged->GetParent() != m_pSceneRoot;
+
+			if (canDrop)
+			{
+				dragged->Reparent(*m_pSceneRoot, true);
+				SelectedNode(dragged);
+			}
+		}
+	}
+
+	ImGui::EndDragDropTarget();
+}
+
+bool EditorImGui::IsDescendant(Node const& potentialAncestor, Node const& node) const
+{
+    Node const* currentConst = &node;
+    while (currentConst != nullptr)
+    {
+        if (currentConst == &potentialAncestor)
+        {
+            return true;
+        }
+
+        Node* current = const_cast<Node*>(currentConst);
+        currentConst = current->GetParent();
+    }
+
+    return false;
+}
+
