@@ -43,10 +43,8 @@ public:
 	glm::mat4 GetMatrixRotation() const				{ return m_transform.GetMatrixRotation(); }
 	//const glm::mat4& GetInverseMatrixRotation()	{ return m_transform.GetInverseMatrixRotation(); }
 
-	//Euler angles
 	EulerAngles GetLocalRotationRad() const			{ return m_transform.GetRotationRad(); }
 	EulerAngles GetLocalRotationDeg() const			{ return m_transform.GetRotationDeg(); }
-
 	// { w, x, y, z }
 	const glm::quat& GetLocalRotationQuat() const	{ return m_transform.GetRotationQuat(); }
 	// -- Angle around Y axis in Degrees
@@ -61,6 +59,15 @@ public:
 	glm::vec3 GetLocalRight() const					{ return m_transform.GetRight(); }
 	glm::vec3 GetLocalUp() const					{ return m_transform.GetUp(); }
 	glm::vec3 GetLocalForward() const				{ return m_transform.GetForward(); }
+
+	glm::mat4x4 const& GetWorldMatrix() const;
+	glm::vec3 GetWorldPosition() const;
+	glm::vec3 GetWorldScale() const;
+	// Pitch, Yaw, Roll  / x, y, z
+	// -- Angles in Degrees 
+	glm::vec3 GetWorldRotation() const;
+	// { w, x, y, z }
+	glm::quat const& GetWorldRotationQuaternion() const;
 
 
 	// =========== Setters ===========
@@ -77,15 +84,6 @@ public:
 
 	void SetScale(glm::vec3 const scale)			{ m_transform.SetScale(glm::vec4(scale, 1.0f)); }
 
-	glm::mat4x4 const& GetWorldMatrix() const;
-	glm::vec3 GetWorldPosition() const;
-	glm::vec3 GetWorldScale() const;
-	// Pitch, Yaw, Roll  / x, y, z
-	// -- Angles in Degrees 
-	glm::vec3 GetWorldRotation() const;
-	// { w, x, y, z }
-	glm::quat const& GetWorldRotationQuaternion() const;
-
 	void SetWorldPosition(glm::vec3 const& worldPos);
 	void SetWorldScale(glm::vec3 const& worldScale);
 	// -- Angles in Degrees
@@ -93,6 +91,8 @@ public:
 	// { w, x, y, z }
 	// -- Angles in Radians
 	void SetWorldRotationQuaternion(glm::quat const& worldRotQuat);
+
+	// =========== Adders ===========
 
 	void AddScale(glm::vec3 const scale)			{ m_transform.AddScale(glm::vec4(scale, 1.0f)); }
 	void AddLocalPosition(glm::vec3 const pos)		{ m_transform.AddPosition(glm::vec4(pos, 1.0f)); }

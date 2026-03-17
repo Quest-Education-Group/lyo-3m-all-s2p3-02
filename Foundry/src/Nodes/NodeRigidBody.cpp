@@ -26,10 +26,10 @@ NodeRigidBody::NodeRigidBody(std::string const& name) : Node(name)
 
 NodeRigidBody::NodeRigidBody(std::string const& name, Node3D* owner) : Node(name)
 {
-	SetOwner(owner);
+	SetNode3DParent(owner);
 
 }
-void NodeRigidBody::SetOwner(Node3D* owner)
+void NodeRigidBody::SetNode3DParent(Node3D* owner)
 {
 	m_pNode3D = owner;
 	m_pNode3D->Update(0.016);
@@ -219,12 +219,12 @@ void NodeRigidBody::SetBodyType(RigidBodyType type)
 void NodeRigidBody::LockLinearAxis(bool x, bool y, bool z)
 {
 	if (m_pNode3D)
-		m_pRigidBody->setLinearLockAxisFactor(rp3d::Vector3{ x == false ? 0.0f : 1.0f, y == false ? 0.0f : 1.0f, z == false ? 0.0f : 1.0f });
+		m_pRigidBody->setLinearLockAxisFactor(rp3d::Vector3{ x == true ? 0.0f : 1.0f, y == true ? 0.0f : 1.0f, z == true ? 0.0f : 1.0f });
 }
 void NodeRigidBody::LockAngularAxis(bool x, bool y, bool z)
 {
 	if (m_pNode3D)
-		m_pRigidBody->setAngularLockAxisFactor(rp3d::Vector3{ x == false ? 0.0f : 1.0f, y == false ? 0.0f : 1.0f, z == false ? 0.0f : 1.0f });
+		m_pRigidBody->setAngularLockAxisFactor(rp3d::Vector3{ x == true ? 0.0f : 1.0f, y == true ? 0.0f : 1.0f, z == true ? 0.0f : 1.0f });
 }
 
 bool NodeRigidBody::IsSleeping() const

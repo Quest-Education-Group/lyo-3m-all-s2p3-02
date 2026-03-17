@@ -38,12 +38,54 @@ public:
 	}
 };
 
+void DrawOBBWires(Vector3 halfExtents, Matrix rotation, Color color)
+{
+	// vertices
+	Vector3 corners[8] = {
+		{ -halfExtents.x, -halfExtents.y, -halfExtents.z },
+		{  halfExtents.x, -halfExtents.y, -halfExtents.z },
+		{  halfExtents.x,  halfExtents.y, -halfExtents.z },
+		{ -halfExtents.x,  halfExtents.y, -halfExtents.z },
+		{ -halfExtents.x, -halfExtents.y,  halfExtents.z },
+		{  halfExtents.x, -halfExtents.y,  halfExtents.z },
+		{  halfExtents.x,  halfExtents.y,  halfExtents.z },
+		{ -halfExtents.x,  halfExtents.y,  halfExtents.z },
+	};
+
+	// rotate vertices
+	for (int i = 0; i < 8; i++) 
+	{
+		
+		glm::mat4 rotMat = {
+			rotation.m0, rotation.m1, rotation.m2, rotation.m3,
+			rotation.m4, rotation.m5, rotation.m6, rotation.m7,
+			rotation.m8, rotation.m9, rotation.m10, rotation.m11,
+			rotation.m12, rotation.m13, rotation.m14, rotation.m15
+		};
+		auto rotVec = glm::vec4(corners[i].x, corners[i].y, corners[i].z, 1.0f);
+		rotVec = rotMat * rotVec;
+
+		corners[i] = { rotVec.x, rotVec.y, rotVec.z };
+	}
+
+	// 12 arêtes du cube (paires d'indices)
+	int edges[12][2] = {
+		{0,1},{1,2},{2,3},{3,0},  // face arrière
+		{4,5},{5,6},{6,7},{7,4},  // face avant
+		{0,4},{1,5},{2,6},{3,7}   // arêtes latérales
+	};
+
+	for (int i = 0; i < 12; i++) {
+		DrawLine3D(corners[edges[i][0]], corners[edges[i][1]], color);
+	}
+}
+
 int main() {
 	InitWindow(1280, 720, "Cube");
 	SetTargetFPS(60);
 
 	Camera3D cam = {};
-	cam.position = { 0.0f, 10.0f, -20.0f };
+	cam.position = { 0.0f, 20.0f, -40.0f };
 	cam.target = { 0.0f,  0.0f,  0.0f };
 	cam.up = { 0.0f,  1.0f,  0.0f };
 	cam.fovy = 50.0f;
@@ -62,7 +104,7 @@ int main() {
 	//player.get()->SetLocalPosition({ pos.x,pos.y,pos.z });
 	//player->AddLocalPitch(20);
 	////player->Update(0.016);
-	//RB_player->SetOwner(player.get());
+	//RB_player->SetNode3DParent(player.get());
 	//RB_player->GetRigidBody().setType(rp3d::BodyType::DYNAMIC);
 	//RB_player->AddBoxCollider({ pSize.x, pSize.y, pSize.z });
 	//RB_player->GetRigidBody().enableGravity(false);
@@ -76,11 +118,12 @@ int main() {
 	C_player->SetBoxShape({ 1.0f, 1.0f, 1.0f });
 
 
-	RB_player->SetOwner(player.get());
+	RB_player->SetNode3DParent(player.get());
 	RB_player->SetBodyType(RigidBodyType::DYNAMIC);
 	RB_player->SetIsGravityEnabled(true);
-	RB_player->SetMass(1.0f);
+	RB_player->SetMass(100.0f);
 	RB_player->GetRigidBody().setAngularDamping(2.0f);
+	RB_player->GetRigidBody().setLinearDamping(8.0f);
 	RB_player->GetRigidBody().setAngularLockAxisFactor(rp3d::Vector3(1.0, 1.0, 1.0));
 
 	//RB_player->AddChild(std::move(C_player));
@@ -103,7 +146,7 @@ int main() {
 	//auto RB_wall = Node::CreateNode<NodeRigidBody>("rb_wall");
 	//auto wall = Node::CreateNode<Node3D>("wall");
 	//wall.get()->SetLocalPosition({ WALL_POS.x,WALL_POS.y,WALL_POS.z });
-	//RB_wall->SetOwner(wall.get());
+	//RB_wall->SetNode3DParent(wall.get());
 	//RB_wall->GetRigidBody().setType(rp3d::BodyType::STATIC);
 	//RB_wall->AddBoxCollider({ WALL_W / 2, WALL_H / 2, WALL_D / 2 });
 	//RB_wall->GetRigidBody().enableGravity(false);
@@ -116,7 +159,7 @@ int main() {
 	wall->SetLocalPosition({ 3.0f, 1.0f, 0.0f });
 	C_wall->SetBoxShape({ 0.5f, 2.0f, 3.0f });
 
-	RB_wall->SetOwner(wall.get());
+	RB_wall->SetNode3DParent(wall.get());
 	RB_wall->SetBodyType(RigidBodyType::STATIC);
 
 	RB_wall->AddChild(std::move(C_wall));
@@ -131,7 +174,7 @@ int main() {
 	//auto RB_floor = Node::CreateNode<NodeRigidBody>("rb_floor");
 	//auto floor = Node::CreateNode<Node3D>("floor");
 	//floor.get()->SetLocalPosition({ FLOOR_POS.x,FLOOR_POS.y,FLOOR_POS.z });
-	//RB_floor->SetOwner(floor.get());
+	//RB_floor->SetNode3DParent(floor.get());
 	//RB_floor->GetRigidBody().setType(rp3d::BodyType::STATIC);
 	//RB_floor->AddBoxCollider({ FLOOR_W / 2, FLOOR_H / 2, FLOOR_D / 2 });
 	auto floor = Node::CreateNode<Node3D>("floor");
@@ -141,7 +184,7 @@ int main() {
 	floor->SetLocalPosition({ 0.0f, -1.0f, 0.0f });
 	C_floor->SetBoxShape({ 50.0f, 1.0f, 50.0f });
 
-	RB_floor->SetOwner(floor.get());
+	RB_floor->SetNode3DParent(floor.get());
 	RB_floor->SetBodyType(RigidBodyType::STATIC);
 
 	RB_floor->AddChild(std::move(C_floor));
@@ -171,6 +214,7 @@ int main() {
 
 	int d = 0;
 
+
 	while (!WindowShouldClose())
 	{
 		float dt = GetFrameTime();
@@ -193,25 +237,29 @@ int main() {
 		rp3d::Vector3 currentVel = RB_wall->GetRigidBody().getLinearVelocity();
 
 		rp3d::Vector3 input(0, 0, 0);
-		if (IsKeyDown(KEY_W)) input.z += SPEED;
-		if (IsKeyDown(KEY_S)) input.z -= SPEED;
-		if (IsKeyDown(KEY_D)) input.x -= SPEED;
-		if (IsKeyDown(KEY_A)) input.x += SPEED;
-		if (IsKeyDown(KEY_E)) input.y += SPEED;
-		if (IsKeyDown(KEY_Q)) input.y -= SPEED;
+		//if (IsKeyDown(KEY_W)) input.z += SPEED;
+		//if (IsKeyDown(KEY_S)) input.z -= SPEED;
+		//if (IsKeyDown(KEY_D)) input.x -= SPEED;
+		//if (IsKeyDown(KEY_A)) input.x += SPEED;
+		//if (IsKeyDown(KEY_E)) input.y += SPEED;
+		//if (IsKeyDown(KEY_Q)) input.y -= SPEED;
+		if (IsKeyDown(KEY_W)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 0, 10000 }); // Z
+		if (IsKeyDown(KEY_S)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 0, -10000 }); // S
+		if (IsKeyDown(KEY_D)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ -10000, 0, 0 }); // D
+		if (IsKeyDown(KEY_A)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 10000, 0, 0 }); // Q
+		if (IsKeyDown(KEY_Q)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 10000, 0 }); // A
+		if (IsKeyDown(KEY_E)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, -10000, 0 });	// E
 
 
 
-		rp3d::Vector3 newVel(
-			input.x + currentVel.x,
-			input.y + currentVel.y,
-			input.z + currentVel.z
-		);
+		//rp3d::Vector3 newVel(
+		//	input.x + currentVel.x,
+		//	input.y + currentVel.y,
+		//	input.z + currentVel.z
+		//);
 
-		//MoveCharacter(&RB_player->GetRigidBody(), glm::vec3(input.x, input.y, input.z), SPEED);
-		//Jump(&RB_player->GetRigidBody(), 5.0f);
 		//playerBody->setLinearVelocity(newVel);
-		RB_player->GetRigidBody().setLinearVelocity(newVel);
+		//RB_player->GetRigidBody().setLinearVelocity(newVel);
 
 		//auto rotQuat = playerBody->getTransform().getOrientation();
 		auto rotQuat = RB_player->GetRigidBody().getTransform().getOrientation();
@@ -243,11 +291,11 @@ int main() {
 		//}
 		if (IsKeyDown(KEY_G))
 		{
-			RB_player->LockAngularAxis(true, true, true);
+			RB_player->LockAngularAxis(false, false, false);
 		}
 		if (IsKeyDown(KEY_H))
 		{
-			RB_player->LockLinearAxis(true, true, true);
+			RB_player->LockLinearAxis(true, false, false);
 		}
 
 
@@ -314,7 +362,13 @@ int main() {
 			};
 
 		draw(rlMat_player, isColliding ? RED : BEIGE);
+		DrawOBBWires(
+			{ 1.0f, 1.0f, 1.0f },   
+			rlMat_player,                       
+			BLACK
+		);
 
+		
 		// Mur
 		DrawCube(WALL_POS, WALL_W, WALL_H, WALL_D, { 180, 140, 80, 255 });
 		DrawCubeWires(WALL_POS, WALL_W, WALL_H, WALL_D, DARKBROWN);

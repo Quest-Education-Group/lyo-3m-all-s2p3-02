@@ -27,13 +27,13 @@ void PhysicsServer::OnInitialize()
 
 void PhysicsServer::Init()
 {
-  /*  rp3d::PhysicsWorld::WorldSettings settings;
+    rp3d::PhysicsWorld::WorldSettings settings;
     settings.defaultVelocitySolverNbIterations = 300;
     settings.defaultPositionSolverNbIterations = 150;
     settings.isSleepingEnabled = true;
     settings.gravity = rp3d::Vector3(0, -9.81, 0);
-    m_pWorld = m_physicsCommon.createPhysicsWorld(settings);*/
-    m_pPhysicsWorld = m_physicsCommon.createPhysicsWorld();
+    m_pPhysicsWorld = m_physicsCommon.createPhysicsWorld(settings);
+    //m_pPhysicsWorld = m_physicsCommon.createPhysicsWorld();
 }
 rp3d::RigidBody* PhysicsServer::CreateRigidBody(const rp3d::Transform& transform, Node* const To)
 {

@@ -30,7 +30,7 @@ public:
 
 	virtual void OnUpdate(double delta) override;
 
-	void SetOwner(Node3D* owner);
+	void SetNode3DParent(Node3D* owner);
 	rp3d::RigidBody& GetRigidBody() { return *m_pRigidBody; }
 
 	// Engine
