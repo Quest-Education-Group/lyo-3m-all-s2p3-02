@@ -10,10 +10,10 @@ class EditorImGui;
 
 using json = nlohmann::json;
 
-class InspectorNodePropreties
+class InspectorNodeProperties
 {
 public:
-    InspectorNodePropreties(EditorImGui* pImGuiEditor) : m_pImguiEditor(pImGuiEditor) {}
+    InspectorNodeProperties(EditorImGui* pImGuiEditor) : m_pImguiEditor(pImGuiEditor) {}
 
     void DrawWindow(bool windowState, Node* pSelectedNode);
 

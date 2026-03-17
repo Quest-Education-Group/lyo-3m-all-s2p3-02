@@ -25,11 +25,11 @@ int main(int argc, char* argv[])
 	if (argc > 1)
 	{
 		std::string scenePath = argv[1];
-		std::cout << "[Game] Loading scene from: " << scenePath << std::endl;
+		std::cout << "[Game] Loading scene from: " << scenePath << "\n";
 
 		if (!std::filesystem::exists(scenePath))
 		{
-			std::cerr << "[Game] ERROR: Scene file not found: " << scenePath << std::endl;
+			std::cerr << "[Game] ERROR: Scene file not found: " << scenePath << "\n";
 			std::cerr << "[Game] Press Enter to exit..." << std::endl;
 			std::cin.get();
 			return 1;
@@ -39,21 +39,21 @@ int main(int argc, char* argv[])
 		{
 			uptr<Node> sceneRoot = EditorSerializer::LoadFromJson(scenePath);
 
-			std::cout << "[Game] Scene loaded successfully: " << sceneRoot->GetName() << std::endl;
-			std::cout << "[Game] Number of children: " << sceneRoot->GetChildCount() << std::endl;
+			std::cout << "[Game] Scene loaded successfully: " << sceneRoot->GetName() << "\n";
+			std::cout << "[Game] Number of children: " << sceneRoot->GetChildCount() << "\n";
 
 			SceneTree defaultSceneTree(sceneRoot);
 			GameLoop loop;
 			loop.StartGame(defaultSceneTree);
 
-			std::cout << "[Game] Scene executed successfully" << std::endl;
+			std::cout << "[Game] Scene executed successfully" << "\n";
 			std::cout << "[Game] Press Enter to exit..." << std::endl;
 			std::cin.get();
 		}
 
 		catch (std::exception const& e)
 		{
-			std::cerr << "[Game] ERROR: Failed to load scene: " << e.what() << std::endl;
+			std::cerr << "[Game] ERROR: Failed to load scene: " << e.what() << "\n";
 			std::cerr << "[Game] Press Enter to exit..." << std::endl;
 			std::cin.get();
 			return 1;

@@ -367,29 +367,29 @@ void Transform3D::Serialize(SerializedObject& datas) const
 void Transform3D::Deserialize(SerializedObject const& datas)
 {
 	glm::vec3 r = {};
-	datas.GetPrivateElement("Right", static_cast<glm::vec3*>(&r));
+	datas.GetPrivateElement("Right",&r);
 	m_right = { r,1.0f };
 	glm::vec3 u = {};
-	datas.GetPrivateElement("Up", static_cast<glm::vec3*>(&u));
+	datas.GetPrivateElement("Up", &u);
 	m_up = { u,1.0f };
 	glm::vec3 f = {};
-	datas.GetPrivateElement("Forward", static_cast<glm::vec3*>(&f));
+	datas.GetPrivateElement("Forward", &f);
 	m_forward = { f,1.0f };
 	//glm::vec4 quat ;
 	//datas.GetPrivateElement("m_rotationQuat", static_cast<glm::vec4*>(&quat));
 	//m_rotationQuat = { quat.x,quat.y,quat.z,quat.w };
 
 	glm::vec3 pos = {};
-	datas.GetPublicElement("Position", static_cast<glm::vec3*>(&pos));
+	datas.GetPublicElement("Position", &pos);
 	SetPosition({ pos,1.0f });
 
 	glm::vec3 rot = {};
-	datas.GetPublicElement("Rotation", static_cast<glm::vec3*>(&rot));
+	datas.GetPublicElement("Rotation", &rot);
 	rot *= pi_t<long double> / 180; // deg to rad
 	SetRotation({ rot,1.0f });
 
 	glm::vec3 scale = { 1.0f,1.0f,1.0f };
-	datas.GetPublicElement("Scale", static_cast<glm::vec3*>(&scale));
+	datas.GetPublicElement("Scale", &scale);
 	SetScale({ scale,1.0f });
 }
 

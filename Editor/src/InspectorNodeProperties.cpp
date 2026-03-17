@@ -1,4 +1,4 @@
-﻿#include "InspectorNodePropreties.h"
+﻿#include "InspectorNodeProperties.h"
 #include "EditorImGui.h"
 #include "EditorRaylib3D.h"
 
@@ -7,7 +7,7 @@
 #include <iostream>
 #include <imgui.h>
 
-void InspectorNodePropreties::DrawWindow(bool windowState, Node* pNode)
+void InspectorNodeProperties::DrawWindow(bool windowState, Node* pNode)
 {
 	m_isOpen = windowState;
 	if (!m_isOpen) return;
@@ -75,7 +75,7 @@ void InspectorNodePropreties::DrawWindow(bool windowState, Node* pNode)
 	ImGui::End();
 }
 
-bool InspectorNodePropreties::DrawDatas(json& publicDataJson)
+bool InspectorNodeProperties::DrawDatas(json& publicDataJson)
 {
 	bool wasModified = false;
 	for (auto& [key, value] : publicDataJson.items())
