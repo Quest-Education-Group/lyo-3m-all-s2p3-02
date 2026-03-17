@@ -229,7 +229,6 @@ inline void SerializedObject::GetPrivateElementInDictionary<ISerializable>(std::
 {
 	SerializedObject jsonObject = {};
 	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject["PRIVATE_DATAS"][dictionaryName][elementName];
-	outVariable = AutomaticRegisterISerializable<ISerializable>::create(jsonObject.GetType());
 	outVariable->Deserialize(jsonObject);
 }
 template <>
@@ -438,7 +437,6 @@ inline void SerializedObject::GetPublicElement<ISerializable>(std::string const&
 {
 	SerializedObject jsonObject = {};
 	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject["PUBLIC_DATAS"][elementName];
-	outVariable = AutomaticRegisterISerializable<ISerializable>::create(jsonObject.GetType());
 	outVariable->Deserialize(jsonObject);
 }
 template <>
@@ -474,7 +472,6 @@ inline void SerializedObject::GetPublicElementInDictionary<ISerializable>(std::s
 {
 	SerializedObject jsonObject = {};
 	jsonObject.m_elementsInSerializedObject = m_elementsInSerializedObject["PUBLIC_DATAS"][dictionaryName][elementName];
-	outVariable = AutomaticRegisterISerializable<ISerializable>::create(jsonObject.GetType());
 	outVariable->Deserialize(jsonObject);
 }
 template <>

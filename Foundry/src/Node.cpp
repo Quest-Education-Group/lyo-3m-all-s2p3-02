@@ -220,7 +220,7 @@ void Node::Deserialize(SerializedObject const& datas)
 {
 	// Call baseClass::Deserialize(datas) : Example Node::Deserialize(datas)
 	std::string t = datas.GetType();
-	datas.GetPublicElement("m_name",&m_name);
+	datas.GetPublicElement("Name",&m_name);
 	datas.GetPublicElement("m_scriptPath", &m_scriptPath);
 	if (m_scriptPath != "" && !s_IsInEditor )
 	{

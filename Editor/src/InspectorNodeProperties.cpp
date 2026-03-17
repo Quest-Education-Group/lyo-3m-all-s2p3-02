@@ -33,11 +33,12 @@ void InspectorNodeProperties::DrawWindow(bool windowState, Node* pNode)
 		ImGui::PopStyleColor();
 		ImGui::Separator();
 		
-		if (pNode != m_pSelectedNode || m_pImguiEditor->m_pRaylibEditor->IsGizmoDirty())
+		if (pNode != m_pSelectedNode || m_pImguiEditor->m_pRaylibEditor->IsGizmoDirty() || m_isDirty)
 		{
 			m_currentDatas = m_pImguiEditor->LoadInspectorData();
 			m_pSelectedNode = pNode;
 			m_pImguiEditor->m_pRaylibEditor->UpdateDirtyGizmo();
+			m_isDirty = false;
 		}
 
         bool wasModified = DrawDatas(m_currentDatas);

@@ -25,6 +25,7 @@ public:
 
     void SetWindow(int width, int height) { m_screenWidth = width; m_screenHeight = height; }
 
+    void SetDirty() { m_isDirty = true; }
 private:
     bool DrawDatas(json& publicDataJson);
     bool DrawLuaScriptPicker(json& publicDataJson);
@@ -39,6 +40,7 @@ private:
     int m_windowHeight = 0;
 
     bool m_isOpen = false;
+    bool m_isDirty = false;
 
     Node* m_pSelectedNode = nullptr;
 

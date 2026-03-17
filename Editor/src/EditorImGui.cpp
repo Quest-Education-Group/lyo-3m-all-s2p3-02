@@ -730,7 +730,10 @@ void EditorImGui::HandleHierarchyDropTarget(Node& targetNode)
 			if (canDrop)
 			{
 				dragged->Reparent(targetNode, true);
+				m_pRaylibEditor->UpdateDrawableElement(dragged);
+				m_inspector.SetDirty();
 				SelectedNode(dragged);
+				dragged->Update(1.0f / 60.0f);
 			}
 		}
 	}
