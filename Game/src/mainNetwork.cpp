@@ -9,18 +9,10 @@ void LaunchNodeServer()
 {
 	auto serverNode = Node::CreateNode<NodeNetwork>("server");
 	serverNode->InitNetworkFor(NetworkType::SERVER, 54321);
-	
-	// == SYNCVARS ==
-	SyncVar(std::string, "Name") playerName("Player1");
-	SyncVar(int, "HP") playerHp = 10;
-	playerHp = 55;
-	SyncVar(float, "PosX") playerPosX = 5.56f;
-	SyncVar(bool, "IsDead") playerIsDead = false;
-
 
 	//TODO Retirer apres les tests
-	if (GetAsyncKeyState('A'))
-		playerHp = 50;
+	//if (GetAsyncKeyState('A'))
+	//	playerHp = 50;
 	// ==============
 	
 	serverNode->Start();
@@ -30,23 +22,9 @@ void LaunchNodeClient()
 {
 	auto clientNode = Node::CreateNode<NodeNetwork>("client");
 	clientNode->InitNetworkFor(NetworkType::CLIENT);
-
-	// == SYNCVARS ==
-	SyncVar(std::string, "Name") playerName("Player2");
-	SyncVar(std::string, "MyCar") playerCar("VoitureKangou");
-	SyncVar(std::string, "Letter") playerLetter("A");
-	SyncVar(int, "HP") playerHp = 0;
-	SyncVar(float, "PosX") playerPosX = 0;
-	SyncVar(bool, "IsDead") playerIsDead = true;
-	// ==============
-
-	clientNode->ConnectTo("10.10.133.17", 54321);
+	clientNode->ConnectTo("127.0.0.1", 54321); //Adresse local
+	//clientNode->ConnectTo("192.168.1.6", 54321);
 	clientNode->SendMsgToServerInput();
-
-	while (true)
-	{
-
-	}
 }
 
 
@@ -70,16 +48,25 @@ int main(int argc, char** argv)
 		else
 		{
 			LaunchNodeServer();
+			//LaunchNodeClient();
 		}
 	}
 
-	NetworkServer::StopEnet();
+	// == SYNCVARS ==
+	SyncVar(std::string, "Name") playerName("Player2");
+	SyncVar(std::string, "MyCar") playerCar("VoitureKangou");
+	SyncVar(std::string, "Letter") playerLetter("A");
+	SyncVar(int, "HP") playerHp = 0;
+	SyncVar(float, "PosX") playerPosX = 0;
+	SyncVar(bool, "IsDead") playerIsDead = true;
+	// ==============
 
-	//DEBUG_WHILE_TRUE
 	while (true)
 	{
 		NetworkServer::FlushCommands();
 	}
+
+	NetworkServer::StopEnet();
 
 	return 0;
 }

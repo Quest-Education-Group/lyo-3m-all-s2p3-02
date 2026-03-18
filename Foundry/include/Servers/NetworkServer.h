@@ -150,7 +150,7 @@ class NetworkServer : public Server<NetworkServer>
 public:
 	NetworkServer() = default;
 
-	static bool Init(NetworkType networkType = NetworkType::NOT_DEFINED, int serverPort = 0);
+	static void Init(NetworkType networkType = NetworkType::NOT_DEFINED, int serverPort = 0);
 
 	static void Start();
 	static void Close();
@@ -200,7 +200,6 @@ private:
 
 	void BuildTasksImpl(TaskGraph& graph) override;
 	void FlushCommandsImpl() override;
-	void OnInitialize() override {}
 
 	bool Command_Init(NetworkType networkType, int serverPort);
 	void Command_Start();

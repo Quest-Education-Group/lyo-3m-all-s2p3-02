@@ -1,7 +1,7 @@
 #include "Servers/NetworkServer.h"
 #include "Multithreading/TaskGraph.h"
 
-bool NetworkServer::Init(NetworkType networkType, int serverPort)
+void NetworkServer::Init(NetworkType networkType, int serverPort)
 {
 	Command<NetworkServer> cmd;
 	cmd.Type = CommandType::INIT;
@@ -9,8 +9,6 @@ bool NetworkServer::Init(NetworkType networkType, int serverPort)
 	cmd.inputPort = serverPort;
 
 	Instance().m_commands.push(cmd);
-
-	return true;
 }
 
 void NetworkServer::Start()
@@ -31,6 +29,7 @@ void NetworkServer::Close()
 
 bool NetworkServer::ConnectingTo(const char* addressIP, int addressPort)
 {
+	//std::cout << "\ntest\n";
 	Command<NetworkServer> cmd;
 	cmd.Type = CommandType::CONNECTTO;
 	cmd.inputChar = addressIP;

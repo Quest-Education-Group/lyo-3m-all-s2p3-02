@@ -25,8 +25,7 @@ public:
 protected:
 
 private:
-	// TODO : Remove that to only use instance
-	//NetworkServer m_network;
+
 };
 
 #endif
