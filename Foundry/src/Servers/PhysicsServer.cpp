@@ -73,7 +73,7 @@ while (!m_commands.empty())
     switch (command.Type)
     {
     case CommandTyp::CREATE_RIGID_BODY:
-        CreateRigidBody(command.transform, command.To);
+        CreateRigidBody(*command.transform, command.To);
         break;
 
     case CommandTyp::DESTROY_RIGID_BODY:
@@ -179,16 +179,16 @@ while (!m_commands.empty())
 
 void PhysicsServer::ApplyLocalForceAtCenterOfMass(const glm::vec3& force, NodeRigidBody& rb)
 {
-	Command<PhysicsServer> cmd
-	{
-		CommandTyp::APPLY_LOCAL_FORCE_AT_CENTER_OF_MASS,
-		.To = &rb,
-		.force = force
-	}
-	cmd.Type = ;
-	cmd.To = &rb;
-	cmd.force = force;
-	Instance().m_commands.push({ CommandTyp::APPLY_LOCAL_FORCE_AT_CENTER_OF_MASS, &rb, .force = force });
+	//Command<PhysicsServer> cmd
+	//{
+	//	CommandTyp::APPLY_LOCAL_FORCE_AT_CENTER_OF_MASS,
+	//	.To = &rb,
+	//	.force = force
+	//}s
+	//cmd.Type = ;
+	//cmd.To = &rb;
+	//cmd.force = force;
+	//Instance().m_commands.push({ CommandTyp::APPLY_LOCAL_FORCE_AT_CENTER_OF_MASS, &rb, .force = force });
 }
 void PhysicsServer::ApplyLocalForceAtLocalPosition(const glm::vec3& force, const glm::vec3& point, NodeRigidBody& rb)
 {

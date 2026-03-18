@@ -1,6 +1,6 @@
 #include "Servers/GraphicServer.h"
 
-#include "Window.h"
+//#include "Window.h"
 
 void GraphicServer::OpenWindow(Window *pWindow)
 {
@@ -30,14 +30,14 @@ void GraphicServer::FlushCommandsImpl()
         switch (type)
         {
             case CommandType::OPENWINDOW:
-                pWindow->Open();
-                pWindow->GetWiewport(0)->Setup();
+                //pWindow->Open();
+                //pWindow->GetWiewport(0)->Setup();
                 break;
             case CommandType::CLEAR:
-                pWindow->Clear();
+                //pWindow->Clear();
                 break;
             case CommandType::PRESENT:
-                pWindow->Present();
+                //pWindow->Present();
                 break;
         }
         m_commands.pop();

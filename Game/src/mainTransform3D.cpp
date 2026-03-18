@@ -91,8 +91,7 @@ int main() {
 	cam.fovy = 50.0f;
 	cam.projection = CAMERA_PERSPECTIVE;
 
-	//PhysicsServer::Init();
-	PhysicsServer::Poke();
+	PhysicsServer::Initialize();
 
 	//// cube
 	Vector3 pos = { 0.0f, 1.0f, 0.0f };
@@ -122,7 +121,7 @@ int main() {
 	RB_player->SetNode3DParent(player.get());
 	RB_player->SetBodyType(RigidBodyType::DYNAMIC);
 	RB_player->SetIsGravityEnabled(true);
-	RB_player->SetMass(100.0f);
+	RB_player->SetMass(1.0f);
 	RB_player->GetRigidBody().setAngularDamping(2.0f);
 	RB_player->GetRigidBody().setLinearDamping(8.0f);
 	RB_player->GetRigidBody().setAngularLockAxisFactor(rp3d::Vector3(1.0, 1.0, 1.0));
@@ -244,12 +243,12 @@ int main() {
 		//if (IsKeyDown(KEY_A)) input.x += SPEED;
 		//if (IsKeyDown(KEY_E)) input.y += SPEED;
 		//if (IsKeyDown(KEY_Q)) input.y -= SPEED;
-		if (IsKeyDown(KEY_W)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 0, 10000 }); // Z
-		if (IsKeyDown(KEY_S)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 0, -10000 }); // S
-		if (IsKeyDown(KEY_D)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ -10000, 0, 0 }); // D
-		if (IsKeyDown(KEY_A)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 10000, 0, 0 }); // Q
-		if (IsKeyDown(KEY_Q)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 10000, 0 }); // A
-		if (IsKeyDown(KEY_E)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, -10000, 0 });	// E
+		if (IsKeyDown(KEY_W)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 0, 100 }); // Z
+		if (IsKeyDown(KEY_S)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 0, -100 }); // S
+		if (IsKeyDown(KEY_D)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ -100, 0, 0 }); // D
+		if (IsKeyDown(KEY_A)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 100, 0, 0 }); // Q
+		if (IsKeyDown(KEY_Q)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 100, 0 }); // A
+		if (IsKeyDown(KEY_E)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, -100, 0 });	// E
 
 
 
