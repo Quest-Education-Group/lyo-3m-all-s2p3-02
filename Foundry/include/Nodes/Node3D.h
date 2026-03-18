@@ -114,7 +114,7 @@ private:
 	void UpdateWorldTransform();
 	void UpdateLocalTransform();
 
-private:
+protected:
 	Transform3D m_transform;
 
 	glm::mat4x4 m_worldTransform{ 1.0f };
