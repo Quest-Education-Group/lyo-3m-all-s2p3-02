@@ -1,6 +1,5 @@
-//#include "Foundry/include/AudioEngine.h" // need to make node and server instead
+#include "AudioEngine.h" // need to make node and server instead
 #include "Define.h" //temp
-#include "miniaudio.h" //temp
 
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
@@ -28,7 +27,8 @@ int main(int argc, char** argv)
     }
 
     result = ma_decoder_init_file(argv[1], NULL, &decoder);
-    if (result != MA_SUCCESS) {
+    if (result != MA_SUCCESS) 
+    {
         printf("Could not load file: %s\n", argv[1]);
         return -2;
     }
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     }
 
     printf("Press Enter to quit...");
-    getchar();
+    getchar(); // necessary
 
     ma_device_uninit(&device);
     ma_decoder_uninit(&decoder);
