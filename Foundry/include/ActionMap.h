@@ -1,7 +1,7 @@
 #ifndef FOUNDRY_ACTIONMAP__H_
 #define FOUNDRY_ACTIONMAP__H_
 
-#include "Action.h"
+#include "Event.hpp"
 #include "IControl.h"
 
 #include <string_view>
@@ -9,12 +9,13 @@
 #include <unordered_map>
 #include <vector>
 
+class Action;
 
 class ActionMap /*: public ISerializable*/
 {
 public:
-	ActionMap() : m_actions() {};
-	~ActionMap() = default;
+	ActionMap();
+	~ActionMap();
 
 	ActionMap(ActionMap const& other) = delete;
 	void operator=(ActionMap const& other) = delete;
@@ -23,8 +24,9 @@ public:
 	void operator=(ActionMap&& other) = delete;
 
 
-	bool			AddAction(std::string_view const& name, Action* input);
-	bool			DeleteAction(std::string_view const& name);
+	bool			AddAction(std::string_view const& name, Action* pAction);
+	bool			EraseLastAction(std::string_view const& name);
+	bool			EraseAction(std::string_view const& name, uint32 const& index);
 
 	template <typename RV, typename... Args>
 	bool			SetAction(std::string_view const& name, Event<RV(Args...)>* pAction);
