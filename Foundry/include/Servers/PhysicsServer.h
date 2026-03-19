@@ -27,7 +27,7 @@ struct Command<class PhysicsServer>
 		bodyType(RigidBodyType::NONE),
 		mass(0.0f),
 		sleepingEnabled(false),
-		lockAxis({}),
+		//lockAxis({}),
 		rotation({ 0.0f, 0.0f, 0.0f, 1.0f }),
 		radius(0.0f),
 		mask(0)
@@ -39,12 +39,12 @@ struct Command<class PhysicsServer>
 	{
 		if (transform)
 		{
-			delete transform;
+			//delete transform;
 			transform = nullptr;
 		}
 		if (rigidBody)
 		{
-			delete rigidBody;
+			//delete rigidBody;
 			rigidBody = nullptr;
 		}
 	}
@@ -212,8 +212,12 @@ public:
 
 	static void Initialize();
 
-	static rp3d::RigidBody* CreateRigidBody(const rp3d::Transform& transform, Node* const To);
-	static void             DestroyRigidBody(NodeRigidBody& rigidBody);
+	//static rp3d::RigidBody* CreateRigidBody2(const rp3d::Transform& transform, NodeRigidBody* const To);
+	static void CreateRigidBody(NodeRigidBody& rigidBody);
+	static void DestroyRigidBody(NodeRigidBody& rigidBody);
+	//static void S_CreateRigidBody(const rp3d::Transform& transform, NodeRigidBody* const To);
+	static void S_CreateRigidBody(NodeRigidBody& rigidBody);
+	static void S_DestroyRigidBody(NodeRigidBody& rigidBody);
 
 	//static void Update(double dt)                       { Instance().m_pPhysicsWorld->update(dt); }
 

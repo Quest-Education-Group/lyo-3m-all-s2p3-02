@@ -26,7 +26,6 @@ public:
 
 	virtual void OnUpdate(double delta) override;
 
-	//operator rp3d::Transform();
 	static ISerializable* CreateInstance();
 
 	// Engine

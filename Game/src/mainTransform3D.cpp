@@ -53,9 +53,9 @@ void DrawOBBWires(Vector3 halfExtents, Matrix rotation, Color color)
 	};
 
 	// rotate vertices
-	for (int i = 0; i < 8; i++) 
+	for (int i = 0; i < 8; i++)
 	{
-		
+
 		glm::mat4 rotMat = {
 			rotation.m0, rotation.m1, rotation.m2, rotation.m3,
 			rotation.m4, rotation.m5, rotation.m6, rotation.m7,
@@ -117,18 +117,23 @@ int main() {
 
 	C_player->SetBoxShape({ 1.0f, 1.0f, 1.0f });
 
+	EngineServer::FlushCommands();
+	PhysicsServer::FlushCommands();
 
 	RB_player->SetNode3DParent(player.get());
 	RB_player->SetBodyType(RigidBodyType::DYNAMIC);
 	RB_player->SetIsGravityEnabled(true);
 	RB_player->SetMass(1.0f);
-	RB_player->GetRigidBody().setAngularDamping(2.0f);
-	RB_player->GetRigidBody().setLinearDamping(8.0f);
-	RB_player->GetRigidBody().setAngularLockAxisFactor(rp3d::Vector3(1.0, 1.0, 1.0));
+	RB_player->SetAngularDamping(2.0f);
+	RB_player->SetLinearDamping(1.0f);
+	//RB_player->GetRigidBody().setAngularLockAxisFactor(rp3d::Vector3(1.0, 1.0, 1.0));
 
 	//RB_player->AddChild(std::move(C_player));
 	RB_player->AddChild(std::move(C_player));
 	//C_player->Reparent(*RB_player.get());
+
+	EngineServer::FlushCommands();
+	PhysicsServer::FlushCommands();
 
 	//auto ref_player = static_cast<NodeCollider*>(&player->FindChild<NodeCollider>()->get());
 
@@ -182,7 +187,7 @@ int main() {
 	auto C_floor = Node::CreateNode<NodeCollider>("c_floor");
 
 	floor->SetLocalPosition({ 0.0f, -1.0f, 0.0f });
-	C_floor->SetBoxShape({ 50.0f, 1.0f, 50.0f });
+	C_floor->SetBoxShape({ 50.0f, 10.0f, 50.0f });
 
 	RB_floor->SetNode3DParent(floor.get());
 	RB_floor->SetBodyType(RigidBodyType::STATIC);
@@ -198,7 +203,8 @@ int main() {
 	float accumulator = 0.0f;
 	bool  isColliding = false;
 
-	RB_player->GetRigidBody().setAngularLockAxisFactor(rp3d::Vector3(1.0, 1.0, 1.0));
+	//RB_player->LockAngularAxis(1.0, 1.0, 1.0);
+	//RB_player->LockLinearAxis(0.0, 0.0, 0.0);
 	//RB_player->GetRigidBody().setLinearLockAxisFactor(rp3d::Vector3(1.0, 0.0, 0.0));
 	//playerBody->setLinearLockAxisFactor
 	//RB_player->GetRigidBody().setLinearDamping(8.0f);
@@ -207,12 +213,15 @@ int main() {
 	Material cubeMaterial = LoadMaterialDefault();
 
 	EngineServer::FlushCommands();
+	PhysicsServer::FlushCommands();
 
 	auto ref_collider = static_cast<NodeCollider*>(&RB_player->GetChild(0));
 	if (ref_collider)
-		ref_collider->init();
+		//ref_collider->init();
 
 	int d = 0;
+	bool test = false;
+	bool t = false;
 
 
 	while (!WindowShouldClose())
@@ -220,112 +229,63 @@ int main() {
 		float dt = GetFrameTime();
 		if (dt <= 0.0f || dt > 0.1f) dt = FIXED_DT;
 
-		//if (d < 2)
-		//{
-		//	if(d==1)
-		//	{
-		//		auto ref_collider = static_cast<NodeCollider*>(&RB_player->GetChild(0));
-		//		if (ref_collider)
-		//			ref_collider->init();
-		//	}
-		//	d++;
-		//}
-
-
-		RB_player->SetBodyType(RigidBodyType::DYNAMIC);
-		// --- move  ---
-		rp3d::Vector3 currentVel = RB_wall->GetRigidBody().getLinearVelocity();
-
-		rp3d::Vector3 input(0, 0, 0);
-		//if (IsKeyDown(KEY_W)) input.z += SPEED;
-		//if (IsKeyDown(KEY_S)) input.z -= SPEED;
-		//if (IsKeyDown(KEY_D)) input.x -= SPEED;
-		//if (IsKeyDown(KEY_A)) input.x += SPEED;
-		//if (IsKeyDown(KEY_E)) input.y += SPEED;
-		//if (IsKeyDown(KEY_Q)) input.y -= SPEED;
-		if (IsKeyDown(KEY_W)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 0, 100 }); // Z
-		if (IsKeyDown(KEY_S)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 0, -100 }); // S
-		if (IsKeyDown(KEY_D)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ -100, 0, 0 }); // D
-		if (IsKeyDown(KEY_A)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 100, 0, 0 }); // Q
-		if (IsKeyDown(KEY_Q)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, 100, 0 }); // A
-		if (IsKeyDown(KEY_E)) RB_player->GetRigidBody().applyWorldForceAtCenterOfMass({ 0, -100, 0 });	// E
-
-
-
-		//rp3d::Vector3 newVel(
-		//	input.x + currentVel.x,
-		//	input.y + currentVel.y,
-		//	input.z + currentVel.z
-		//);
-
-		//playerBody->setLinearVelocity(newVel);
-		//RB_player->GetRigidBody().setLinearVelocity(newVel);
-
-		//auto rotQuat = playerBody->getTransform().getOrientation();
-		auto rotQuat = RB_player->GetRigidBody().getTransform().getOrientation();
-		//auto aVel = playerBody->getAngularVelocity();
-		auto aVel = RB_player->GetRigidBody().getAngularVelocity();
-		// --- rotate ---
-		if (IsKeyDown(KEY_LEFT))  aVel.x -= ROT_SPEED * dt;
-		if (IsKeyDown(KEY_RIGHT)) aVel.x += ROT_SPEED * dt;
-		if (IsKeyDown(KEY_DOWN))  aVel.y += ROT_SPEED * dt;
-		if (IsKeyDown(KEY_UP))    aVel.y -= ROT_SPEED * dt;
-
-		if (IsKeyDown(KEY_V))  RB_player->GetRigidBody().applyLocalForceAtLocalPosition({ 0, 0, 50 }, { 5, 0, 0 });
-		if (IsKeyDown(KEY_B)) RB_player->GetRigidBody().applyLocalForceAtLocalPosition({ 0, 50, 0 }, { 5, 0, 0 });
-		if (IsKeyDown(KEY_N))  RB_player->GetRigidBody().applyLocalForceAtLocalPosition({ 50, 0, 0 }, { 0, 0, 5 });
-
-		if (IsKeyDown(KEY_C))  RB_player->ApplyLocalTorque({ 30,0,0 });
-
-		//if (IsKeyDown(KEY_G))
-		//{
-		//	auto collider = RB_floor->FindChild<NodeCollider>();
-		//	if (collider)
-		//		collider->get().SetBounciness(collider->get().GetBounciness() + 0.1);
-		//}
-		//if (IsKeyDown(KEY_H))
-		//{
-		//	auto collider = RB_floor->FindChild<NodeCollider>();
-		//	if (collider)
-		//		collider->get().SetBounciness(collider->get().GetBounciness() - 0.1);
-		//}
-		if (IsKeyDown(KEY_G))
+		if (IsKeyDown(KEY_W)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 0, 50 }); // Z
+		if (IsKeyDown(KEY_S)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 0, -50 }); // S
+		if (IsKeyDown(KEY_D)) RB_player->ApplyWorldForceAtCenterOfMass({ -50, 0, 0 }); // D
+		if (IsKeyDown(KEY_A))
 		{
-			RB_player->LockAngularAxis(false, false, false);
+			RB_player->ApplyWorldForceAtCenterOfMass({ 50, 0, 0 }); // Q
 		}
-		if (IsKeyDown(KEY_H))
+		if (IsKeyDown(KEY_Q)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 100, 0 }); // A
+		if (IsKeyDown(KEY_E)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, -100, 0 });	// E
+
+
+
+		if (IsKeyDown(KEY_V))  RB_player->ApplyLocalTorque({ 50,0,0 });
+		if (IsKeyDown(KEY_B)) RB_player->ApplyLocalTorque({ 0,50,0 });
+		if (IsKeyDown(KEY_N))  RB_player->ApplyLocalTorque({ 0,0,50 });
+
+		if (IsKeyDown(KEY_C))  RB_player->ResetTorque();
+
+		if (IsKeyPressed(KEY_G))
 		{
-			RB_player->LockLinearAxis(true, false, false);
+			test = !test;
+			RB_player->LockAngularAxis(test, test, test);
+			std::string a = test == true ? "true" : "false";
+			std::string b = "\n Linear lock = " + a + "\n";
+			DEBUG(b);
+		}
+		if (IsKeyPressed(KEY_H))
+		{
+			t = !t;
+			RB_player->LockLinearAxis(t, t, t);
+			std::string a = t == true ? "true" : "false";
+			std::string b = "\n Angular lock = " + a + "\n";
+			DEBUG(b);
 		}
 
 
-		//playerBody->setAngularVelocity(aVel);
-		RB_player->GetRigidBody().setAngularVelocity(aVel);
+		PhysicsServer::FlushCommands();
 
-		//playerBody->applyLocalForceAtLocalPosition({ 0.0,0.0,10.0 }, { 10.0,0.0,0.0 });
-		//playerBody->applyLocalForceAtLocalPosition({ 0.0,0.0,10.0 }, {  0.0,0.0,10.0 }); // yaw
-		//playerBody->applyLocalTorque({ 0.0,1000.0,100.0 });
-		//playerBody->applyLocalForceAtLocalPosition({ 0.0,0.0,-1.0 }, { 1.0,0.0,0.0 }); // yaw
-
-
-		RB_player->Update(dt);
-		player->Update(dt);
-
-		RB_wall->Update(dt);
-		wall->Update(dt);
-		RB_floor->Update(dt);
-		floor->Update(dt);
 		// --- update physics ---
 		accumulator += dt;
 		while (accumulator >= FIXED_DT) {
-			//world->update(FIXED_DT);
-			//PhysicsServer::GetPhysicsWorld().update(FIXED_DT);
+
 			PhysicsServer::UpdatePhysicsWorld(FIXED_DT);
 			accumulator -= FIXED_DT;
 		}
+		RB_player->Update(dt);
+		player->Update(dt);
 
+		//RB_wall->Update(dt);
+		//wall->Update(dt);
+		//RB_floor->Update(dt);
+		//floor->Update(dt);
+
+
+		PhysicsServer::FlushCommands();
 		//rp3d::Vector3 p = playerBody->getTransform().getPosition();
-		rp3d::Vector3 p = RB_player->GetRigidBody().getTransform().getPosition();
+		rp3d::Vector3 p = { RB_player->GetPosition().x, RB_player->GetPosition().y, RB_player->GetPosition().z };
 		pos = { p.x, p.y, p.z };
 
 		// --- test overlap ---
@@ -363,12 +323,12 @@ int main() {
 
 		draw(rlMat_player, isColliding ? RED : BEIGE);
 		DrawOBBWires(
-			{ 1.0f, 1.0f, 1.0f },   
-			rlMat_player,                       
+			{ 1.0f, 1.0f, 1.0f },
+			rlMat_player,
 			BLACK
 		);
 
-		
+
 		// Mur
 		DrawCube(WALL_POS, WALL_W, WALL_H, WALL_D, { 180, 140, 80, 255 });
 		DrawCubeWires(WALL_POS, WALL_W, WALL_H, WALL_D, DARKBROWN);
@@ -386,7 +346,9 @@ int main() {
 			DrawText("Aucune collision", 20, 118, 20, GREEN);
 
 		//DrawText(TextFormat("RB_Pos: (%.1f, %.1f, %.1f)", pos.x, pos.y, pos.z),
-		DrawText(TextFormat("RB_Pos: (%.1f, %.1f, %.1f)", RB_player->Getposition().x, RB_player->Getposition().y, RB_player->Getposition().z),
+		DrawText(TextFormat("C_Pos: (%.1f, %.1f, %.1f)", ref_collider->GetLocalPosition().x, ref_collider->GetLocalPosition().y, ref_collider->GetLocalPosition().z),
+			10, GetScreenHeight() - 58, 16, BLACK);
+		DrawText(TextFormat("RB_Pos: (%.1f, %.1f, %.1f)", RB_player->GetPosition().x, RB_player->GetPosition().y, RB_player->GetPosition().z),
 			10, GetScreenHeight() - 48, 16, BLACK);
 		DrawText(TextFormat("PlayerPos: (%.1f, %.1f, %.1f)", player->GetPosition().x, player->GetPosition().y, player->GetPosition().z),
 			10, GetScreenHeight() - 26, 16, BLACK);

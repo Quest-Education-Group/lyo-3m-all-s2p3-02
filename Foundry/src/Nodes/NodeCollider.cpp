@@ -35,18 +35,19 @@ NodeCollider::~NodeCollider()
 
 void NodeCollider::DestroyShape()
 {
-	if (!m_pShape) return;
+	//if (!m_pShape) return;
 
-	auto& pc = PhysicsServer::GetPhysicsCommon(); // A REFAIRE POUR SUIVRE LOGIQUE SERVEUR
+	//auto& pc = PhysicsServer::GetPhysicsCommon(); // A REFAIRE POUR SUIVRE LOGIQUE SERVEUR
 
-	if (auto* s = dynamic_cast<rp3d::BoxShape*>(m_pShape))
-		pc.destroyBoxShape(s);
-	else if (auto* s = dynamic_cast<rp3d::SphereShape*>(m_pShape))
-		pc.destroySphereShape(s);
-	else if (auto* s = dynamic_cast<rp3d::CapsuleShape*>(m_pShape))
-		pc.destroyCapsuleShape(s);
+	//if (auto* s = dynamic_cast<rp3d::BoxShape*>(m_pShape))
+	//	pc.destroyBoxShape(s);
+	//else if (auto* s = dynamic_cast<rp3d::SphereShape*>(m_pShape))
+	//	pc.destroySphereShape(s);
+	//else if (auto* s = dynamic_cast<rp3d::CapsuleShape*>(m_pShape))
+	//	pc.destroyCapsuleShape(s);
 
-	m_pShape = nullptr;
+	//m_pShape = nullptr;
+	PhysicsServer::DestroyShape(*this);
 }
 
 void NodeCollider::SetBoxShape(const glm::vec3& halfExtents)
@@ -172,7 +173,6 @@ bool NodeCollider::IsWorldQueryCollider() const
 {
 	return m_pCollider ? m_pCollider->getIsWorldQueryCollider() : false;
 }
-
 
 void NodeCollider::SetCollisionCategoryBits(uint16_t v)
 {

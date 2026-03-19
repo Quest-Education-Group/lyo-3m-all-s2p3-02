@@ -29,10 +29,17 @@ public:
 	NodeRigidBody(std::string const& name, Node3D* owner);
 	~NodeRigidBody() override;
 
+	void CreateRigidBody();
+	void DestroyRigidBody(NodeRigidBody& rigidBody);
+
 	virtual void OnUpdate(double delta) override;
 
 	void SetNode3DParent(Node3D* owner);
 	rp3d::RigidBody& GetRigidBody() { return *m_pRigidBody; }
+	void SetRigidBody(rp3d::RigidBody* rb) { m_pRigidBody = rb; }
+
+	operator rp3d::Transform();
+	operator rp3d::Transform*();
 
 	// Engine
 	////////////////////////////////////////////////////////////
@@ -55,9 +62,9 @@ public:
 	glm::vec3 const GetLinearVelocity() const;
 	glm::vec3 const GetAngularVelocity() const;
 	/// Return the linear decelerating factor			
-	float const		GetLinearDamping() const;
+	float const	GetLinearDamping() const;
 	/// Return the angular velocity damping factor		
-	float const		GetAngularDamping() const;
+	float const	GetAngularDamping() const;
 	glm::vec3 const GetTotalForce() const;
 
 
@@ -95,7 +102,7 @@ public:
 
 
 	// fonction temporaire debug
-	glm::vec3 Getposition() const 
+	glm::vec3 GetPosition() const 
 	{ 
 		return rp3dToGlm(m_pRigidBody->getTransform().getPosition());
 	}

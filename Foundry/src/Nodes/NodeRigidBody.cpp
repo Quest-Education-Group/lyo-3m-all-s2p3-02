@@ -5,20 +5,26 @@
 
 NodeRigidBody::~NodeRigidBody()
 {
-	PhysicsServer::GetPhysicsWorld().destroyRigidBody(m_pRigidBody);
+	//PhysicsServer::GetPhysicsWorld().destroyRigidBody(m_pRigidBody);
 }
 
 NodeRigidBody::NodeRigidBody(std::string const& name) : Node(name)
 {
-	OnParentChange.Subscribe([this](Node& self)
-		{
-			//	if (auto* rigidBody = dynamic_cast<NodeRigidBody*>(m_pOwner))
-			//		AttachToRigidBody(&rigidBody->GetRigidBody());
-		});
+	//OnSceneEnter.Subscribe([this](Node& self)
+	//	{
+	//		if (auto* rigidBody = dynamic_cast<NodeRigidBody*>(m_pOwner))
+	//			PhysicsServer::AttachToRigidBody(&rigidBody->GetRigidBody(), this);
+	//	});
+	//OnParentChange.Subscribe([this](Node& self)
+	//	{
+	//			if (auto* rigidBody = dynamic_cast<NodeRigidBody*>(m_pOwner))
+	//				AttachToRigidBody(&rigidBody->GetRigidBody());
+	//	});
 
 	OnSceneLeave.Subscribe([this](Node& self)
 		{
-			PhysicsServer::GetPhysicsWorld().destroyRigidBody(m_pRigidBody);
+			PhysicsServer::DestroyRigidBody(*this);
+			//PhysicsServer::GetPhysicsWorld().destroyRigidBody(m_pRigidBody);
 			m_pRigidBody = nullptr;
 			m_pNode3D = nullptr;
 		});
@@ -27,8 +33,17 @@ NodeRigidBody::NodeRigidBody(std::string const& name) : Node(name)
 NodeRigidBody::NodeRigidBody(std::string const& name, Node3D* owner) : Node(name)
 {
 	SetNode3DParent(owner);
-
 }
+
+void NodeRigidBody::CreateRigidBody()
+{
+	PhysicsServer::CreateRigidBody(*this);
+}
+void NodeRigidBody::DestroyRigidBody(NodeRigidBody& rigidBody)
+{
+	PhysicsServer::DestroyRigidBody(*this);
+}
+
 void NodeRigidBody::SetNode3DParent(Node3D* owner)
 {
 	m_pNode3D = owner;
@@ -40,7 +55,8 @@ void NodeRigidBody::SetNode3DParent(Node3D* owner)
 	auto rot = owner->GetWorldRotationQuaternion();
 	reactTr.setPosition({ pos.x, pos.y, pos.z });
 	reactTr.setOrientation({ rot.x, rot.y, rot.z, rot.w });
-	m_pRigidBody = PhysicsServer::CreateRigidBody(reactTr, this);
+	//m_pRigidBody = PhysicsServer::CreateRigidBody(reactTr, this);
+	PhysicsServer::CreateRigidBody(*this);
 
 	//m_pRigidBody->setType(rp3d::BodyType::STATIC);
 	//m_pRigidBody->enableGravity(true);
@@ -55,7 +71,14 @@ void NodeRigidBody::OnUpdate(double delta)
 	if (m_pNode3D == nullptr) return;
 
 	auto type = m_pRigidBody->getType();
-	if (type == rp3d::BodyType::KINEMATIC || type == rp3d::BodyType::STATIC)
+	if (type == rp3d::BodyType::DYNAMIC)
+	{
+		auto& pos = m_pRigidBody->getTransform().getPosition();
+		auto& rot = m_pRigidBody->getTransform().getOrientation();
+		m_pNode3D->SetWorldPosition({ pos.x, pos.y, pos.z });
+		m_pNode3D->SetWorldRotationQuaternion({ rot.w, rot.x, rot.y, rot.z });
+	}
+	else
 	{
 		auto pos = m_pNode3D->GetWorldPosition();
 		auto& rot = m_pNode3D->GetWorldRotationQuaternion();
@@ -65,16 +88,30 @@ void NodeRigidBody::OnUpdate(double delta)
 		m_pRigidBody->setTransform(t);
 		return;
 	}
-	else
-	{
-		auto& pos = m_pRigidBody->getTransform().getPosition();
-		auto& rot = m_pRigidBody->getTransform().getOrientation();
-		m_pNode3D->SetWorldPosition({ pos.x, pos.y, pos.z });
-		m_pNode3D->SetWorldRotationQuaternion({ rot.w, rot.x, rot.y, rot.z });
-	}
 	//m_pOwner->Update(delta);
 }
 
+NodeRigidBody::operator reactphysics3d::Transform()
+{
+	rp3d::Transform reactTr;
+	auto pos = m_pNode3D->GetWorldPosition();
+	auto rot = m_pNode3D->GetWorldRotationQuaternion();
+	reactTr.setPosition({ pos.x, pos.y, pos.z});
+	reactTr.setOrientation({ rot.x, rot.y, rot.z, rot.w });
+
+	return reactTr;
+}
+
+NodeRigidBody::operator reactphysics3d::Transform*()
+{
+	rp3d::Transform* reactTr = new rp3d::Transform();
+	auto pos = m_pNode3D->GetWorldPosition();
+	auto rot = m_pNode3D->GetWorldRotationQuaternion();
+	reactTr->setPosition({ pos.x, pos.y, pos.z});
+	reactTr->setOrientation({ rot.x, rot.y, rot.z, rot.w });
+
+	return reactTr;
+}
 
 
 void NodeRigidBody::ApplyLocalForceAtCenterOfMass(const glm::vec3& force)
@@ -174,7 +211,7 @@ float NodeRigidBody::GetMass() const
 	if (m_pNode3D == nullptr) return 0.0f;
 	return m_pRigidBody->getMass();
 }
-void  NodeRigidBody::SetMass(float mass)
+void NodeRigidBody::SetMass(float mass)
 {
 	PhysicsServer::SetMass(mass, *this);
 }
