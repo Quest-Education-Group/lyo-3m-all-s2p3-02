@@ -32,43 +32,43 @@ Editor::~Editor()
 	Shutdown();
 }
 
-	void Editor::Init() 
+void Editor::Init() 
+{
+	m_editorRaylib.Init(m_screenWidth, m_screenHeight);
+	m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
+
+	rlImGuiSetup(true);
+
+	m_editorImgui.Init();
+	m_editorImgui.SetSceneRoot(m_sceneRoot.get());
+	m_editorImgui.SetScreenSize(m_screenWidth, m_screenHeight);
+
+	std::filesystem::path ScriptStock = "ScriptStock/.foundry";
+	std::filesystem::create_directories(ScriptStock);
+
+	std::filesystem::path source = "../Game/res/foundry.d.lua"; /*Todo Path more Flexible*/
+	std::filesystem::path dest = ScriptStock / "foundry.d.lua";
+
 	{
-		m_editorRaylib.Init(m_screenWidth, m_screenHeight);
-		m_sceneRoot = Node::CreateNode<Node>("SceneRoot");
-
-		rlImGuiSetup(true);
-
-		m_editorImgui.Init();
-		m_editorImgui.SetSceneRoot(m_sceneRoot.get());
-		m_editorImgui.SetScreenSize(m_screenWidth, m_screenHeight);
-
-		std::filesystem::path ScriptStock = "ScriptStock/.foundry";
-		std::filesystem::create_directories(ScriptStock);
-
-		std::filesystem::path source = "../Game/res/foundry.d.lua"; /*Todo Path more Flexible*/
-		std::filesystem::path dest = ScriptStock / "foundry.d.lua";
-
+		std::error_code ec;
+		if (std::filesystem::exists(source, ec))
 		{
-			std::error_code ec;
-			if (std::filesystem::exists(source, ec))
+			std::filesystem::copy_file(source, dest, ec);
+			if (ec)
 			{
-				std::filesystem::copy_file(source, dest, ec);
-				if (ec)
-				{
-					DEBUG("[Editor] WARNING: Couldn't copy foundry.d.lua"
-						<< dest.string() << " : " << ec.message() << std::endl);
-				}
+				DEBUG("[Editor] WARNING: Couldn't copy foundry.d.lua"
+					<< dest.string() << " : " << ec.message() << std::endl);
 			}
 		}
-
-		#if OPERATING_SYSTEM == OPERATING_SYSTEM_WINDOWS
-			::SetFileAttributesW(ScriptStock.wstring().c_str(), FILE_ATTRIBUTE_HIDDEN);
-		#endif
-
-		m_running = true;
-		DEBUG("[Editor] Initialized successfully!" << std::endl);
 	}
+
+	#if OPERATING_SYSTEM == OPERATING_SYSTEM_WINDOWS
+		::SetFileAttributesW(ScriptStock.wstring().c_str(), FILE_ATTRIBUTE_HIDDEN);
+	#endif
+
+	m_running = true;
+	DEBUG("[Editor] Initialized successfully!" << std::endl);
+}
 
 void Editor::Run()
 {
@@ -109,7 +109,7 @@ void Editor::Update(float deltaTime)
 	{
 		if (IsKeyDown(KEY_LEFT_SHIFT))
 		{
-			m_editorImgui.ShowSaveAs();
+			//m_editorImgui.ShowSaveAs();
 		}
 		else
 		{
@@ -461,37 +461,78 @@ void Editor::SaveScene(std::string const& path)
 {
 	try
 	{
-		if (m_sceneRoot)
-		{
-			std::string tmp = path;
-			if (path.size() >= 5 && path.substr(path.size() - 5) == ".json")
-			{
-				tmp = path.substr(0, path.size() - 5);
-			}
-			EditorSerializer::Save(tmp, m_sceneRoot);
-			m_scenePathBuffer = tmp;
+		std::string tmp = path;
 
-			DEBUG( "[Editor] Scene saved: " << m_scenePathBuffer << ".json" << std::endl);
+		bool isScene = false;
+		if (path.size() >= 11 && path.substr(path.size() - 11) == ".scene.json")
+		{
+			tmp = path.substr(0, path.size() - 11);
+			isScene = true;
+		}
+
+		bool isNode = false;
+		if (path.size() >= 10 && path.substr(path.size() - 10) == ".node.json")
+		{
+			tmp = path.substr(0, path.size() - 10);
+			isNode = true;
+		}
+
+		if (isScene)
+		{
+			if (m_sceneRoot)
+			{
+				EditorSerializer::Save(tmp, m_sceneRoot);
+				m_scenePathBuffer = tmp;  // <- buffer spécifique scène
+				DEBUG("[Editor] Scene saved: " << m_scenePathBuffer << ".json" << std::endl);
+			}
+			else
+			{
+				std::cerr << "[Editor] Cannot save scene: no scene loaded" << std::endl;
+			}
+		}
+		else if (isNode || m_editorImgui.GetSelectedNode())
+		{
+			Node* selected = m_editorImgui.GetSelectedNode();
+			if (!selected)
+			{
+				std::cerr << "[Editor] Cannot save node: no node selected" << std::endl;
+				return;
+			}
+
+			uptr<Node> clone = selected->Clone();
+			clone->SetName(selected->GetName());
+
+			EditorSerializer::Save(tmp, clone);
+			m_nodePathBuffer = tmp;  // <- buffer spécifique node
+			DEBUG("[Editor] Node saved: " << m_nodePathBuffer << ".json" << std::endl);
 		}
 		else
 		{
-			std::cerr << "[Editor] Cannot save: no scene loaded" << std::endl;
+			std::cerr << "[Editor] Cannot save: unknown type or no node selected" << std::endl;
 		}
 	}
 	catch (std::exception const& e)
 	{
-		std::cerr << "[Editor] Failed to save scene: " << e.what() << std::endl;
+		std::cerr << "[Editor] Failed to save: " << e.what() << std::endl;
 	}
 }
 
-void Editor::SaveSceneNoSpe() 
+void Editor::SaveSceneNoSpe()
 {
-	if (!m_scenePathBuffer.empty()) 
+	Node* selected = m_editorImgui.GetSelectedNode();
+
+	if (selected)
 	{
-		SaveScene(m_scenePathBuffer);
+		if (!m_nodePathBuffer.empty())
+			SaveScene(m_nodePathBuffer);
+		else
+			m_editorImgui.ShowSaveAs(true);
 	}
-	else 
+	else
 	{
-		m_editorImgui.ShowSaveAs();
+		if (!m_scenePathBuffer.empty())
+			SaveScene(m_scenePathBuffer);
+		else
+			m_editorImgui.ShowSaveAs(false);
 	}
 }

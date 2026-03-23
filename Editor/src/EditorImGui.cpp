@@ -10,6 +10,25 @@ namespace
 	constexpr char kHierarchyNodePayloadId[] = "EDITOR_HIERARCHY_NODE";
 }
 
+std::string EditorImGui::NormalizeScenePath(std::string path, bool saveAsNode)
+{
+	std::string extensions[] = { ".json", ".scene", ".node" };
+	for (auto& ext : extensions)
+	{
+		if (path.size() >= ext.size() &&
+			path.substr(path.size() - ext.size()) == ext)
+		{
+			path = path.substr(0, path.size() - ext.size());
+		}
+	}
+
+	if (saveAsNode)
+		path += ".node";
+	else
+		path += ".scene";
+
+	return path;
+}
 EditorImGui::EditorImGui(Editor* pEditor, EditorRaylib3D* pRaylibEditor)
 	: m_pEditor(pEditor), m_pRaylibEditor(pRaylibEditor), m_inspector(this)
 {}
@@ -336,6 +355,25 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 				}
 			}
 		}
+
+		if (ImGui::MenuItem("Save From Here")) {
+			if (m_haveFileSelected && !m_scenePathBuffer.empty()) {
+				m_saveAsNode = true;
+				m_scenePathBuffer = NormalizeScenePath(m_scenePathBuffer, m_saveAsNode);
+
+				m_command.type = EditorCommand::Type::SAVE_SCENE;
+				m_command.stringParam1 = m_scenePathBuffer;
+
+				m_saveAsNode = false; 
+			}
+			else {
+				m_showSaveAsPopup = true;
+				m_saveAsNode = true;
+			}
+		}
+
+
+	
 		ImGui::EndDisabled();
 
 		if (ImGui::MenuItem("Set as View Root"))
@@ -473,8 +511,10 @@ void EditorImGui::ShowSaveAsSceneBrowsing()
 		m_saveBrowser.Open();
 		m_showSaveAsPopup = false;
 	}
+
 	m_saveBrowser.SetWindowSize(m_fileBrowsingSizeX, m_fileBrowsingSizeY);
-	m_saveBrowser.SetWindowPos(m_screenWidth/2 - m_fileBrowsingSizeX/2, m_screenHeight/2 - m_fileBrowsingSizeY/2);
+	m_saveBrowser.SetWindowPos(m_screenWidth / 2 - m_fileBrowsingSizeX / 2,
+		m_screenHeight / 2 - m_fileBrowsingSizeY / 2);
 
 	m_saveBrowser.SetTitle("Save scene to Json file");
 	m_saveBrowser.SetTypeFilters({ ".json" });
@@ -482,22 +522,23 @@ void EditorImGui::ShowSaveAsSceneBrowsing()
 
 	if (m_saveBrowser.HasSelected())
 	{
-		m_scenePathBuffer = m_saveBrowser.GetSelected().string();
-		if (m_scenePathBuffer.length() > 0)
+		std::string path = m_saveBrowser.GetSelected().string();
+		if (!path.empty())
 		{
 			m_haveFileSelected = true;
-			m_command.type = EditorCommand::Type::SAVE_SCENE;
-			if (m_scenePathBuffer.substr(m_scenePathBuffer.length() - 5) == ".json") {
-				m_scenePathBuffer = m_scenePathBuffer.substr(0, m_scenePathBuffer.length()-5);
-			}
+			path = NormalizeScenePath(path, m_saveAsNode);
 
+			m_scenePathBuffer = path;
+			m_command.type = EditorCommand::Type::SAVE_SCENE;
 			m_command.stringParam1 = m_scenePathBuffer;
+
+			m_saveAsNode = false; 
 		}
+
 		m_saveBrowser.ClearSelected();
 		m_saveBrowser.Close();
 	}
 }
-
 void EditorImGui::ShowLoadSceneBrowsing()
 {
 	if (m_showLoadPopup)
@@ -617,12 +658,12 @@ void EditorImGui::DrawGizmoButtons()
 
 void EditorImGui::SaveSceneNoSpecialisation()
 {
-	if (m_haveFileSelected && m_scenePathBuffer.length() != 0)
+	if (m_haveFileSelected && !m_scenePathBuffer.empty())
 	{
+		bool saveAsNode = (m_pSelectedNode != nullptr && m_pSelectedNode != m_pSceneRoot);
+		m_scenePathBuffer = NormalizeScenePath(m_scenePathBuffer, saveAsNode);
+
 		m_command.type = EditorCommand::Type::SAVE_SCENE;
-		if (m_scenePathBuffer.substr(m_scenePathBuffer.length() - 5) == ".json") {
-			m_scenePathBuffer = m_scenePathBuffer.substr(0, m_scenePathBuffer.length() - 5);
-		}
 		m_command.stringParam1 = m_scenePathBuffer;
 	}
 	else

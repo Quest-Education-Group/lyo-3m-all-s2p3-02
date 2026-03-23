@@ -39,6 +39,7 @@ private:
 	// Load/Save
 	void LoadScene(std::string const& path);
 	void SaveScene(std::string const& path);
+	void SaveFromNode(std::string const& path);
 	void SaveSceneNoSpe();
 
 	void LoadDrawableObject(Node* pNode);
@@ -62,7 +63,9 @@ private:
 
 	// Scene
 	uptr<Node> m_sceneRoot = nullptr;
+	
 	std::string m_scenePathBuffer;
+	std::string m_nodePathBuffer;
 };
 
 #endif // __EDITOR_H

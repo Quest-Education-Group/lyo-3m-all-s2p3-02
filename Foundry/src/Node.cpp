@@ -224,7 +224,7 @@ void Node::Deserialize(SerializedObject const& datas)
 	datas.GetPublicElement("m_scriptPath", &m_scriptPath);
 	if (m_scriptPath != "" && !s_IsInEditor )
 	{
-		DEBUG("ATTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH " << m_scriptPath << std::endl);
+		DEBUG("ATTACH " << m_scriptPath << std::endl);
 		uptr<LuaScriptInstance> script = std::make_unique<LuaScriptInstance>(m_scriptPath);
 		Node::AttachScript(script, *this);
 	}

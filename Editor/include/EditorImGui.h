@@ -54,7 +54,7 @@ public:
 
 	void SetSceneRoot(Node* pRoot);
 	void SetScreenSize(int width, int height);
-	void ShowSaveAs() { m_showSaveAsPopup = true; }
+	void ShowSaveAs(bool node) { m_showSaveAsPopup, m_saveAsNode = true, node; }
 
 	void ResetViewRoot();
 	void ResetSelectedNode();
@@ -62,6 +62,7 @@ public:
 	EditorCommand& GetCommand() { return m_command; }
 	void SetCommand(EditorCommand const& command) { m_command = command; }
 	bool HasCommand() const { return m_command.type != EditorCommand::Type::NONE; }
+	Node* GetSelectedNode() { return m_pSelectedNode; }
 
 private:
 	void DrawMenuBar();
@@ -81,6 +82,8 @@ private:
 		PARENT,
 		SIBLING
 	};
+
+	std::string NormalizeScenePath(std::string path, bool saveAsNode);
 
 	void CreateNodePopup(Node* from, NodeCreationFlag flag, bool& open);
 
@@ -140,6 +143,9 @@ private:
 
 	int m_screenWidth = 1900;
 	int m_screenHeight = 900;
+
+	bool m_saveAsNode = false;
+
 
 	bool m_play = false;
 
