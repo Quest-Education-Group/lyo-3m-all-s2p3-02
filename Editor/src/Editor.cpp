@@ -470,14 +470,14 @@ void Editor::UpdateScriptPathsInJson(json& nodeJson, ScriptPathMap const& script
 	}
 }
 
-void Editor::RemoveStringClone(Node* node) {
-	std::string thisnodeName = node->GetName();
+void Editor::RemoveStringClone(Node* pNode) {
+	std::string thisnodeName = pNode->GetName();
 	if (thisnodeName.size() >= 4 && thisnodeName.substr(thisnodeName.size() - 4) == "Copy") {
-		node->SetName(thisnodeName.substr(0, 4));
+		pNode->SetName(thisnodeName.substr(0, 4));
 	}
-	for (uint32 i = 0; i < node->GetChildCount(); i++)
+	for (uint32 i = 0; i < pNode->GetChildCount(); i++)
 	{
-		RemoveStringClone(&node->GetChild(i));
+		RemoveStringClone(&pNode->GetChild(i));
 	}
 }
 
