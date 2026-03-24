@@ -1,9 +1,8 @@
-#include "EventManager.h"
-#include "Passes/GeometryPass.h"
-#include "Passes/LightPass.h"
-#include "Mesh.h"
 #include "Window.h"
-#include "Logger.hpp"
+
+#include "Passes/LightPass.h"
+#include "Passes/GeometryPass.h"
+#include "Mesh.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -28,13 +27,13 @@ int main()
     };
 
     Geometry cube(vertices, indices);
-    Texture diffuse("../res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
-    //Texture specular("../res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
-    Texture normal("../res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
+    Texture diffuse("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
+    Texture specular("res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
+    Texture normal("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
 
     std::vector<Texture*> textures;
     textures.push_back(&diffuse); 
-    //textures.push_back(&specular); 
+    textures.push_back(&specular); 
     textures.push_back(&normal); 
 
     Mesh mesh(cube, textures, glm::mat4(1.0f));
@@ -56,7 +55,7 @@ int main()
 
     std::vector<Light> lights;
 
-    for(int i = 0; i < 1; ++i)
+    for(int i = 0; i < 4; ++i)
     {
         float xPos = 0.0f;
         float yPos = 0.0f;
@@ -67,8 +66,8 @@ int main()
         lights.push_back(light);
     }
 
-    Shader shader("../res/shaders/GBuffer.vert", "../res/shaders/GBuffer.frag");
-    Shader shaderLight("../res/shaders/LightPass.vert", "../res/shaders/LightPass.frag");
+    Shader shader("res/shaders/GBuffer.vert", "res/shaders/GBuffer.frag");
+    Shader shaderLight("res/shaders/LightPass.vert", "res/shaders/LightPass.frag");
 
     shaderLight.Use();
     shaderLight.SetInt("gPosition", 0);
@@ -88,7 +87,7 @@ int main()
         //glm::vec3 camPos = camera->GetPosition() + glm::vec3(0.016f,0.0f,0.0f);
         //glm::mat4 meshTransform = glm::translate(mesh.GetTransform(), glm::vec3(0.0016f, 0.0f, 0.0f));
         //mesh.SetTransform(meshTransform);
-        //camera->SetRoll(roll ++);
+        camera->SetYaw(yaw ++);
         //Logger::LogWithLevel(LogLevel::ERROR, yaw);
         //camera->SetPosition(camPos);
 

@@ -26,7 +26,7 @@ public:
     void AddPass(Pass* pPass);
 
 protected:
-    void Setup() override; 
+    void Setup() override;
 
 private:
     uptr<RenderGraph> m_pRenderGraph;
