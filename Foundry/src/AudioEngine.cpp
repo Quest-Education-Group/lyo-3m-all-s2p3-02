@@ -20,22 +20,17 @@ void AudioEngine::Data_callback(ma_device* pDevice, void* pOutput, const void* p
     (void)pInput;
 }
 
-void AudioEngine::PlayAudio(char filePath)
+void AudioEngine::PlayAudio(const char* filePath)
 {
     ma_result result;
     ma_decoder decoder;
     ma_device_config deviceConfig;
     ma_device device;
 
-    if (filePath < 2) {
-        printf("No input file.\n");
-        return;
-    }
-
-    result = ma_decoder_init_file(filePath[1], NULL, &decoder);
+    result = ma_decoder_init_file(filePath, NULL, &decoder);
     if (result != MA_SUCCESS)
     {
-        printf("Could not load file: %s\n", filePath[1]);
+        printf("Could not load file: %s\n", filePath);
         return;
     }
 
@@ -43,7 +38,7 @@ void AudioEngine::PlayAudio(char filePath)
     deviceConfig.playback.format = decoder.outputFormat;
     deviceConfig.playback.channels = decoder.outputChannels;
     deviceConfig.sampleRate = decoder.outputSampleRate;
-    deviceConfig.dataCallback = Data_callback;
+    deviceConfig.dataCallback = AudioEngine::Data_callback;
     deviceConfig.pUserData = &decoder;
 
     if (ma_device_init(NULL, &deviceConfig, &device) != MA_SUCCESS) {

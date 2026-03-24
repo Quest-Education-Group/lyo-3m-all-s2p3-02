@@ -4,8 +4,16 @@
 
 int main(int argc, char** argv)
 {
-    AudioEngine newAudioEngine;
-    newAudioEngine.PlayAudio(argv[1]);
+    if (argv) 
+    {
+        AudioEngine newAudioEngine;
+        newAudioEngine.PlayAudio(argv[1]);
+    }
+    else
+    {
+        std::cout << "test";
+    }
+
 
     return 0;
 }
