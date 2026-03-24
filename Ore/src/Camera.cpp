@@ -1,13 +1,13 @@
 #include "Camera.h"
 #include "Logger.hpp"
-
+#include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, glm::vec3 forward, float yaw, float pitch, float roll, float fov)
+Camera::Camera(glm::vec3 const& position, glm::vec3 const& up, float yaw, float pitch, float roll, float fov)
 {
     m_position = position;
     m_worldUp = up;
-    m_forward = forward;
+    m_forward = glm::vec3(0.0f);
     m_yaw = yaw;
     m_pitch = pitch;
     m_fov = fov;
@@ -39,6 +39,8 @@ glm::mat4 Camera::GetProjectionMatrix(ProjectionType type, uint16 screenWidth, u
 
 glm::mat4 Camera::GetViewMatrix() const
 {
+    std::cout<< m_forward.x <<m_forward.y<<m_forward.z<<std::endl;
+    std::cout << m_position.x + m_forward.x <<  m_position.y + m_forward.y<< m_position.z + m_forward.z<<std::endl;
     return glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
@@ -49,17 +51,13 @@ void Camera::UpdateVectors()
     front.y = sin(glm::radians(m_pitch));
     front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
     m_forward = glm::normalize(front);
+    std::cout<<m_forward.x<<" "<<m_forward.y<<" "<<m_forward.z<<" "<<std::endl;
 
     glm::vec3 right = glm::normalize(glm::cross(m_forward, m_worldUp));
 
-    glm::vec3 up = glm::normalize(glm::cross(right, m_forward));
+    m_up = glm::normalize(glm::cross(right, m_forward));
 
     float rollRad = glm::radians(m_roll);
     glm::mat4 rollMatrix = glm::rotate(glm::mat4(1.0f), rollRad, m_forward);
-    glm::vec4 newRight = rollMatrix * glm::vec4(right, 0.0f);
-    glm::vec4 newUp = rollMatrix * glm::vec4(up, 0.0f);
-
-    m_right = glm::normalize(glm::vec3(newRight));
-    m_up = glm::normalize(glm::vec3(newUp));
-
+    m_up = rollMatrix * glm::vec4(m_up, 0.0f);
 }

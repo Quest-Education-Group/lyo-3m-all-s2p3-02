@@ -44,7 +44,6 @@ void Buffer<T>::Unmap()
 template<typename T>
 void Buffer<T>::StoreData(std::vector<T> const& data)
 {
-    //glBufferStorage(static_cast<uint32>(m_type), data.size() * sizeof(T), &data[0], m_dataPersistanceFlag);
-    glBufferData(static_cast<uint32>(m_type), data.size() * sizeof(T), &data[0], GL_STATIC_DRAW);
+    glBufferStorage(static_cast<uint32>(m_type), data.size() * sizeof(T), &data[0], m_dataPersistanceFlag);
 }
 

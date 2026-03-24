@@ -39,7 +39,6 @@ void Geometry::Draw(sptr<Shader> shader)
     glDrawElements(GL_TRIANGLES, m_indiceSize, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
-    //glActiveTexture(GL_TEXTURE0);
 }
 
 void Geometry::AddPoints(std::vector<Vertex> const& vertices)

@@ -2,17 +2,13 @@
 #include "Shader.h"
 #include "Logger.hpp"
 
-Mesh::Mesh(Geometry const& geometry, std::vector<Texture> const& textures, glm::mat4 const& transform)
+Mesh::Mesh(Geometry const& geometry, std::vector<Texture*> const& textures, glm::mat4 const& transform)
 {
     Logger::Log("Start Mesh");
     m_pGeometry = std::make_shared<Geometry>(geometry);
     m_transform = transform;
 
-    for(uint32 i = 0; i<textures.size(); ++i)
-    {
-        m_textures.push_back(std::make_shared<Texture>(textures[i]));
-    }
-
+    m_textures = textures;
 }
 
 Mesh::~Mesh()
@@ -55,4 +51,5 @@ void Mesh::Draw(sptr<IShader> const shader)
     }
 
     m_pGeometry->Draw(pShader);
+    glActiveTexture(GL_TEXTURE0);
 }

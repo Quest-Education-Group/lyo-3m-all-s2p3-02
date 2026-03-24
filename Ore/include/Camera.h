@@ -15,9 +15,8 @@ class Camera
 {
 public:
     Camera(
-        glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f),
-        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
-        glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f),
+        glm::vec3 const& position = glm::vec3(0.0f, 0.0f, 3.0f),
+        glm::vec3 const& up = glm::vec3(0.0f, 0.0f, 0.0f),
         float yaw = 0.0f,
         float pitch = 0.0f,
         float roll = 0.0f,
@@ -31,11 +30,16 @@ public:
     
     void UpdateVectors();
 
-    void SetPosition(glm::vec3 position)    { m_position = position; UpdateVectors(); }
+    void SetPosition(glm::vec3 const& position)    { m_position = position;}
 
     void SetYaw(float yaw) {m_yaw = yaw; UpdateVectors(); };
     void SetPitch(float pitch) {m_pitch = pitch; UpdateVectors(); }
+    void SetRoll(float roll) {m_roll = roll; UpdateVectors(); }
     void SetFov(float fov) {m_fov = fov; }
+
+    float GetYaw() const {return m_yaw;}
+    float GetPitch() const {return m_pitch;}
+    float GetRoll() const {return m_roll;}
     
 private:
     float m_yaw;

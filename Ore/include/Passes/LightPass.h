@@ -29,6 +29,7 @@ public:
 
 private:
     void RenderQuad();
+    void GenerateQuad();
 
 private:
     std::vector<sptr<Light>> m_lights;

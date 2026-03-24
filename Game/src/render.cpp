@@ -3,8 +3,10 @@
 #include "Passes/LightPass.h"
 #include "Mesh.h"
 #include "Window.h"
+#include "Logger.hpp"
 
-#include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+
 
 int main()
 {
@@ -15,94 +17,58 @@ int main()
     window.AddViewport(viewport);
 
     std::vector<Vertex> vertices;
-    vertices.push_back({glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
-    vertices.push_back({glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
-    vertices.push_back({glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
-
-    // Back face
-    vertices.push_back({glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0)});
-    vertices.push_back({glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0)});
-    vertices.push_back({glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0)});
-    vertices.push_back({glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0)});
-
-    // Left face
-    vertices.push_back({glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0)});
-    vertices.push_back({glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0)});
-    vertices.push_back({glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0)});
-    vertices.push_back({glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0)});
-
-    // Right face
-    vertices.push_back({glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)});
-    vertices.push_back({glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)});
-    vertices.push_back({glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)});
-
-    // Top face
-    vertices.push_back({glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)});
-    vertices.push_back({glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f)});
-    vertices.push_back({glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)});
-    vertices.push_back({glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)});
-
-    // Bottom face
-    vertices.push_back({glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f)});
-    vertices.push_back({glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f)});
-    vertices.push_back({glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)});
+    vertices.push_back({glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
+    vertices.push_back({glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+    vertices.push_back({glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
+    vertices.push_back({glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
 
     std::vector<uint32> indices = {
-        // Front face
-        0, 1, 2, 2, 3, 0,
-        // Back face
-        4, 5, 6, 6, 7, 4,
-        // Left face
-        8, 9, 10, 10, 11, 8,
-        // Right face
-        12, 13, 14, 14, 15, 12,
-        // Top face
-        16, 17, 18, 18, 19, 16,
-        // Bottom face
-        20, 21, 22, 22, 23, 20
+        0,1,2,
+        0,2,3
     };
 
     Geometry cube(vertices, indices);
     Texture diffuse("../res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
-    Texture specular("../res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
+    //Texture specular("../res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
+    Texture normal("../res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
 
-    std::vector<Texture> tex;
-    tex.push_back(diffuse); 
-    tex.push_back(specular); 
+    std::vector<Texture*> textures;
+    textures.push_back(&diffuse); 
+    //textures.push_back(&specular); 
+    textures.push_back(&normal); 
 
-    Mesh mesh(cube, tex, glm::mat4(1.0f));
+    Mesh mesh(cube, textures, glm::mat4(1.0f));
+    Mesh mesh1(cube, textures, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 
     glm::vec3 position(0.0f, 0.0f, 5.0f); 
     glm::vec3 up(0.0f, 1.0f, 0.0f);       
-    glm::vec3 forward(0.0f, 0.0f, -1.0f); 
 
-    float yaw = 0.0f;   
+    float yaw = -90.0f;   
     float pitch = 0.0f; 
     float roll = 0.0f;  
 
-    float fov = 100.0f; 
+    float fov = 45.0f; 
 
-    Camera camera(position, up, forward, yaw, pitch, roll, fov);
-    std::vector<Mesh> meshes;
-    meshes.push_back(mesh);
+    sptr<Camera> camera = std::make_shared<Camera>(position, up, yaw, pitch, roll, fov);
+    std::vector<Mesh*> meshes;
+    meshes.push_back(&mesh);
+    meshes.push_back(&mesh1);
 
     std::vector<Light> lights;
-    srand(13);
-    for(int i = 0;i < 32; ++i)
+
+    for(int i = 0; i < 1; ++i)
     {
-        float xPos = static_cast<float>(((rand() % 100) / 100.0) * 6.0 - 3.0);
-        float yPos = static_cast<float>(((rand() % 100) / 100.0) * 6.0 - 4.0);
-        float zPos = static_cast<float>(((rand() % 100) / 100.0) * 6.0 - 3.0);
+        float xPos = 0.0f;
+        float yPos = 0.0f;
+        float zPos = 1.0f;
         Light light;
+        //light.color = Color::BLUE;
         light.position = {xPos, yPos, zPos};
         lights.push_back(light);
     }
 
-    Shader shader("../res/shaders/bin/GBuffer.vert.spv", "../res/shaders/bin/GBuffer.frag.spv");
-    Shader shaderLight("../res/shaders/bin/LightPass.vert.spv", "../res/shaders/bin/LightPass.frag.spv");
+    Shader shader("../res/shaders/GBuffer.vert", "../res/shaders/GBuffer.frag");
+    Shader shaderLight("../res/shaders/LightPass.vert", "../res/shaders/LightPass.frag");
 
     shaderLight.Use();
     shaderLight.SetInt("gPosition", 0);
@@ -112,15 +78,19 @@ int main()
     GeometryPass geoPass(shader, meshes, camera);
     LightPass lightPass(shaderLight, lights, camera);
 
-    viewport.AddPass(geoPass);
-    viewport.AddPass(lightPass);
+    viewport.AddPass(&geoPass);
+    viewport.AddPass(&lightPass);
 
 	while (window.IsOpen())
 	{
         window.Clear();
         
-        geoPass.Execute();
-        lightPass.Execute();
+        //glm::vec3 camPos = camera->GetPosition() + glm::vec3(0.016f,0.0f,0.0f);
+        //glm::mat4 meshTransform = glm::translate(mesh.GetTransform(), glm::vec3(0.0016f, 0.0f, 0.0f));
+        //mesh.SetTransform(meshTransform);
+        //camera->SetRoll(roll ++);
+        //Logger::LogWithLevel(LogLevel::ERROR, yaw);
+        //camera->SetPosition(camPos);
 
         window.Present();
 	}

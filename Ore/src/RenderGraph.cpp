@@ -15,6 +15,9 @@ RenderGraph::~RenderGraph()
 void RenderGraph::CreateGBuffer(uint32 screenWidth, uint32 screenHeight)
 {
     Logger::Log("Start G-Buffer");
+    m_screenWidth = screenWidth;
+    m_screenHeight = screenHeight;
+
     glGenFramebuffers(1, &m_gBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
 
@@ -61,17 +64,18 @@ void RenderGraph::CreateGBuffer(uint32 screenWidth, uint32 screenHeight)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderGraph::AddPass(Pass& pass)
+void RenderGraph::AddPass(Pass* pPass)
 {
-    pass.SetGBuffer(m_gBuffer);
-    pass.SetTextures(m_pGPosition, m_pGNormal, m_pGAlbedoSpec);
-    m_passes.push_back(std::make_unique<Pass>(pass));
+    pPass->SetGBuffer(m_gBuffer);
+    pPass->SetTextures(m_pGPosition, m_pGNormal, m_pGAlbedoSpec);
+    pPass->SetScreenSize(m_screenWidth, m_screenHeight);
+    m_passes.push_back(pPass);
 }
 
 void RenderGraph::Execute()
 {
-    for(auto const& pass : m_passes)
+    for(Pass* pPass : m_passes)
     {
-        pass->Execute();
+        pPass->Execute();
     }
 }

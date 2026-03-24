@@ -10,15 +10,16 @@
 class Mesh final : public IMesh 
 {
 public:
-    Mesh(Geometry const& geometry, std::vector<Texture> const& textures, glm::mat4 const& transform);
+    Mesh(Geometry const& geometry, std::vector<Texture*> const& textures, glm::mat4 const& transform);
     ~Mesh() override;
 
     void Draw(sptr<IShader> const shader) override;
+    void SetTransform(glm::mat4 const& transform) { m_transform = transform;}
     glm::mat4 const& GetTransform() const { return m_transform; }
 
 private:
     sptr<Geometry> m_pGeometry;
-    std::vector<sptr<Texture>> m_textures;
+    std::vector<Texture*> m_textures;
     glm::mat4 m_transform;
 };
 

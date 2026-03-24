@@ -23,9 +23,7 @@ public:
     void Clear() const override;
     void Present() const override;
     
-    void AddPass(sptr<Pass> pPass);
-
-    void AddPass(Pass& pass);
+    void AddPass(Pass* pPass);
 
 protected:
     void Setup() override; 

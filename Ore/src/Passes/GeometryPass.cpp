@@ -20,7 +20,7 @@ void GeometryPass::Execute()
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glm::mat4 projMatrix = m_pCamera->GetProjectionMatrix(ProjectionType::PERSPECTIVE, 800, 600, 0.1f, 100.0f);
+    glm::mat4 projMatrix = m_pCamera->GetProjectionMatrix(ProjectionType::PERSPECTIVE, m_screenWidth, m_screenHeight, 0.1f, 100.0f);
     glm::mat4 viewMatrix = m_pCamera->GetViewMatrix();
 
     m_pShader->Use();

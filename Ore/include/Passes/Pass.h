@@ -13,15 +13,21 @@ public:
     Pass(Pass& other) { m_pShader = other.m_pShader; }
     ~Pass() override;
 
-protected:
+private:
     virtual void Execute() override {};
     virtual void SetGBuffer(uint32 gbuffer) override {m_gBuffer = gbuffer;}
     virtual void SetTextures(sptr<TextureObject> gPosition, sptr<TextureObject> gNormal, sptr<TextureObject> gAlbedoSpec);
+    virtual void SetScreenSize(uint32 width, uint32 height) {m_screenWidth = width, m_screenHeight = height;}
 
 protected:
+
+    uint32 m_gBuffer;
+    uint32 m_screenWidth;
+    uint32 m_screenHeight;
+
     sptr<Shader> m_pShader;
     sptr<Camera> m_pCamera;
-    uint32 m_gBuffer;
+
     sptr<TextureObject> m_pGPosition;
     sptr<TextureObject> m_pGNormal;
     sptr<TextureObject> m_pGAlbedoSpec;

@@ -21,9 +21,9 @@ Viewport::~Viewport()
 {
 }
 
-void Viewport::AddPass(Pass &pass)
+void Viewport::AddPass(Pass* pPass)
 {
-    m_pRenderGraph->AddPass(pass);
+    m_pRenderGraph->AddPass(pPass);
 }
 
 void Viewport::SetSize(uint16 width, uint16 height)

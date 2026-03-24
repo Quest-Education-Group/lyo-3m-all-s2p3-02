@@ -11,18 +11,22 @@ public:
     RenderGraph(uint32 screenWidth, uint32 screenHeight);
     ~RenderGraph() override; 
 
-    void AddPass(Pass& pass);
+    void AddPass(Pass* pPass);
     void Execute() override;
+    void SetSize(uint32 width, uint32 height);
 
 protected:
     void CreateGBuffer(uint32 screenWidth, uint32 screenHeight) override;
 
 private:
-    std::vector<uptr<IPass>> m_passes;
+    uint32 m_screenWidth;
+    uint32 m_screenHeight;
     uint32 m_gBuffer;
+
+    std::vector<Pass*> m_passes;
+
     sptr<TextureObject> m_pGPosition;
     sptr<TextureObject> m_pGNormal;
     sptr<TextureObject> m_pGAlbedoSpec;
-
 };
 #endif

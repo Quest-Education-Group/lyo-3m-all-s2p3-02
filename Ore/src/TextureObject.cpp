@@ -32,7 +32,6 @@ void TextureObject::GenerateTextureFromImage(DataType type, uint32& width, uint3
 
 
     GLenum format;
-    Logger::Log(nrChannels);
     if(nrChannels == 1)
         format = GL_RED;
     else if(nrChannels == 3)
