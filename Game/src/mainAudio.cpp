@@ -4,14 +4,14 @@
 
 int main(int argc, char** argv)
 {
-    if (argv) 
+    if (argc > 1) 
     {
         AudioEngine newAudioEngine;
         newAudioEngine.PlayAudio(argv[1]);
     }
     else
     {
-        std::cout << "test";
+        printf("Empty filepath\n");
     }
 
 

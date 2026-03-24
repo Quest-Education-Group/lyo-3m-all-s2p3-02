@@ -1,3 +1,5 @@
+#define MINIAUDIO_IMPLEMENTATION
+
 #include "AudioEngine.h"
 
 AudioEngine::AudioEngine()

@@ -1,7 +1,7 @@
 #ifndef FOUNDRY_AUDIOENGINE__H_
 #define FOUNDRY_AUDIOENGINE__H_
 
-#define MINIAUDIO_IMPLEMENTATION //For miniaudio
+//#define MINIAUDIO_IMPLEMENTATION //For miniaudio
 
 #include "Define.h"
 #include "miniaudio.h"
