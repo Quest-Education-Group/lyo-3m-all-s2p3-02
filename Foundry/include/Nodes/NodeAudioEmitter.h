@@ -10,7 +10,13 @@ public:
 	NodeAudioEmitter(std::string const& name);
 	~NodeAudioEmitter() override = default;
 
-	void PlayAudio(const char* filePath);
+	void AudioSetFile(const char* filePath);
+
+	void AudioPlay();
+	void AudioStop();
+	void AudioSetLoop(bool value);
+
+	virtual void OnUpdate(double delta) override;
 
 	static ISerializable* CreateInstance();
 
