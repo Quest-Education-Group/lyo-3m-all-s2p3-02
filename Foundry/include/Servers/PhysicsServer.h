@@ -148,24 +148,15 @@ public:
 	PhysicsServer();
 	~PhysicsServer();
 
-
 	static void Initialize();
-
 
 	static void UpdatePhysicsWorld(double dt)                       { Instance().m_pPhysicsWorld->update(dt); }
 
 	static rp3d::PhysicsCommon& GetPhysicsCommon()      { return Instance().m_physicsCommon; }
 	static rp3d::PhysicsWorld& GetPhysicsWorld()        { return *Instance().m_pPhysicsWorld; }
-	//static rp3d::PhysicsCommon& GetPhysicsCommon() { return m_physicsCommon; }
-	//static rp3d::PhysicsWorld& GetPhysicsWorld() { return *m_pPhysicsWorld; }
-	//static void UpdatePhysicsWorld(double dt) { m_pPhysicsWorld->update(dt); }
 
 	static void SetGravity(const glm::vec3& gravity)    { Instance().m_pPhysicsWorld->setGravity(glmToRp3d(gravity)); }
 	static glm::vec3 GetGravity()                       { return rp3dToGlm(Instance().m_pPhysicsWorld->getGravity()); }
-	//static void SetGravity(const glm::vec3& gravity) { m_pPhysicsWorld->setGravity(glmToRp3d(gravity)); }
-	//static glm::vec3 GetGravity() { return rp3dToGlm(m_pPhysicsWorld->getGravity()); }
-
-	//static void EnableSleeping(bool enabled)            { Instance().m_pPhysicsWorld->enableSleeping(enabled); }
 
 
 	// =========== Rigid Body intermediate functions ===========
@@ -304,8 +295,7 @@ private:
 
 
 private:
-	//static rp3d::PhysicsCommon m_physicsCommon;
-	//static rp3d::PhysicsWorld* m_pPhysicsWorld;
+
 	rp3d::PhysicsCommon m_physicsCommon;
 	rp3d::PhysicsWorld* m_pPhysicsWorld;
 

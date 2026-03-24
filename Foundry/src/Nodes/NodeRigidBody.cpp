@@ -49,6 +49,7 @@ void NodeRigidBody::OnUpdate(double delta)
 	Node::OnUpdate(delta);
 	if (m_pNode3D == nullptr) return;
 
+	// A revoir pour joints
 	if (m_pRigidBody->getType() == rp3d::BodyType::DYNAMIC)
 	{
 		auto& pos = m_pRigidBody->getTransform().getPosition();

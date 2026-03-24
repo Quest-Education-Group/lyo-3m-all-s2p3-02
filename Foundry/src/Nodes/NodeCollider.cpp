@@ -66,6 +66,10 @@ void NodeCollider::Detach()
 
 void NodeCollider::SetBounciness(float v)
 {
+	if (v > 1.0f) v = v/100;
+	if (v > 1.0f) v = 1.0f;
+	if (v < 0.0f) v = 0.0f;
+
 	if (m_pCollider) PhysicsServer::SetBounciness(v, *this);
 }
 float NodeCollider::GetBounciness() const
@@ -74,6 +78,9 @@ float NodeCollider::GetBounciness() const
 }
 void NodeCollider::SetFrictionCoefficient(float v)
 {
+	//if (v > 1.0f) v = v / 100;
+	//if (v > 1.0f) v = 1.0f;
+	//if (v < 0.0f) v = 0.0f;
 	if (m_pCollider) PhysicsServer::SetFrictionCoefficient(v, *this);
 }
 float NodeCollider::GetFrictionCoefficient() const
@@ -116,7 +123,8 @@ bool NodeCollider::IsWorldQueryCollider() const
 
 void NodeCollider::SetCollisionCategoryBits(uint16_t v)
 {
-	if (m_pCollider) PhysicsServer::SetCollisionCategoryBits(v, *this);
+	if (m_pCollider) 
+		PhysicsServer::SetCollisionCategoryBits(v, *this);
 }
 uint16_t NodeCollider::GetCollisionCategoryBits() const
 {

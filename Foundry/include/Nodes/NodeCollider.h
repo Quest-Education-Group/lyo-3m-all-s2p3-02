@@ -26,12 +26,6 @@ public:
 
 
 
-	// =========== Shapes ===========
-
-	//void SetBoxShape(const glm::vec3& halfExtents);
-	//void SetSphereShape(float radius);
-	//void SetCapsuleShape(float radius, float height);
-
 	// =========== Local transform (offset from RigidBody) ===========
 
 	void SetLocalPosition(const glm::vec3& pos);
@@ -41,7 +35,9 @@ public:
 
 	// =========== Material ===========
 
+	// 0.0 < v < 1.0
 	void  SetBounciness(float bounciness);
+	// 0.0 < v < 1.0
 	float GetBounciness() const;
 	void  SetFrictionCoefficient(float friction);
 	float GetFrictionCoefficient() const;
@@ -55,7 +51,6 @@ public:
 	void SetIsSimulationCollider(bool enabled);
 	bool IsSimulationCollider() const;
 	void SetIsWorldQueryCollider(bool enabled);
-
 	bool IsWorldQueryCollider() const;
 
 	// =========== Collision filtering ===========

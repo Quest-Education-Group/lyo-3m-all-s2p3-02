@@ -7,12 +7,6 @@ public:
 
 	Proxy(Node& node) : Node::Proxy(node) {}
 
-    // =========== Shapes ===========
-
-    //void SetBoxShape(const glm::vec3& halfExtents)          { m_pNode->SetBoxShape(halfExtents); }
-    //void SetSphereShape(float radius)                       { m_pNode->SetSphereShape(radius); }
-    //void SetCapsuleShape(float radius, float height)        { m_pNode->SetCapsuleShape(radius, height); }
-
     // =========== Local transform (offset from RigidBody) ===========
 
     void SetLocalPosition(const glm::vec3& pos)             { m_pNode->SetLocalPosition(pos); }
@@ -38,7 +32,6 @@ public:
     void SetIsWorldQueryCollider(bool enabled)              { m_pNode->SetIsWorldQueryCollider(enabled); }
     bool IsWorldQueryCollider() const                       { return m_pNode->IsWorldQueryCollider(); }
 
-
     // =========== Collision filtering ===========
 
     void     SetCollisionCategoryBits(uint16_t category)    { m_pNode->SetCollisionCategoryBits(category); }
@@ -50,27 +43,27 @@ private:
 	NodeCollider* m_pNode;
 };
 
-		//"SetBoxShape", BIND(SetBoxShape),
-		//"SetSphereShape", BIND(SetSphereShape),
-		//"SetCapsuleShape", BIND(SetCapsuleShape),
 BindProxy(NodeCollider::Proxy,
 	return binder.BindClass<NodeCollider::Proxy>("nodecollider",
 		"SetLocalPosition", BIND(SetLocalPosition),
 		"SetLocalRotation", BIND(SetLocalRotation),
 		"GetLocalPosition", BIND(GetLocalPosition),
 		"GetLocalRotation", BIND(GetLocalRotation),
+
 		"SetBounciness", BIND(SetBounciness),
 		"GetBounciness", BIND(GetBounciness),
 		"SetFrictionCoefficient", BIND(SetFrictionCoefficient),
 		"GetFrictionCoefficient", BIND(GetFrictionCoefficient),
 		"SetMassDensity", BIND(SetMassDensity),
 		"GetMassDensity", BIND(GetMassDensity),
+
 		"SetIsTrigger", BIND(SetIsTrigger),
 		"IsTrigger", BIND(IsTrigger),
 		"SetIsSimulationCollider", BIND(SetIsSimulationCollider),
 		"IsSimulationCollider", BIND(IsSimulationCollider),
 		"SetIsWorldQueryCollider", BIND(SetIsWorldQueryCollider),
 		"IsWorldQueryCollider", BIND(IsWorldQueryCollider),
+
 		"SetCollisionCategoryBits", BIND(SetCollisionCategoryBits),
 		"GetCollisionCategoryBits", BIND(GetCollisionCategoryBits),
 		"SetCollideWithMaskBits", BIND(SetCollideWithMaskBits),
@@ -79,3 +72,4 @@ BindProxy(NodeCollider::Proxy,
 )
 
 REGISTER_PROXY(NodeCollider::Proxy::ProxyBinding, NodeColliderProxy);
+

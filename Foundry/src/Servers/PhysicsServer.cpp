@@ -27,8 +27,8 @@ void PhysicsServer::Initialize() // ajouter tous les params ?
 {
 	rp3d::PhysicsWorld::WorldSettings settings;
 	settings.worldName = "MainWorld";
-	settings.defaultVelocitySolverNbIterations = 6;         // Default is 6
-	settings.defaultPositionSolverNbIterations = 3;         // Default is 3
+	settings.defaultVelocitySolverNbIterations = 60;         // Default is 6
+	settings.defaultPositionSolverNbIterations = 30;         // Default is 3
 	settings.isSleepingEnabled = true;                      // Default is true
 	settings.gravity = rp3d::Vector3(0, -9.81, 0);          // Default is(0, -9.81, 0)
 	settings.defaultTimeBeforeSleep = 1.0f;                 // Default is 1.0f
@@ -797,11 +797,14 @@ void  PhysicsServer::S_SetMassDensity(float v, NodeCollider& c)
 }
 void PhysicsServer::S_SetIsTrigger(bool v, NodeCollider& c)
 {
-	if (c.m_pCollider) c.m_pCollider->setIsTrigger(v);
+	if (!c.m_pCollider) return;
+	
+	c.m_pCollider->setIsTrigger(v); c.m_pCollider->setIsSimulationCollider(!v);
 }
 void PhysicsServer::S_SetIsSimulationCollider(bool v, NodeCollider& c)
 {
-	if (c.m_pCollider) c.m_pCollider->setIsSimulationCollider(v);
+	if (!c.m_pCollider) return;
+	c.m_pCollider->setIsSimulationCollider(v); c.m_pCollider->setIsTrigger(!v);
 }
 void PhysicsServer::S_SetIsWorldQueryCollider(bool v, NodeCollider& c)
 {

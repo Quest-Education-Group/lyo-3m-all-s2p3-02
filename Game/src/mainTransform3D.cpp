@@ -20,20 +20,126 @@
 #include <Debug.h>
 
 
-class OverlapCB : public rp3d::OverlapCallback {
+//class OverlapCB : public rp3d::OverlapCallback
+//{
+//public:
+//	bool overlapp = false;
+//	void onOverlap(OverlapCallback::CallbackData& data) override
+//	{
+//		uint32 nbPairs = data.getNbOverlappingPairs();
+//
+//		overlapp = (nbPairs > 0);
+//		for (int i = 0; i < nbPairs; i++)
+//		{
+//			OverlapPair pair = data.getOverlappingPair(i);
+//			auto eventType = pair.getEventType();
+//			if (eventType == OverlapPair::EventType::OverlapStart)
+//				DEBUG("Start trigger\n");
+//			else if (eventType == OverlapPair::EventType::OverlapStay)
+//				DEBUG("In trigger\n");
+//			else if (eventType == OverlapPair::EventType::OverlapExit)
+//				DEBUG("Got out of trigger\n");
+//		}
+//	}
+//};
+//class CollisionCB : public rp3d::CollisionCallback
+//{
+//public:
+//	bool hit = false;
+//	void onContact(const CollisionCallback::CallbackData& data) override
+//	{
+//		uint32 nbPairs = data.getNbContactPairs();
+//		//m_contacts.resize(nbPairs);
+//		hit = (nbPairs > 0);
+//		for (int i = 0; i < nbPairs; i++)
+//		{
+//			ContactPair pair = data.getContactPair(i);
+//
+//			auto eventType = pair.getEventType();
+//			if (eventType == ContactPair::EventType::ContactStart)
+//				DEBUG("Start Contact\n");
+//			else if (eventType == ContactPair::EventType::ContactStay)
+//				DEBUG("In Contact\n");
+//			else if (eventType == ContactPair::EventType::ContactExit)
+//				DEBUG("Got out of Contact\n");
+//			//m_contacts.push_back(pair);
+//		}
+//		uint32 nbContacts = data.getNbContactPairs();
+//	}
+//};
+ 
+
+// Class events to redefine for custom collision and trigger events
+class PhysicsEvents : public rp3d::EventListener
+{
+public:
+	virtual void onContact(const rp3d::CollisionCallback::CallbackData& data) = 0;
+	virtual void onTrigger(const rp3d::OverlapCallback::CallbackData& data) = 0;
+};
+
+
+class Events : public PhysicsEvents
+{
 public:
 	bool hit = false;
-	void onOverlap(CallbackData& data) override {
-		hit = (data.getNbOverlappingPairs() > 0);
+	bool overlapp = false;
+
+
+	// OVERLAP WITH COLLIDERS
+	void onContact(const rp3d::CollisionCallback::CallbackData& data) override
+	{
+		uint32 nbPairs = data.getNbContactPairs();
+		hit = (nbPairs > 0);
+		for (int i = 0; i < nbPairs; i++)
+		{
+			//ContactPair pair = data.getContactPair(i);
+
+			//auto eventType = pair.getEventType();
+			//if (eventType == ContactPair::EventType::ContactStart)
+			//	DEBUG("Start Contact\n");
+			//else if (eventType == ContactPair::EventType::ContactStay)
+			//	DEBUG("In Contact\n");
+			//else if (eventType == ContactPair::EventType::ContactExit)
+			//	DEBUG("Got out of Contact\n");
+		}
+	}
+
+	// OVERLAP WITH TRIGGERS
+	void onTrigger(const rp3d::OverlapCallback::CallbackData& data) override
+	{
+		auto nbPairs = data.getNbOverlappingPairs();
+		overlapp = (nbPairs > 0);
+		for (int i = 0; i < nbPairs; i++)
+		{
+			using OverlapPair = rp3d::OverlapCallback::OverlapPair;
+			OverlapPair pair = data.getOverlappingPair(i);
+
+			auto eventType = pair.getEventType();
+			if (eventType == OverlapPair::EventType::OverlapStart)
+				std::cout << "Start trigger\n";
+			else if (eventType == OverlapPair::EventType::OverlapStay)
+				std::cout << "In trigger\n";
+			else if (eventType == OverlapPair::EventType::OverlapExit)
+				std::cout << "Got out of trigger\n";
+		}
+	}
+	void Reset()
+	{
+		hit = false;
+		overlapp = false;
 	}
 };
-class CollisionCB : public rp3d::CollisionCallback {
-public:
-	bool hit = false;
-	void onContact(const rp3d::CollisionCallback::CallbackData& data) override {
-		hit = (data.getNbContactPairs() > 0);
-	}
+
+// example of collision masks
+enum CollisionMasks
+{
+	MASK_NONE			= 0x0000,
+	MASK_PLAYER			= 0x0001,
+	MASK_ENVIRONMENT	= 0x0002,
+	MASK_TRIGGER		= 0x0003,
 };
+
+
 
 void DrawOBBWires(Vector3 halfExtents, Matrix rotation, Color color)
 {
@@ -83,15 +189,15 @@ int main() {
 
 	Camera3D cam = {};
 	cam.position = { 0.0f, 20.0f, -40.0f };
-	cam.target = { 0.0f,  0.0f,  0.0f };
+	cam.target = { 0.0f,  5.0f,  0.0f };
 	cam.up = { 0.0f,  1.0f,  0.0f };
-	cam.fovy = 50.0f;
+	cam.fovy = 60.0f;
 	cam.projection = CAMERA_PERSPECTIVE;
 
 	PhysicsServer::Initialize();
 
-	//// cube
-	glm::vec3 pos = { 0.0f, 1.0f, 0.0f };
+	//// player
+	glm::vec3 pos = { 0.0f, 6.0f, 0.0f };
 	glm::vec3 pSize = { 1.0f, 1.0f, 1.0f };
 	float   rotY = 0.0f;
 	float   rotX = 0.0f;
@@ -102,15 +208,14 @@ int main() {
 
 	player->SetLocalPosition(pos);
 
-	//C_player->SetBoxShape(pSize);
 	C_player->SetShape(pSize);
 
 	RB_player->SetNode3DParent(player.get());
 	RB_player->SetBodyType(RigidBodyType::DYNAMIC);
 	RB_player->SetIsGravityEnabled(true);
-	RB_player->SetMass(1.0f);
+	RB_player->SetMass(30.0f);
 	RB_player->SetAngularDamping(2.0f);
-	RB_player->SetLinearDamping(1.0f);
+	RB_player->SetLinearDamping(2.0f);
 
 	PhysicsServer::FlushCommands(); // Important pour que le RB soit cree avant d'ajouter le collider
 	RB_player->AddChild(std::move(C_player));
@@ -128,23 +233,39 @@ int main() {
 	RB_wall->SetNode3DParent(wall.get());
 	RB_wall->SetBodyType(RigidBodyType::STATIC);
 
-	//C_wall->SetBoxShape({ 0.5f, 2.0f, 3.0f });
 	C_wall->SetShape({ 0.5f, 2.0f, 3.0f });
 
 	PhysicsServer::FlushCommands(); // Important pour que le RB soit cree avant d'ajouter le collider
 	RB_wall->AddChild(std::move(C_wall));
 
+	//  Zone Trigger statique 
+	const Vector3   TRIGGER_POS = { -3.0f, -1.0f, 0.0f };
+	const float     TRIGGER_W = 1.0f, TRIGGER_H = 4.0f, TRIGGER_D = 6.0f;
+	auto			trigger = Node::CreateNode<Node3D>("trigger");
+	auto			RB_trigger = Node::CreateNode<NodeRigidBody>("rb_trigger");
+	auto			C_trigger = Node::CreateNode<NodeBoxCollider>("c_trigger");
+
+	trigger->SetLocalPosition({ -3.0f, -1.0f, 0.0f });
+
+	RB_trigger->SetNode3DParent(trigger.get());
+	RB_trigger->SetBodyType(RigidBodyType::STATIC);
+
+	C_trigger->SetShape({ 0.5f, 2.0f, 3.0f });
+
+	PhysicsServer::FlushCommands(); // Important pour que le RB soit cree avant d'ajouter le collider
+	RB_trigger->AddChild(std::move(C_trigger));
+
 
 	//  Sol statique 
-	const Vector3   FLOOR_POS = { 0.0f, -1.0f, 0.0f };
-	const float     FLOOR_W = 100.0f, FLOOR_H = 2.0f, FLOOR_D = 100.0f;
+	const Vector3   FLOOR_POS = { 0.0f, -5.0f, 0.0f };
+	const float     FLOOR_W = 100.0f, FLOOR_H = 10.0f, FLOOR_D = 100.0f;
 	auto			floor = Node::CreateNode<Node3D>("floor");
 	auto			RB_floor = Node::CreateNode<NodeRigidBody>("rb_floor");
 	auto			C_floor = Node::CreateNode<NodeBoxCollider>("c_floor");
 
 	floor->SetLocalPosition({ 0.0f, -1.0f, 0.0f });
-	//C_floor->SetBoxShape({ 50.0f, 1.0f, 50.0f });
 	C_floor->SetShape({ 50.0f, 1.0f, 50.0f });
+	RB_floor->SetBounciness(0.0f);
 
 	RB_floor->SetNode3DParent(floor.get());
 	RB_floor->SetBodyType(RigidBodyType::STATIC);
@@ -165,39 +286,77 @@ int main() {
 
 	EngineServer::FlushCommands(); // Important pour que les RB soient tous cree avant de faire le cast des colliders
 
-	auto ref_collider = static_cast<NodeBoxCollider*>(&RB_player->GetChild(0));
+	auto ref_playerCollider = static_cast<NodeBoxCollider*>(&RB_player->GetChild(0));
+	auto ref_triggerCollider = static_cast<NodeBoxCollider*>(&RB_trigger->GetChild(0));
 	auto ref_wallCollider = static_cast<NodeBoxCollider*>(&RB_wall->GetChild(0));
 	auto ref_floorCollider = static_cast<NodeBoxCollider*>(&RB_floor->GetChild(0));
 
+	PhysicsServer::FlushCommands();
+
+	// evrything below has to be done AFTER AddChild & EngineServer::FlushCommands() -- (because collider crerated when attached as RB child)
 	player->AddScale({ 1.0f, 3.0f, 0.0f });
-	//ref_collider->SetBoxShape(player->GetScale());
-	ref_collider->SetShape(player->GetScale());
+	ref_playerCollider->SetShape(player->GetScale());
+
+	ref_triggerCollider->SetIsTrigger(true);
+	ref_triggerCollider->SetMassDensity(1.0f);
+	ref_triggerCollider->SetBounciness(0.0f);
+	ref_floorCollider->SetBounciness(0.0f);
+
+	// -- Collision filtering -- has to be done AFTER AddChild & EngineServer::FlushCommands() --
+	ref_triggerCollider->SetFrictionCoefficient(1.0f);
+	ref_playerCollider->SetCollisionCategoryBits(MASK_PLAYER);
+	ref_playerCollider->SetCollideWithMaskBits(MASK_ENVIRONMENT);
+
+	ref_triggerCollider->SetCollisionCategoryBits(MASK_TRIGGER);
+	ref_triggerCollider->SetCollideWithMaskBits(MASK_PLAYER);
+
+	ref_wallCollider->SetCollisionCategoryBits(MASK_ENVIRONMENT);
+	//ref_wallCollider->SetCollideWithMaskBits(MASK_PLAYER);
+	ref_wallCollider->SetCollideWithMaskBits(MASK_NONE);
+
+	ref_floorCollider->SetCollisionCategoryBits(MASK_ENVIRONMENT);
+	ref_floorCollider->SetCollideWithMaskBits(MASK_PLAYER);
+
+	//// -- Joint test --
+	//const rp3d::Vector3 anchorPointWorldSpace(5.0f, 10.0f, 0.0f);
+	//rp3d::BallAndSocketJointInfo ballInfo(RB_player->GetRigidBody(),RB_wall->GetRigidBody(), anchorPointWorldSpace);
+	//ballInfo.isCollisionEnabled = false; // collisions between the two bodies connected by the joint 
+	//rp3d::BallAndSocketJoint* joint;
+	//joint = static_cast<rp3d::BallAndSocketJoint*>(PhysicsServer::GetPhysicsWorld().createJoint(ballInfo));
+
+	// -- Event listener --
+	//CollisionCB collisionCB;
+	//OverlapCB overlapCB;
+	//rp3d::EventListener* prevListener = PhysicsServer::GetPhysicsWorld().getEventListener();
+	Events eventListener;
+	PhysicsServer::GetPhysicsWorld().setEventListener(&eventListener);
 
 	PhysicsServer::FlushCommands();
-	RB_player->GetColliders()[0]->SetMassDensity(1.0f);
-	RB_player->GetColliders()[0]->SetBounciness(0.0f);
-	RB_player->GetColliders()[0]->SetIsTrigger(false);
-
 	bool test = false;
+	bool trigg = ref_triggerCollider->IsTrigger();
 	bool t = false;
 	while (!WindowShouldClose())
 	{
 		float dt = GetFrameTime();
 		if (dt <= 0.0f || dt > 0.1f) dt = FIXED_DT;
+																						// AZERTY KEAYBOARD
+		if (IsKeyDown(KEY_W)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 0, 500 });	// Forward = Z
+		if (IsKeyDown(KEY_S)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 0, -500 });	// Backward = S
+		if (IsKeyDown(KEY_D)) RB_player->ApplyWorldForceAtCenterOfMass({ -500, 0, 0 });	// Right = D
+		if (IsKeyDown(KEY_A)) RB_player->ApplyWorldForceAtCenterOfMass({ 500, 0, 0 });	// Left = Q
 
-		if (IsKeyDown(KEY_W)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 0, 50 });	// Forward = Z
-		if (IsKeyDown(KEY_S)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 0, -50 });	// Backward = S
-		if (IsKeyDown(KEY_D)) RB_player->ApplyWorldForceAtCenterOfMass({ -50, 0, 0 });	// Right = D
-		if (IsKeyDown(KEY_A)) RB_player->ApplyWorldForceAtCenterOfMass({ 50, 0, 0 });	// Left = Q
+		if (IsKeyDown(KEY_Q)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 500, 0 });	// Up = A
+		if (IsKeyDown(KEY_E)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, -500, 0 });	// Down = E
 
-		if (IsKeyDown(KEY_Q)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, 100, 0 });	// Up = A
-		if (IsKeyDown(KEY_E)) RB_player->ApplyWorldForceAtCenterOfMass({ 0, -100, 0 });	// Down = E
+		//if(ref_triggerCollider->IsTrigger())
+		//	DEBUG("Trigger is on\n");
+		//else
+		//	DEBUG("Trigger is off\n");
 
 
-
-		if (IsKeyDown(KEY_V))  RB_player->ApplyLocalTorque({ 50,0,0 });
-		if (IsKeyDown(KEY_B)) RB_player->ApplyLocalTorque({ 0,50,0 });
-		if (IsKeyDown(KEY_N))  RB_player->ApplyLocalTorque({ 0,0,50 });
+		if (IsKeyDown(KEY_V))  RB_player->ApplyLocalTorque({ 500,0,0 });
+		if (IsKeyDown(KEY_B)) RB_player->ApplyLocalTorque({ 0,500,0 });
+		if (IsKeyDown(KEY_N))  RB_player->ApplyLocalTorque({ 0,0,500 });
 
 		if (IsKeyDown(KEY_C))  RB_player->ResetTorque();
 
@@ -217,9 +376,29 @@ int main() {
 			std::string b = "\n Angular lock = " + a + "\n";
 			DEBUG(b);
 		}
+		if (IsKeyPressed(KEY_T))
+		{
+			trigg = !trigg;
+			std::string a;
+			if(trigg)
+			{
+				a = "Trigger = true\n";
+			}
+			else
+			{
+				a = "Trigger = false\n";
+			}
+			ref_triggerCollider->SetIsTrigger(trigg);
+			DEBUG(a);
+		}
 
 		player->Update(dt);
 		RB_player->Update(dt);
+		wall->Update(dt);
+		RB_wall->Update(dt);
+		PhysicsServer::FlushCommands();
+
+		eventListener.Reset();
 
 		// --- update physics ---
 		accumulator += dt;
@@ -229,12 +408,14 @@ int main() {
 			accumulator -= FIXED_DT;
 		}
 
-		PhysicsServer::FlushCommands();
+		// --- test collision ---
+		isColliding = eventListener.hit;
+
 
 		// --- test overlap ---
-		OverlapCB cb;
-		PhysicsServer::GetPhysicsWorld().testOverlap(RB_player->GetRigidBody(), cb);
-		isColliding = cb.hit;
+		// GENERAL OVERLAP
+		//if(PhysicsServer::GetPhysicsWorld().testOverlap(RB_player->GetRigidBody(), RB_trigger->GetRigidBody()))
+		//	DEBUG("Overlap test\n");
 
 		// --- draw ---
 		BeginDrawing();
@@ -275,6 +456,9 @@ int main() {
 		// Mur
 		DrawCube(WALL_POS, WALL_W, WALL_H, WALL_D, { 180, 140, 80, 255 });
 		DrawCubeWires(WALL_POS, WALL_W, WALL_H, WALL_D, DARKBROWN);
+		// Mur
+		DrawCube(TRIGGER_POS, TRIGGER_W, TRIGGER_H, TRIGGER_D, YELLOW);
+		DrawCubeWires(TRIGGER_POS, TRIGGER_W, TRIGGER_H, TRIGGER_D, DARKBROWN);
 
 		DrawCube(FLOOR_POS, FLOOR_W, FLOOR_H, FLOOR_D, { 130, 140, 95, 255 });
 		DrawCubeWires(FLOOR_POS, FLOOR_W, FLOOR_H, FLOOR_D, DARKBROWN);
@@ -288,7 +472,7 @@ int main() {
 		else
 			DrawText("Aucune collision", 20, 118, 20, GREEN);
 
-		DrawText(TextFormat("C_Pos: (%.1f, %.1f, %.1f)", ref_collider->GetLocalPosition().x, ref_collider->GetLocalPosition().y, ref_collider->GetLocalPosition().z),
+		DrawText(TextFormat("C_Pos: (%.1f, %.1f, %.1f)", ref_playerCollider->GetLocalPosition().x, ref_playerCollider->GetLocalPosition().y, ref_playerCollider->GetLocalPosition().z),
 			10, GetScreenHeight() - 70, 16, BLACK);
 		DrawText(TextFormat("RB_Pos: (%.1f, %.1f, %.1f)", RB_player->GetPosition().x, RB_player->GetPosition().y, RB_player->GetPosition().z),
 			10, GetScreenHeight() - 48, 16, BLACK);

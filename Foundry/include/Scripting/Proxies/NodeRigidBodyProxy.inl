@@ -49,6 +49,23 @@ public:
 	RigidBodyType GetBodyType() const						{ return m_pNode->GetBodyType(); }
 	void          SetBodyType(RigidBodyType type)			{ m_pNode->SetBodyType(type); }
 
+	// =========== Material ===========
+
+	// global
+	void  SetBounciness(float bounciness)					{ m_pNode->SetBounciness(bounciness); }
+	float GetBounciness() const								{ return m_pNode->GetBounciness(); }
+	void  SetFrictionCoefficient(float friction)			{ m_pNode->SetFrictionCoefficient(friction); }
+	float GetFrictionCoefficient() const					{ return m_pNode->GetFrictionCoefficient(); }
+	void  SetMassDensity(float density)						{ m_pNode->SetMassDensity(density); }
+	float GetMassDensity() const							{ return m_pNode->GetMassDensity(); }
+
+	// specific
+	void  SetBounciness(int colliderIndex, float bounciness)				{ m_pNode->SetBounciness(colliderIndex, bounciness); }
+	float GetBounciness(int colliderIndex) const							{ return m_pNode->GetBounciness(colliderIndex); }
+	void  SetFrictionCoefficient(int colliderIndex, float friction)			{ m_pNode->SetFrictionCoefficient(colliderIndex, friction); }
+	float GetFrictionCoefficient(int colliderIndex) const					{ return m_pNode->GetFrictionCoefficient(colliderIndex); }
+	void  SetMassDensity(int colliderIndex, float density)					{ m_pNode->SetMassDensity(colliderIndex, density); }
+	float GetMassDensity(int colliderIndex) const							{ return m_pNode->GetMassDensity(colliderIndex); }
 
 	// =========== Sleeping and Gravity ===========
 
@@ -59,8 +76,6 @@ public:
 	void SetSleepingEnabled(bool enabled)					{ m_pNode->SetSleepingEnabled(enabled); }
 	void SetSleepingState(bool isSleeping)					{ m_pNode->SetSleepingState(isSleeping); }
 	void SetIsGravityEnabled(bool enabled)					{ m_pNode->SetIsGravityEnabled(enabled); }
-
-	//glm::vec3 Getposition() const							{ m_pNode->Getposition(); }
 
 private:
 	NodeRigidBody* m_pNode;
@@ -76,11 +91,13 @@ BindProxy(NodeRigidBody::Proxy,
 	"ApplyWorldForceAtWorldPosition", BIND(ApplyWorldForceAtWorldPosition),
 	"ApplyLocalTorque", BIND(ApplyLocalTorque),
 	"ApplyWorldTorque", BIND(ApplyWorldTorque),
+
 	"GetLinearVelocity", BIND(GetLinearVelocity),
 	"GetAngularVelocity", BIND(GetAngularVelocity),
 	"GetLinearDamping", BIND(GetLinearDamping),
 	"GetAngularDamping", BIND(GetAngularDamping),
 	"GetTotalForce", BIND(GetTotalForce),
+
 	"SetLinearVelocity", BIND(SetLinearVelocity),
 	"SetAngularVelocity", BIND(SetAngularVelocity),
 	"SetLinearDamping", BIND(SetLinearDamping),
@@ -89,10 +106,26 @@ BindProxy(NodeRigidBody::Proxy,
 	"LockAngularAxis", BIND(LockAngularAxis),
 	"ResetForces", BIND(ResetForces),
 	"ResetTorque", BIND(ResetTorque),
+
 	"GetMass", BIND(GetMass),
 	"SetMass", BIND(SetMass),
 	"GetBodyType", BIND(GetBodyType),
 	"SetBodyType", BIND(SetBodyType),
+
+	"SetBounciness",			OVERLOAD(NodeRigidBody::Proxy, void , float)		(BIND(SetBounciness)),
+	"GetBounciness",			OVERLOAD_CONST(NodeRigidBody::Proxy, float)			(BIND(GetBounciness)),
+	"SetFrictionCoefficient",	OVERLOAD(NodeRigidBody::Proxy, void , float)		(BIND(SetFrictionCoefficient)),
+	"GetFrictionCoefficient",	OVERLOAD_CONST(NodeRigidBody::Proxy, float)			(BIND(GetFrictionCoefficient)),
+	"SetMassDensity",			OVERLOAD(NodeRigidBody::Proxy, void , float)		(BIND(SetMassDensity)),
+	"GetMassDensity",			OVERLOAD_CONST(NodeRigidBody::Proxy, float)			(BIND(GetMassDensity)),
+
+	"SetBounciness",			OVERLOAD(NodeRigidBody::Proxy, void , int, float)	(BIND(SetBounciness)),
+	"GetBounciness",			OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetBounciness)),
+	"SetFrictionCoefficient",	OVERLOAD(NodeRigidBody::Proxy, void , int, float)	(BIND(SetFrictionCoefficient)),
+	"GetFrictionCoefficient",	OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetFrictionCoefficient)),
+	"SetMassDensity",			OVERLOAD(NodeRigidBody::Proxy, void , int, float)	(BIND(SetMassDensity)),
+	"GetMassDensity",			OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetMassDensity)),
+		
 	"IsSleeping", BIND(IsSleeping),
 	"IsAllowedToSleep", BIND(IsAllowedToSleep),
 	"IsGravityEnabled", BIND(IsGravityEnabled),
