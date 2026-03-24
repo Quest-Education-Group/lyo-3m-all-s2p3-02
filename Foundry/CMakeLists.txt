@@ -16,9 +16,9 @@ else ()
     #add_compile_options(-Wa,-mbig-obj)
 endif ()
 
-add_library(${PROJECT_NAME} 
-
-    ${SOURCES})
+add_library(${PROJECT_NAME} SHARED
+    ${SOURCES}
+)
 
 add_library(Foundry::library ALIAS ${PROJECT_NAME})
 
