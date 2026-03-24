@@ -12,7 +12,7 @@ namespace
 
 std::string EditorImGui::NormalizeScenePath(std::string path, bool saveAsNode)
 {
-	std::string extensions[] = { ".json", ".scene", ".node" };
+	std::string extensions[] = { ".json", ".sc", ".nd" };
 	for (auto& ext : extensions)
 	{
 		if (path.size() >= ext.size() &&
@@ -23,9 +23,9 @@ std::string EditorImGui::NormalizeScenePath(std::string path, bool saveAsNode)
 	}
 
 	if (saveAsNode)
-		path += ".node";
+		path += ".nd";
 	else
-		path += ".scene";
+		path += ".sc";
 
 	return path;
 }
@@ -91,7 +91,7 @@ void EditorImGui::Render()
 		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoSavedSettings |
 		ImGuiWindowFlags_NoBackground);
-
+	m_pSceneRoot;
 	ImGui::End();
 }
 
@@ -357,19 +357,8 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 		}
 
 		if (ImGui::MenuItem("Save From Here")) {
-			if (m_haveFileSelected && !m_scenePathBuffer.empty()) {
-				m_saveAsNode = true;
-				m_scenePathBuffer = NormalizeScenePath(m_scenePathBuffer, m_saveAsNode);
-
-				m_command.type = EditorCommand::Type::SAVE_SCENE;
-				m_command.stringParam1 = m_scenePathBuffer;
-
-				m_saveAsNode = false; 
-			}
-			else {
-				m_showSaveAsPopup = true;
-				m_saveAsNode = true;
-			}
+			m_showSaveAsPopup = true;
+			m_saveAsNode = true;
 		}
 
 
@@ -551,17 +540,23 @@ void EditorImGui::ShowLoadSceneBrowsing()
 	m_loadBrowser.SetWindowPos(m_screenWidth / 2 - m_fileBrowsingSizeX / 2, m_screenHeight / 2 - m_fileBrowsingSizeY / 2);
 
 	m_loadBrowser.SetTitle("Load scene from Json file");
-	m_loadBrowser.SetTypeFilters({ ".json" });
+	m_loadBrowser.SetTypeFilters({ ".json"});
 	m_loadBrowser.Display();
 
 	if (m_loadBrowser.HasSelected())
 	{
-		m_scenePathBuffer = m_loadBrowser.GetSelected().string();
-		if (m_scenePathBuffer.length() > 0)
+		std::string tmpbuffer = m_loadBrowser.GetSelected().string();
+		if (tmpbuffer.find(".sc")) {
+			m_scenePathBuffer = tmpbuffer;
+		}
+		else if (tmpbuffer.find(".nd")) {
+			m_nodeSavePathBuffer = tmpbuffer;
+		}
+		if (m_scenePathBuffer.length() > 0 || m_nodeSavePathBuffer.length() > 0)
 		{
 			m_haveFileSelected = true;
 			m_command.type = EditorCommand::Type::LOAD_SCENE;
-			m_command.stringParam1 = m_scenePathBuffer;
+			m_command.stringParam1 = m_scenePathBuffer; // ici usitliser m_nodeSavePathBuffer
 			m_pSelectedNode = nullptr;
 			m_pViewRoot = m_pSceneRoot;
 		}
@@ -721,14 +716,13 @@ void EditorImGui::ApplyInspectorChanges(json& datas)
 	m_selectedNodeData.SetJson(cleanJson);
 
 	Node::SetStatusEditor(true);
-	m_pSelectedNode->Deserialize(m_selectedNodeData);
+	m_pSelectedNode->Deserialize(m_selectedNodeData); 
+	std::cout << "Name from m_sceneroor" << m_pSceneRoot->GetChild(0).GetName() << std::endl;
 
 	if (oldName != m_pSelectedNode->GetName())
 	{
 		m_pRaylibEditor->UpdateElementName(oldName, m_pSelectedNode);
 	}
-	
-	std::cout << "[EditorImGui] Applied inspector changes" << std::endl;
 	Node::SetStatusEditor(false);
 
 	//DEBUG("[EditorImGui] Applied inspector changes" << std::endl);

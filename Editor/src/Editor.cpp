@@ -46,7 +46,7 @@ void Editor::Init()
 	std::filesystem::path ScriptStock = "ScriptStock/.foundry";
 	std::filesystem::create_directories(ScriptStock);
 
-	std::filesystem::path source = "../Game/res/foundry.d.lua"; /*Todo Path more Flexible*/
+	std::filesystem::path source = "../Game/res/foundry.d.lua";
 	std::filesystem::path dest = ScriptStock / "foundry.d.lua";
 
 	{
@@ -82,6 +82,7 @@ void Editor::Run()
 
 		Render3D();
 		RenderUI();
+		m_sceneRoot;
 		
 		EndDrawing();
 	}
@@ -242,19 +243,31 @@ void Editor::LoadScene(std::string const& path)
 {
 	try
 	{
-
 		Node::SetStatusEditor(true);
-		m_sceneRoot = EditorSerializer::LoadFromJson(path);
+		LoadReturn tmp = EditorSerializer::LoadFromJson(path);
 		Node::SetStatusEditor(false);
-		m_editorImgui.SetSceneRoot(m_sceneRoot.get());
-		m_editorImgui.ResetViewRoot();
-		m_editorImgui.ResetSelectedNode();
-		m_scenePathBuffer = path;
+		if (tmp.IsRoot) {
+			m_sceneRoot = std::move(tmp.uptrNode);
+			m_editorImgui.SetSceneRoot(m_sceneRoot.get());
+			m_editorImgui.ResetViewRoot();
+			m_editorImgui.ResetSelectedNode();
+			m_scenePathBuffer = path;
+			// Update NodeList
+			LoadDrawableObject(m_sceneRoot.get());
+			DEBUG( "[Editor] Scene Root loaded: " << path << std::endl);
+		}
+		else if (tmp.IsRoot == false) {
+			EngineServer::FlushCommands();
+			m_sceneRoot.get()->AddChild(tmp.uptrNode);
+			EngineServer::FlushCommands();
 
-		// Update NodeList
-		LoadDrawableObject(m_sceneRoot.get());
+			m_editorImgui.ResetViewRoot();
+			m_editorImgui.ResetSelectedNode();
+			m_nodePathBuffer = path;
 
-		DEBUG( "[Editor] Scene loaded: " << path << std::endl);
+			LoadDrawableObject(m_sceneRoot.get());
+			DEBUG("[Editor] Node loaded: " << path << std::endl);
+		}
 	}
 	catch (std::exception const& e)
 	{
@@ -457,6 +470,17 @@ void Editor::UpdateScriptPathsInJson(json& nodeJson, ScriptPathMap const& script
 	}
 }
 
+void Editor::RemoveStringClone(Node* node) {
+	std::string thisnodeName = node->GetName();
+	if (thisnodeName.size() >= 4 && thisnodeName.substr(thisnodeName.size() - 4) == "Copy") {
+		node->SetName(thisnodeName.substr(0, 4));
+	}
+	for (uint32 i = 0; i < node->GetChildCount(); i++)
+	{
+		RemoveStringClone(&node->GetChild(i));
+	}
+}
+
 void Editor::SaveScene(std::string const& path)
 {
 	try
@@ -464,25 +488,17 @@ void Editor::SaveScene(std::string const& path)
 		std::string tmp = path;
 
 		bool isScene = false;
-		if (path.size() >= 11 && path.substr(path.size() - 11) == ".scene.json")
+		if (path.size() >= 3 && path.substr(path.size() - 3) == ".sc")
 		{
-			tmp = path.substr(0, path.size() - 11);
 			isScene = true;
-		}
-
-		bool isNode = false;
-		if (path.size() >= 10 && path.substr(path.size() - 10) == ".node.json")
-		{
-			tmp = path.substr(0, path.size() - 10);
-			isNode = true;
 		}
 
 		if (isScene)
 		{
 			if (m_sceneRoot)
 			{
-				EditorSerializer::Save(tmp, m_sceneRoot);
-				m_scenePathBuffer = tmp;  // <- buffer spécifique scène
+				EditorSerializer::SaveScene(tmp, m_sceneRoot);
+				m_scenePathBuffer = tmp;
 				DEBUG("[Editor] Scene saved: " << m_scenePathBuffer << ".json" << std::endl);
 			}
 			else
@@ -490,7 +506,7 @@ void Editor::SaveScene(std::string const& path)
 				std::cerr << "[Editor] Cannot save scene: no scene loaded" << std::endl;
 			}
 		}
-		else if (isNode || m_editorImgui.GetSelectedNode())
+		else if (isScene == false || m_editorImgui.GetSelectedNode())
 		{
 			Node* selected = m_editorImgui.GetSelectedNode();
 			if (!selected)
@@ -500,10 +516,13 @@ void Editor::SaveScene(std::string const& path)
 			}
 
 			uptr<Node> clone = selected->Clone();
-			clone->SetName(selected->GetName());
 
-			EditorSerializer::Save(tmp, clone);
-			m_nodePathBuffer = tmp;  // <- buffer spécifique node
+			EngineServer::FlushCommands();
+			RemoveStringClone(clone.get());
+			/*TODO Enlever le Copy derriere en recursive pour les enfants*/
+			std::string test = clone.get()->GetName();
+			EditorSerializer::SaveNode(tmp, clone);
+			m_nodePathBuffer = tmp;
 			DEBUG("[Editor] Node saved: " << m_nodePathBuffer << ".json" << std::endl);
 		}
 		else
@@ -519,20 +538,10 @@ void Editor::SaveScene(std::string const& path)
 
 void Editor::SaveSceneNoSpe()
 {
-	Node* selected = m_editorImgui.GetSelectedNode();
 
-	if (selected)
-	{
-		if (!m_nodePathBuffer.empty())
-			SaveScene(m_nodePathBuffer);
-		else
-			m_editorImgui.ShowSaveAs(true);
-	}
+	if (!m_scenePathBuffer.empty())
+		SaveScene(m_scenePathBuffer);
 	else
-	{
-		if (!m_scenePathBuffer.empty())
-			SaveScene(m_scenePathBuffer);
-		else
-			m_editorImgui.ShowSaveAs(false);
-	}
+		m_editorImgui.ShowSaveAs(false);
+	
 }
