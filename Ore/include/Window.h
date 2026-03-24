@@ -5,8 +5,9 @@
 #include "Viewport.h"
 
 #include <map>
+#include <vector>
+#include <GLFW/glfw3.h>
 
-class GLFWwindow;
 class Window : public IWindow
 {
 public:
@@ -18,8 +19,9 @@ public:
     bool IsOpen() override;
     void Present() override;
 
-    void AddViewport(Viewport const& viewport) {m_viewports.push_back(&viewport);} 
+    void AddViewport(Viewport& viewport) {m_viewports.push_back(&viewport);} 
     void RemoveViewport(Viewport const& viewport);
+    Viewport* GetWiewport(uint32 index) const {return m_viewports[index];}
 
     void SetDecoration(bool hasDecoration) override;
     void SetIcon(std::string const& path) override {};
@@ -30,7 +32,7 @@ public:
 private:
     static std::unordered_map<GLFWwindow*, Window*> s_windows;
     GLFWwindow* m_pWindow;
-    std::vector<Viewport const*> m_viewports;
+    std::vector<Viewport*> m_viewports;
 
     friend class Viewport;
     friend class EventManager;

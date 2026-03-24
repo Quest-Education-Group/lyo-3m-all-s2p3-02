@@ -4,6 +4,8 @@
 #include "EventManager.h"
 #include "Ore.h"
 
+#include <GLFW/glfw3.h>
+
 std::unordered_map<GLFWwindow*, Window*> Window::s_windows = {};
 Window::Window(int width, int height, std::string name, bool enableTransparency)
 {
