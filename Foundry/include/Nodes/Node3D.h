@@ -88,7 +88,7 @@ private:
 	void UpdateWorldTransform();
 	void UpdateLocalTransform();
 
-private:
+protected:
 	Transform3D m_transform;
 
 	glm::mat4x4 m_worldTransform{ 1.0f };
@@ -101,7 +101,7 @@ private:
 	bool m_localDirty : 1 = true;
 };
 
-inline REGISTER_ISERIALIZABLE(Node3D, Node3D::CreateInstance);
+REGISTER_ISERIALIZABLE(Node3D, Node3D::CreateInstance);
 
 #include "Scripting/Proxies/Node3DProxy.inl"
 

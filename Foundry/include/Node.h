@@ -123,7 +123,7 @@ private:
 	friend class unique_ptr;
 };
 
-inline REGISTER_ISERIALIZABLE(Node, Node::CreateInstance);
+REGISTER_ISERIALIZABLE(Node, Node::CreateInstance);
 
 //=== Templated function def ====
 template <NodeType T>

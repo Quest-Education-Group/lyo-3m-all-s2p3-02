@@ -5,6 +5,12 @@ set(SOURCEMAIN
     src/${MAIN}.cpp 
 )
 
+if (MSVC)
+    add_compile_options(/bigobj)
+else ()
+    #add_compile_options(-Wa,-mbig-obj)
+endif ()
+
 add_executable(${PROJECT_NAME} ${SOURCEMAIN})
 
 file(COPY ${PROJECT_SOURCE_DIR}/../res/ 
@@ -12,5 +18,4 @@ file(COPY ${PROJECT_SOURCE_DIR}/../res/
 )  
 
 target_link_libraries(${PROJECT_NAME}  PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,Foundry::library>")
-#target_link_libraries(${PROJECT_NAME} PRIVATE Foundry::library)
-target_link_libraries(${PROJECT_NAME}  PRIVATE Editor::library)
+target_link_libraries(${PROJECT_NAME}  PRIVATE Foundry::library)
