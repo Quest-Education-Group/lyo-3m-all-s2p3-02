@@ -13,7 +13,6 @@ class NodeCollider;
 #include <reactphysics3d/reactphysics3d.h>
 #include <glm/ext/vector_float3.hpp>
 
-//template <>
 template <>
 struct Command<class PhysicsServer>
 {
@@ -29,7 +28,7 @@ struct Command<class PhysicsServer>
 		bodyType(RigidBodyType::NONE),
 		mass(0.0f),
 		sleepingEnabled(false),
-		lockAxis({}),
+		//lockAxis({}),
 		rotation({ 0.0f, 0.0f, 0.0f, 1.0f }),
 		radius(0.0f),
 		mask(0)

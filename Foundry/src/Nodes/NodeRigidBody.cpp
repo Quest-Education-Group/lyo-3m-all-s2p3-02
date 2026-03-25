@@ -9,7 +9,7 @@ NodeRigidBody::~NodeRigidBody()
 	m_colliders.clear();
 }
 
-NodeRigidBody::NodeRigidBody(std::string const& name) : Node(name)
+NodeRigidBody::NodeRigidBody(std::string const& name) : Node3D(name)
 {
 	//OnSceneEnter.Subscribe([this](Node& self)
 	//	{
@@ -23,7 +23,7 @@ NodeRigidBody::NodeRigidBody(std::string const& name) : Node(name)
 	//	});
 }
 
-NodeRigidBody::NodeRigidBody(std::string const& name, Node3D* owner) : Node(name)
+NodeRigidBody::NodeRigidBody(std::string const& name, Node3D* owner) : Node3D(name)
 {
 	SetNode3DParent(owner);
 }

@@ -1,11 +1,11 @@
 
 
-class NodeCollider::Proxy : public Node::Proxy
+class NodeCollider::Proxy : public Node3D::Proxy
 {
 public:
 	struct ProxyBinding;
 
-	Proxy(Node& node) : Node::Proxy(node) {}
+	Proxy(Node& node) : Node3D::Proxy(node) {}
 
     // =========== Local transform (offset from RigidBody) ===========
 

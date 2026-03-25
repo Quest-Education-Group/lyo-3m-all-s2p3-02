@@ -13,7 +13,7 @@ enum class RigidBodyType { STATIC, KINEMATIC, DYNAMIC, NONE };
 
 class NodeCollider;
 
-class NodeRigidBody : public Node
+class NodeRigidBody : public Node3D
 {
 public:
 

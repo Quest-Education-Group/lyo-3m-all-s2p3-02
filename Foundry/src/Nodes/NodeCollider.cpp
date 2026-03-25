@@ -2,7 +2,7 @@
 
 #include "Servers/PhysicsServer.h"
 
-NodeCollider::NodeCollider(std::string const& name) : Node(name)
+NodeCollider::NodeCollider(std::string const& name) : Node3D(name)
 {
 	//OnSceneEnter.Subscribe([this](Node& self)
 	//	{

@@ -4,7 +4,7 @@
 #include "Node.h"
 #include "NodeRigidBody.h"
 
-class NodeCollider : public Node
+class NodeCollider : public Node3D
 {
 public:
 	////////////////////////////////////////////////////////////

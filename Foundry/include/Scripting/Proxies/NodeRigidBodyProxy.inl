@@ -1,10 +1,10 @@
 
-class NodeRigidBody::Proxy : public Node::Proxy
+class NodeRigidBody::Proxy : public Node3D::Proxy
 {
 public:
 	struct ProxyBinding;
 
-	Proxy(Node& node) : Node::Proxy(node) {}
+	Proxy(Node& node) : Node3D::Proxy(node) {}
 
 	// =========== Forces and Torques ===========
 
