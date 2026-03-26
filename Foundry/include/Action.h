@@ -35,8 +35,15 @@ public:
 			{
 				for (int i = 0; i < m_controls.size(); i++)
 				{
-					if (in == m_controls[i]->GetEventInput())
-						m_event.Invoke(*m_controls[i]);
+					switch (m_controls[i]->GetControlType())
+					{
+					case(ControlType::BUTTON):
+						if (in == m_controls[i]->GetEventInput() && ac == EventAction::PRESS)
+							m_event.Invoke(*m_controls[i]);
+						break;
+					
+					// other input cases
+					}
 				}
 			};
 	}
