@@ -1,4 +1,4 @@
-
+	
 #include "EditorSerializer.h"
 
 #include <Serialization/json.hpp>

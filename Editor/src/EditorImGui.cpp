@@ -1,7 +1,9 @@
-﻿#include "EditorImGui.h"
+﻿
+#include "EditorImGui.h"
 #include "Editor.h"
 #include "EditorRaylib3D.h"
 #include "Debug.h"
+#include <Servers/EngineServer.h>
 
 #include <iostream>
 
@@ -29,17 +31,22 @@ std::string EditorImGui::NormalizeScenePath(std::string path, bool saveAsNode)
 
 	return path;
 }
+
 EditorImGui::EditorImGui(Editor* pEditor, EditorRaylib3D* pRaylibEditor)
 	: m_pEditor(pEditor), m_pRaylibEditor(pRaylibEditor), m_inspector(this)
-{}
+{
+}
 
 EditorImGui::~EditorImGui()
-{}
+{
+}
 
 void EditorImGui::Init()
 {
 	m_newNodeTypeSelector = Node::CreateNode<Node>("Node");
-	m_newNodeTypeSelector.get()->AddChild(Node::CreateNode<Node>("Node3D"));
+	auto test = Node::CreateNode<Node>("Node3D");
+	m_newNodeTypeSelector->AddChild(test);
+	EngineServer::FlushCommands();
 
 	ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
 
@@ -362,7 +369,7 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 		}
 
 
-	
+
 		ImGui::EndDisabled();
 
 		if (ImGui::MenuItem("Set as View Root"))
@@ -402,20 +409,20 @@ void EditorImGui::SetViewRoot(Node* node)
 	if (node)
 	{
 		m_pViewRoot = node;
-		DEBUG( "[EditorImGui] View root changed to: " << node->GetName() << std::endl);
+		DEBUG("[EditorImGui] View root changed to: " << node->GetName() << std::endl);
 	}
 }
 
 void EditorImGui::ResetViewRoot()
 {
 	m_pViewRoot = m_pSceneRoot;
-	DEBUG( "[EditorImGui] View root reset to scene root" << std::endl);
+	DEBUG("[EditorImGui] View root reset to scene root" << std::endl);
 }
 
 void EditorImGui::ResetSelectedNode() {
 
 	m_pSelectedNode = nullptr;
-	DEBUG( "[EditorImGui] Selected root reset" << std::endl);
+	DEBUG("[EditorImGui] Selected root reset" << std::endl);
 }
 
 void EditorImGui::CreateNodePopup(Node* from, NodeCreationFlag flag, bool& open)
@@ -521,7 +528,7 @@ void EditorImGui::ShowSaveAsSceneBrowsing()
 			m_command.type = EditorCommand::Type::SAVE_SCENE;
 			m_command.stringParam1 = m_scenePathBuffer;
 
-			m_saveAsNode = false; 
+			m_saveAsNode = false;
 		}
 
 		m_saveBrowser.ClearSelected();
@@ -540,7 +547,7 @@ void EditorImGui::ShowLoadSceneBrowsing()
 	m_loadBrowser.SetWindowPos(m_screenWidth / 2 - m_fileBrowsingSizeX / 2, m_screenHeight / 2 - m_fileBrowsingSizeY / 2);
 
 	m_loadBrowser.SetTitle("Load scene from Json file");
-	m_loadBrowser.SetTypeFilters({ ".json"});
+	m_loadBrowser.SetTypeFilters({ ".json" });
 	m_loadBrowser.Display();
 
 	if (m_loadBrowser.HasSelected())
@@ -573,7 +580,7 @@ void EditorImGui::DrawGizmoButtons()
 	bool rotate = m_pRaylibEditor->IsGizmoRotate();
 	bool all = translate && rotate && scale;
 	bool isopen = true;
-	ImGui::SetNextWindowSize(ImVec2(700,100), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(700, 100), ImGuiCond_Always);
 	ImGui::Begin("Gizmo", &isopen, ImGuiWindowFlags_NoResize);
 
 	if (ImGui::Checkbox("All", &all) && m_pSelectedNode != nullptr)
@@ -673,7 +680,7 @@ void EditorImGui::SelectedNode(Node* pNode)
 	m_pRaylibEditor->SetSelectedNode(pNode->GetName());
 	if (pNode)
 	{
-		DEBUG( "[EditorImGui] Selected: " << pNode->GetName() << std::endl);
+		DEBUG("[EditorImGui] Selected: " << pNode->GetName() << std::endl);
 	}
 }
 
@@ -682,7 +689,7 @@ void EditorImGui::NewNodeSelected(Node* pNode)
 	m_pNewNodeTypeSelected = pNode;
 	if (pNode)
 	{
-		DEBUG( "[EditorImGui] Node type selected: " << pNode->GetName() << std::endl);
+		DEBUG("[EditorImGui] Node type selected: " << pNode->GetName() << std::endl);
 	}
 }
 
@@ -692,7 +699,7 @@ json& EditorImGui::LoadInspectorData()
 	m_pSelectedNode->Serialize(m_selectedNodeData);
 	m_selectedNodeDataJson = m_selectedNodeData.GetJson();
 
-	DEBUG( "[EditorImGui] Loaded inspector data for: " << m_pSelectedNode->GetName() << std::endl);
+	DEBUG("[EditorImGui] Loaded inspector data for: " << m_pSelectedNode->GetName() << std::endl);
 
 	return m_selectedNodeDataJson["PUBLIC_DATAS"];
 }
@@ -716,7 +723,7 @@ void EditorImGui::ApplyInspectorChanges(json& datas)
 	m_selectedNodeData.SetJson(cleanJson);
 
 	Node::SetStatusEditor(true);
-	m_pSelectedNode->Deserialize(m_selectedNodeData); 
+	m_pSelectedNode->Deserialize(m_selectedNodeData);
 	std::cout << "Name from m_sceneroor" << m_pSceneRoot->GetChild(0).GetName() << std::endl;
 
 	if (oldName != m_pSelectedNode->GetName())
@@ -811,18 +818,17 @@ void EditorImGui::HandleHierarchyRootDropTarget()
 
 bool EditorImGui::IsDescendant(Node const& potentialAncestor, Node const& node) const
 {
-    Node const* currentConst = &node;
-    while (currentConst != nullptr)
-    {
-        if (currentConst == &potentialAncestor)
-        {
-            return true;
-        }
+	Node const* currentConst = &node;
+	while (currentConst != nullptr)
+	{
+		if (currentConst == &potentialAncestor)
+		{
+			return true;
+		}
 
-        Node* current = const_cast<Node*>(currentConst);
-        currentConst = current->GetParent();
-    }
+		Node* current = const_cast<Node*>(currentConst);
+		currentConst = current->GetParent();
+	}
 
-    return false;
+	return false;
 }
-

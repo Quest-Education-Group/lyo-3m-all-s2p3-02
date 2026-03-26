@@ -5,12 +5,6 @@ set(SOURCEMAIN
     src/${MAIN}.cpp 
 )
 
-if (MSVC)
-    add_compile_options(/bigobj)
-else ()
-    #add_compile_options(-Wa,-mbig-obj)
-endif ()
-
 add_executable(${PROJECT_NAME} ${SOURCEMAIN})
 
 file(COPY ${PROJECT_SOURCE_DIR}/../res/ 

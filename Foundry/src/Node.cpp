@@ -13,7 +13,6 @@
 #include <utility>
 #include <vector>
 
-bool Node::s_IsInEditor = false;
 
 Node::Node(std::string const& name) : m_name(name) , m_scriptPath("")
 {

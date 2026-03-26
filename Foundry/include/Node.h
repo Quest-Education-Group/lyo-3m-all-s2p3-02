@@ -117,7 +117,7 @@ private:
     void AttachChildImmediate(std::unique_ptr<Node>& child);
 
 
-	static bool s_IsInEditor;
+	inline static bool s_IsInEditor = false;
 
     friend class EngineServer;
 	friend class unique_ptr;

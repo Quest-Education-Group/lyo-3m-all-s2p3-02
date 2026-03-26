@@ -10,5 +10,11 @@
     "glm",
     "reactphysics3d",
     "bigsimp"
+  ],
+  "overrides": [
+    {
+      "name": "imgui",
+      "version": "1.92.6"
+    }
   ]
 }

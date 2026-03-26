@@ -6,7 +6,7 @@ set(SOURCE
     src/${MAINEDITOR}.cpp 
 )
 
-add_executable(${PROJECT_NAME} ${SOURCE} )
+add_executable(${PROJECT_NAME} ${SOURCE})
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
