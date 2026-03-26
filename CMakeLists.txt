@@ -32,6 +32,6 @@ include_directories("Core/")
 
 add_subdirectory(Ore)
 add_subdirectory(Foundry)
-##add_subdirectory(testLib)
 add_subdirectory(Editor)
+add_subdirectory(EditorExe)
 add_subdirectory(Game)
