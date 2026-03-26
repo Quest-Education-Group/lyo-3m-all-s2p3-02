@@ -306,8 +306,7 @@ void Transform3D::Serialize(SerializedObject& datas) const
 	datas.SetType("Transform3D");
 	glm::vec3 pos = m_position;
 	datas.AddPublicElement("Position", static_cast<glm::vec3 const*>(&pos));
-	glm::vec3 rot = GetRotation();
-	rot *= pi_t<long double>; // rad to deg
+	glm::vec3 rot = { GetRotationDeg().x,GetRotationDeg().y,GetRotationDeg().z };
 	datas.AddPublicElement("Rotation", static_cast<glm::vec3 const*>(&rot));
 	glm::vec3 scale = m_scale;
 	datas.AddPublicElement("Scale", static_cast<glm::vec3 const*>(&scale));
@@ -334,8 +333,7 @@ void Transform3D::Deserialize(SerializedObject const& datas)
 
 	glm::vec3 rot = {};
 	datas.GetPublicElement("Rotation", &rot);
-	rot *= pi_t<long double> / 180; // deg to rad
-	SetRotation({ rot,1.0f });
+	SetRotationDeg(rot.x, rot.y, rot.z);
 
 	glm::vec3 scale = { 1.0f,1.0f,1.0f };
 	datas.GetPublicElement("Scale", &scale);
