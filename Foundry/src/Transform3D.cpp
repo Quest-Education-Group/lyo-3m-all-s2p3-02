@@ -1,6 +1,8 @@
 ﻿#include "Transform3D.h"
 #include "MathUtils.h"
 
+#include "Serialization/SerializeObject.hpp"
+
 Transform3D::Transform3D() :
 	m_position(0.0f, 0.0f, 0.0f, 1.0f),
 	m_scale(1.0f, 1.0f, 1.0f, 1.0f),
@@ -71,9 +73,9 @@ const glm::mat4& Transform3D::GetInverseMatrixRotation() const
 	return m_invRotationMatrix;
 }
 
-const glm::vec4& Transform3D::GetRotation() const
+const glm::vec4 Transform3D::GetRotation() const
 {
-	return m_rotation;
+	return { glm::eulerAngles(m_rotationQuat),1.0f };
 }
 const glm::quat& Transform3D::GetRotationQuat() const
 {
@@ -169,7 +171,7 @@ void Transform3D::SetRotation(glm::vec4 rot)
 
 	m_rotation = rot;
 	m_rotation.w = 1.0f;
-	m_rotationQuat = glm::quat_cast(Maths::RotateYawPitchRoll(rot));
+	m_rotationQuat = glm::quat_cast(Maths::RotateYawPitchRoll({rot.y,rot.x,rot.z,1.0f}));
 
 	m_isDirty = true;
 	m_isInvDirty = true;
@@ -178,6 +180,7 @@ void Transform3D::SetRotation(glm::vec4 rot)
 void Transform3D::SetRotationQuat(glm::quat rot)
 {
 	m_rotationQuat = rot;
+	m_rotation = { glm::eulerAngles(m_rotationQuat),1.0f };
 	m_isDirty = true;
 	m_isInvDirty = true;
 	m_isRotationDirty = true;
@@ -339,3 +342,59 @@ void Transform3D::operator*=(Transform3D& other)
 {
 	ApplyTransform(other);
 }
+
+void Transform3D::Serialize(SerializedObject& datas) const
+{
+	glm::vec3 r = m_right;
+	datas.AddPrivateElement("Right", static_cast<glm::vec3 const*>(&r));
+	glm::vec3 u = m_up;
+	datas.AddPrivateElement("Up", static_cast<glm::vec3 const*>(&u));
+	glm::vec3 f = m_forward;
+	datas.AddPrivateElement("Forward", static_cast<glm::vec3 const*>(&f));
+	//glm::vec4 quat = { m_rotationQuat.x,m_rotationQuat.y,m_rotationQuat.z,m_rotationQuat.w };
+	//datas.AddPrivateElement("m_rotationQuat", static_cast<glm::vec4 const*>(&quat));
+
+	datas.SetType("Transform3D");
+	glm::vec3 pos = m_position;
+	datas.AddPublicElement("Position", static_cast<glm::vec3 const*>(&pos));
+	glm::vec3 rot = GetRotation();
+	rot *= pi_t<long double>; // rad to deg
+	datas.AddPublicElement("Rotation", static_cast<glm::vec3 const*>(&rot));
+	glm::vec3 scale = m_scale;
+	datas.AddPublicElement("Scale", static_cast<glm::vec3 const*>(&scale));
+}
+
+void Transform3D::Deserialize(SerializedObject const& datas)
+{
+	glm::vec3 r = {};
+	datas.GetPrivateElement("Right",&r);
+	m_right = { r,1.0f };
+	glm::vec3 u = {};
+	datas.GetPrivateElement("Up", &u);
+	m_up = { u,1.0f };
+	glm::vec3 f = {};
+	datas.GetPrivateElement("Forward", &f);
+	m_forward = { f,1.0f };
+	//glm::vec4 quat ;
+	//datas.GetPrivateElement("m_rotationQuat", static_cast<glm::vec4*>(&quat));
+	//m_rotationQuat = { quat.x,quat.y,quat.z,quat.w };
+
+	glm::vec3 pos = {};
+	datas.GetPublicElement("Position", &pos);
+	SetPosition({ pos,1.0f });
+
+	glm::vec3 rot = {};
+	datas.GetPublicElement("Rotation", &rot);
+	rot *= pi_t<long double> / 180; // deg to rad
+	SetRotation({ rot,1.0f });
+
+	glm::vec3 scale = { 1.0f,1.0f,1.0f };
+	datas.GetPublicElement("Scale", &scale);
+	SetScale({ scale,1.0f });
+}
+
+
+ISerializable* Transform3D::CreateInstance()
+{
+	return std::make_unique<Transform3D>().release();
+};

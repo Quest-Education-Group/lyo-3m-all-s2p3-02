@@ -3,16 +3,19 @@ cmake_minimum_required(VERSION 3.24...4.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
+if(MSVC OR WIN32)
+    add_compile_options(/bigobj)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    set(BUILD_SHARED_LIBS TRUE)
+endif()
 
 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 #set(CMAKE_C_COMPILER "clang" CACHE STRING "C compiler" FORCE)
 #set(CMAKE_CXX_COMPILER "clang++" CACHE STRING "C++ compiler" FORCE)
-set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-
-set(LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-set(RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Game")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Game")
 
 project(FoundryProject)
 
@@ -25,11 +28,10 @@ else()
     add_compile_definitions(RELEASE_BUILD)
 endif()
 
-
 include_directories("Core/")
 
 add_subdirectory(Ore)
-#add_subdirectory(Foundry)
-##add_subdirectory(testLib)
-#add_subdirectory(Editor)
-#add_subdirectory(Game)
+add_subdirectory(Foundry)
+add_subdirectory(Editor)
+add_subdirectory(EditorExe)
+add_subdirectory(Game)
