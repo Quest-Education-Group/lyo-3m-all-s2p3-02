@@ -1,15 +1,13 @@
 #ifndef FOUNDRY_NODEWINDOW__H_
 #define FOUNDRY_NODEWINDOW__H_
 
-#include "NodeViewport.h"
 #include "Define.h"
 #include "Window.h"
+#include "Node2D.h"
 
 #include <string>
 
-class Viewport;
-
-class NodeWindow : public NodeViewport
+class NodeWindow : public Node2D
 {
 public:
     //class Proxy

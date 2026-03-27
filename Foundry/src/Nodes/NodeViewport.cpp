@@ -4,9 +4,29 @@
 #include <glm/fwd.hpp>
 #include <memory>
 
+#include "Servers/GraphicServer.h"
+
 NodeViewport::NodeViewport(std::string const& name) : Node2D(name)
 {
-	m_pViewPort = std::make_unique<Viewport>( );
+	m_pViewPort = std::make_unique<Viewport>();
+	GraphicServer::LoadShaderPrograms(this);
+
+	OnParentChange += [&](Node& n)
+	{
+		if (auto parent = FindFirstParentOfType<NodeWindow>())
+			parent->get().AddViewport(*m_pViewPort);
+	};
+}
+
+void NodeViewport::LoadPrograms()
+{
+	m_geometryProgram.AddShader(&GraphicServer::GetGeoFrag());
+	m_geometryProgram.AddShader(&GraphicServer::GetGeoVert());
+	m_geometryProgram.Load();
+
+	m_ligthProgram.AddShader(&GraphicServer::GetLightVert());
+	m_ligthProgram.AddShader(&GraphicServer::GetLightFrag());
+	m_ligthProgram.Load();
 }
 
 void NodeViewport::OnUpdate(double const delta)

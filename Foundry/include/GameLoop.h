@@ -19,6 +19,7 @@ public:
     virtual ~GameLoop() = default;
 
 protected:
+    virtual void InitServers();
     virtual void UpdateServers();
     virtual void BuildTasksGraph(TaskGraph& graph);
 

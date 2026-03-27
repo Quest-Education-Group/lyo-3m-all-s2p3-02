@@ -2,18 +2,21 @@
 #define GRAPHIC_SERVER__H_
 
 #include "Server.hpp"
-#include "Passes/GeometryPass.h"
-#include "Passes/LightPass.h"
+#include "Shader.h"
+#include "Nodes/NodeViewport.h"
+#include "Nodes/NodeWindow.h"
 
 class Window;
-class NodeWindow;
-class Viewport;
 
 template <>
 struct Command<class GraphicServer>
 {
-    enum class CmdType { OPENWINDOW, CLEAR, PRESENT } Type;
-    NodeWindow* pNodeWindow = nullptr;
+    enum class CmdType { LOADPROGRAMS, OPENWINDOW, CLEAR, PRESENT } Type;
+    union
+    {
+        NodeWindow* pNodeWindow = nullptr;
+        NodeViewport* pNodeViewport;
+    };
 };
 
 class GraphicServer : public Server<GraphicServer>
@@ -24,15 +27,26 @@ public:
     static void OpenWindow(NodeWindow* pWindow);
     static void Present(NodeWindow* pWindow);
     static void Clear(NodeWindow* pWindow);
+    static void LoadShaderPrograms(NodeViewport* pViewport);
+
+    static Shader& GetGeoVert() { return Instance().m_geoVert; }
+    static Shader& GetGeoFrag() { return Instance().m_geoFrag; }
+    static Shader& GetLightVert() { return Instance().m_lightVert; }
+    static Shader& GetLightFrag() { return Instance().m_geoFrag; }
 
 private:
     void FlushCommandsImpl() override;
     void BuildTasksImpl(TaskGraph& graph) override;
 	void OnInitialize() override;
+    void OnUnInitialize() override;
 
 private:
-    uptr<GeometryPass> m_pGeometryPass;
-    uptr<LightPass> m_pLightPass;
+    //default shaders
+    Shader m_geoVert {ShaderType::TYPE_VERTEX};
+    Shader m_geoFrag {ShaderType::TYPE_FRAGMENT};
+
+    Shader m_lightVert {ShaderType::TYPE_VERTEX};
+    Shader m_lightFrag {ShaderType::TYPE_FRAGMENT};
 };
 
 #endif

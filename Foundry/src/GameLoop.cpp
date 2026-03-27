@@ -16,9 +16,12 @@ void GameLoop::StartGame(SceneTree& defaultTree)
         std::exit(-1);
     }
 
+    InitServers();
+
     m_pDefaultTree = &defaultTree;
     m_pDefaultTree->OnGameStarted();
     m_pDefaultTree->OnSceneChanged();
+
     UpdateServers();
     LoopGame();
 }
@@ -55,6 +58,12 @@ void GameLoop::LoopGame()
 void GameLoop::EndGame()
 {
     m_pDefaultTree->OnGameEnded();
+}
+
+void GameLoop::InitServers()
+{
+    EngineServer::Initialize();
+    GraphicServer::Initialize();
 }
 
 void GameLoop::UpdateServers()

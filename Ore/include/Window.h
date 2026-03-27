@@ -21,7 +21,8 @@ public:
 
     void AddViewport(Viewport& viewport) {m_viewports.push_back(&viewport);} 
     void RemoveViewport(Viewport const& viewport);
-    Viewport* GetViewport(uint32 index) const {return m_viewports[index];}
+    Viewport* GetViewport(uint32 const index) const {return m_viewports[index];}
+    int32 GetViewportsCount() const { return m_viewports.size(); }
     uint32 GetWidth() const { return m_width; }
     uint32 GetHeight() const { return m_height; }
     glm::uvec2 GetSize() const { return { m_width, m_height} ; }

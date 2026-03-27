@@ -55,6 +55,9 @@ public:
 	template <NodeType T>
 	T& GetNode(std::string const& path);
 
+	template <NodeType T>
+	OptionalRef<T> FindFirstParentOfType();
+
 	//Only destroy the node if it has a parent
 	void Destroy();
 	virtual void Reparent(Node& newParent, bool keepGlobalTransform = true);
@@ -174,6 +177,15 @@ T& Node::GetNode(std::string const& path)
     }
 
     return *static_cast<T*>(pNode);
+}
+
+template<NodeType T>
+OptionalRef<T> Node::FindFirstParentOfType()
+{
+	if (m_pOwner == nullptr) return {};
+	if (dynamic_cast<T*>(m_pOwner)) return *static_cast<T*>(m_pOwner);
+
+	return m_pOwner->FindFirstParentOfType<T>();
 }
 
 #include "Scripting/Proxies/NodeProxy.inl"

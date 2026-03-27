@@ -26,7 +26,7 @@ public:
 
     void Clear() const override;
     void Present() const override;
-    
+
     void AddPass(Pass* pPass);
 
 private:

@@ -49,7 +49,7 @@ private:
 
 BindProxy(Node3D::Proxy,
 	return binder.BindClass<Node3D::Proxy>("node3d",
-	sol::base_classes, sol::bases<Node>(),
+	sol::base_classes, sol::bases<Node::Proxy>(),
 	"GetPosition", BIND(GetPosition),
 	"GetX", BIND(GetX),
 	"GetY", BIND(GetY),

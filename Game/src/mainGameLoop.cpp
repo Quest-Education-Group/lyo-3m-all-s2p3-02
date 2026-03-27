@@ -8,8 +8,8 @@ int main()
     uptr<Node> root = Node::CreateNode<NodeWindow>("Root");
     uptr<Node> scene = Node::CreateNode<Node>("Scene");
 
-    //uptr<Node> camera = Node::CreateNode<NodeCamera>("Camera");
-    //scene->AddChild(camera);
+    uptr<Node> camera = Node::CreateNode<NodeCamera>("Camera");
+    scene->AddChild(camera);
 
     //Load this with the default .st file
     root->AddChild(scene);

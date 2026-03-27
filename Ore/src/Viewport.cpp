@@ -8,11 +8,6 @@ Viewport::Viewport(uint16 x, uint16 y, uint16 width, uint16 height, Color const&
     Setup(x, y, width, height, backgroundColor);
 }
 
-void Viewport::AddPass(Pass* pPass)
-{
-    m_pRenderGraph->AddPass(pPass);
-}
-
 void Viewport::Setup(uint16 x, uint16 y, uint16 width, uint16 height, Color const &backgroundColor)
 {
     m_x = x;
@@ -20,7 +15,9 @@ void Viewport::Setup(uint16 x, uint16 y, uint16 width, uint16 height, Color cons
     m_width = width;
     m_height = height;
     m_backgroundColor = backgroundColor;
+
     m_pRenderGraph = std::make_unique<RenderGraph>(width, height);
+    //m_pGeometryPass = std::make_unique<GeometryPass>()
 }
 
 void Viewport::Setup(glm::uvec2 const &pos, glm::uvec2 const &size, Color const &backgroundColor)

@@ -2,11 +2,9 @@
 
 #include "Servers/GraphicServer.h"
 
-NodeWindow::NodeWindow(std::string const& name) : NodeViewport(name)
+NodeWindow::NodeWindow(std::string const& name) : Node2D(name)
 {
     m_pWindow = std::make_unique<Window>(1920, 1080, name);
-    m_pWindow->AddViewport(*m_pViewPort);
-    m_pWindow->onResizeEvent += [&](uint32 const width, uint32 const height) { m_pViewPort->SetSize(width, height); };
     GraphicServer::OpenWindow(this);
 }
 
@@ -17,9 +15,11 @@ NodeWindow::~NodeWindow()
 
 void NodeWindow::OnUpdate(double const delta)
 {
-    if (m_transform.GetDirty())
-        UpdateWindow();
-    NodeViewport::OnUpdate(delta);
+    bool const dirty = m_transform.GetDirty();
+
+    Node2D::OnUpdate(delta);
+    if (dirty) UpdateWindow();
+
     GraphicServer::Clear(this);
     GraphicServer::Present(this);
 }
@@ -48,7 +48,12 @@ void NodeWindow::UpdateWindow() const
 {
     glm::vec2 const& scale = m_transform.GetScale();
     m_pWindow->SetSize(scale.x, scale.y);
-    m_pViewPort->SetSize(scale.x, scale.y);
+
+    int32 viewportsC = m_pWindow->GetViewportsCount();
+
+    for (int8 i = 0; i < viewportsC; i ++)
+        m_pWindow->GetViewport(i)->SetSize(scale.x / viewportsC, (viewportsC + 1) >> 2);
+
 }
 
 void NodeWindow::OpenWindow() const
