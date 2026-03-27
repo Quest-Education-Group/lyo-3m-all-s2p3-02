@@ -12,15 +12,18 @@ int main()
 
 	auto audioEm = Node::CreateNode<NodeAudioEmitter>("AudioEmitter");
 	auto audioEm2 = Node::CreateNode<NodeAudioEmitter>("AudioEmitter2");
+	auto audioEm2_bis = Node::CreateNode<NodeAudioEmitter>("AudioEmitter2_bis");
 
-	audioEm->Load("res/bass-wiggle.mp3", music);
+	audioEm->Load("res/freeman.mp3", music);
 	audioEm2->Load("res/applause.mp3", sfx);
+	audioEm2_bis->Load("res/bass-wiggle.mp3", sfx);
 
-	audioEm->SetLoop(true);
 	audioEm2->SetLoop(true);
+	audioEm2_bis->SetLoop(true);
 
 	audioEm->Play();
 	audioEm2->Play();
+	audioEm2_bis->Play();
 
 	while (true)
 	{
