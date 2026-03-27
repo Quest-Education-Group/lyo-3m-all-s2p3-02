@@ -3,8 +3,24 @@
 
 #include <string>
 #include <vector>
+#include <Define.h>
+#include <Mesh.h>
+#include <Texture.h>
+#include <Passes/LightPass.h>
+#include <Expected.hpp>
 
-class Mesh;
+struct SceneMeshs
+{
+	sptr<Mesh> mesh;
+	std::vector<sptr<Texture>> textureOfMeshes;
+};
+
+struct Scene
+{
+	std::vector<SceneMeshs> meshes;
+	std::vector<Light> lights;
+	// anims
+};
 
 class AssetLoader
 {
@@ -13,10 +29,10 @@ public:
 	{
 		FBX,
 	};
-	static std::vector<Mesh*> LoadMeshFromFile(std::string const& path, AssetLoader::FileType type);
+	static uptr<Scene> LoadSceneFromFile(std::string const& path, AssetLoader::FileType type);
 	
 private:
-	static std::vector<Mesh*> LoadMeshFromFBX(std::string const& path);
+	static uptr<Scene> LoadFBXScene(std::string const& path);
 };
 
 
