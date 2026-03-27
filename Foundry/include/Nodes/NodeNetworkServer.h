@@ -1,25 +1,29 @@
-#ifndef FOUNDRY_NODENETWORK__H_
-#define FOUNDRY_NODENETWORK__H_
+#ifndef FOUNDRY_NODENETWORK_SERVER__H_
+#define FOUNDRY_NODENETWORK_SERVER__H_
+
+#include <thread>
 
 #include "Node.h"
 #include "Servers/NetworkServer.h"
 
-class NodeNetwork : public Node
+class NodeNetworkServer : public Node
 {
 public:
-	NodeNetwork(std::string const& name);
-	~NodeNetwork() override = default;
+	NodeNetworkServer(std::string const& name) : Node(name) {};
+	~NodeNetworkServer() override;
 
 	virtual void OnUpdate(double delta) override;
 
-	bool InitAsClient();
-	bool InitAsServer(uint16 port);
-	void ConnectTo(const char* addressIP, int addressPort);
+	bool Init(uint16 port);
+	void SetNetworkRate(uint16 const rate) { m_networkRate = rate; }
 
-	ENetAddress const& GetAddress() const;
+private:
+	void EventLoop();
 
 protected:
-	NetworkType m_networkType;
+	bool m_threadRunning = false;
+	uint16 m_networkRate = 500;
+	std::thread m_thread;
 };
 
 #endif
