@@ -70,26 +70,13 @@ const GeoInfo& GeometryFactory::GetGeometry(PrimitivesType type)
 	return insertedIt->second;
 }
 
-void GeometryFactory::MakeCube(float width, float height, float depth)
+GeoInfo GeometryFactory::MakeCube(float width, float height, float depth)
 {
 	GeoInfo cubeInfo(CreateCubeVertices(width, height, depth), CreateCubeIndices());
 	m_GeoInfo[PrimitivesType::CUBE] = std::move(cubeInfo);
+	return m_GeoInfo[PrimitivesType::CUBE];
 }
 
-void GeometryFactory::MakeSphere(float radius, uint32 subdivisions)
-{
-	m_GeoInfo[PrimitivesType::SPHERE] = CreateSphere(radius, subdivisions);
-}
-
-void GeometryFactory::MakeCylinder(float radius, float height, uint32 radialSegments, uint32 heightSegments)
-{
-	m_GeoInfo[PrimitivesType::CYLINDER] = CreateCylinder(radius, height, radialSegments, heightSegments);
-}
-
-void GeometryFactory::MakeCapsule(float radius, float height, uint32 radialSegments, uint32 heightSegments, uint32 capSegments)
-{
-	m_GeoInfo[PrimitivesType::CAPSULE] = CreateCapsule(radius, height, radialSegments, heightSegments, capSegments);
-}
 
 std::vector<Vertex> GeometryFactory::CreateCubeVertices(float width, float height, float depth)
 {
@@ -236,6 +223,7 @@ GeoInfo GeometryFactory::CreateSphere(float radius, uint32 subdivisions)
 	return geo;
 }
 
+// Height Segement = 1 => 2 rings of vertices (top and bottom) + 1 center vertex for each cap
 GeoInfo GeometryFactory::CreateCylinder(float radius, float height, uint32 radialSegments, uint32 heightSegments)
 {
 	radialSegments = std::max(radialSegments, 3u);
@@ -346,6 +334,8 @@ GeoInfo GeometryFactory::CreateCylinder(float radius, float height, uint32 radia
 	return geo;
 }
 
+
+// Height Segement = 1 => 2 rings of vertices (top and bottom) + 1 center vertex for each cap
 GeoInfo GeometryFactory::CreateCapsule(float radius, float height, uint32 radialSegments, uint32 heightSegments, uint32 capSegments)
 {
 	radialSegments = std::max(radialSegments, 3u);
@@ -395,7 +385,7 @@ GeoInfo GeometryFactory::CreateCapsule(float radius, float height, uint32 radial
 		}
 	}
 
-	// Top cap rings (excluding equator)
+	// Top cap rings
 	std::vector<uint32> topCapRings;
 	topCapRings.reserve(capSegments);
 	for (uint32 stack = 1u; stack < capSegments; ++stack)
@@ -423,7 +413,7 @@ GeoInfo GeometryFactory::CreateCapsule(float radius, float height, uint32 radial
 	const uint32 topPoleIndex = static_cast<uint32>(vertices.size());
 	vertices.push_back({ { 0.0f, halfCylinderHeight + radius, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.5f, computeV(halfCylinderHeight + radius) } });
 
-	// Bottom cap rings (excluding equator)
+	// Bottom cap rings
 	std::vector<uint32> bottomCapRings;
 	bottomCapRings.reserve(capSegments);
 	for (uint32 stack = 1u; stack < capSegments; ++stack)
