@@ -56,6 +56,12 @@ const GeoInfo& GeometryFactory::GetGeometry(PrimitivesType type)
 	case PrimitivesType::SPHERE:
 		geo = CreateSphere(0.5f, 3u);
 		break;
+	case PrimitivesType::CYLINDER:
+		geo = CreateCylinder(0.5f, 1.0f, 32u, 1u);
+		break;
+	case PrimitivesType::CAPSULE:
+		geo = CreateCapsule(0.5f, 1.0f, 32u, 1u, 4u);
+		break;
 	default:
 		throw std::runtime_error("Not implemented");
 	}
@@ -73,6 +79,16 @@ void GeometryFactory::MakeCube(float width, float height, float depth)
 void GeometryFactory::MakeSphere(float radius, uint32 subdivisions)
 {
 	m_GeoInfo[PrimitivesType::SPHERE] = CreateSphere(radius, subdivisions);
+}
+
+void GeometryFactory::MakeCylinder(float radius, float height, uint32 radialSegments, uint32 heightSegments)
+{
+	m_GeoInfo[PrimitivesType::CYLINDER] = CreateCylinder(radius, height, radialSegments, heightSegments);
+}
+
+void GeometryFactory::MakeCapsule(float radius, float height, uint32 radialSegments, uint32 heightSegments, uint32 capSegments)
+{
+	m_GeoInfo[PrimitivesType::CAPSULE] = CreateCapsule(radius, height, radialSegments, heightSegments, capSegments);
 }
 
 std::vector<Vertex> GeometryFactory::CreateCubeVertices(float width, float height, float depth)
@@ -147,20 +163,9 @@ GeoInfo GeometryFactory::CreateSphere(float radius, uint32 subdivisions)
 	const float phi = (1.0f + std::sqrt(5.0f)) * 0.5f;
 
 	std::vector<glm::vec3> positions = {
-		{ -1.0f,  phi, 0.0f }, 
-		{  1.0f,  phi, 0.0f }, 
-		{ -1.0f, -phi, 0.0f }, 
-		{  1.0f, -phi, 0.0f },
-
-		{  0.0f, -1.0f,  phi }, 
-		{  0.0f,  1.0f,  phi }, 
-		{  0.0f, -1.0f, -phi }, 
-		{  0.0f,  1.0f, -phi },
-
-		{  phi, 0.0f, -1.0f }, 
-		{  phi, 0.0f,  1.0f }, 
-		{ -phi, 0.0f, -1.0f }, 
-		{ -phi, 0.0f,  1.0f }
+		{ -1.0f,  phi, 0.0f }, {  1.0f,  phi, 0.0f }, { -1.0f, -phi, 0.0f }, {  1.0f, -phi, 0.0f },
+		{  0.0f, -1.0f,  phi }, {  0.0f,  1.0f,  phi }, {  0.0f, -1.0f, -phi }, {  0.0f,  1.0f, -phi },
+		{  phi, 0.0f, -1.0f }, {  phi, 0.0f,  1.0f }, { -phi, 0.0f, -1.0f }, { -phi, 0.0f,  1.0f }
 	};
 
 	for (glm::vec3& pos : positions)
@@ -228,5 +233,275 @@ GeoInfo GeometryFactory::CreateSphere(float radius, uint32 subdivisions)
 		geo.m_vertices.push_back({ scaledPos, normal, { u, v } });
 	}
 
+	return geo;
+}
+
+GeoInfo GeometryFactory::CreateCylinder(float radius, float height, uint32 radialSegments, uint32 heightSegments)
+{
+	radialSegments = std::max(radialSegments, 3u);
+	heightSegments = std::max(heightSegments, 1u);
+
+	const float halfHeight = height * 0.5f;
+	const uint32 ringStride = radialSegments + 1u;
+	const float invRadial = 1.0f / static_cast<float>(radialSegments);
+	const float invHeight = 1.0f / static_cast<float>(heightSegments);
+
+	std::vector<Vertex> vertices;
+	vertices.reserve((heightSegments + 1u) * ringStride + (radialSegments + 1u) * 2u + 2u);
+
+	std::vector<uint32> indices;
+	indices.reserve(radialSegments * heightSegments * 6u + radialSegments * 6u);
+
+	// Mantle
+	for (uint32 ySegment = 0; ySegment <= heightSegments; ++ySegment)
+	{
+		const float v = static_cast<float>(ySegment) * invHeight;
+		const float y = -halfHeight + v * height;
+
+		for (uint32 r = 0; r <= radialSegments; ++r)
+		{
+			const float u = static_cast<float>(r) * invRadial;
+			const float angle = u * glm::two_pi<float>();
+			const float cosTheta = std::cos(angle);
+			const float sinTheta = std::sin(angle);
+
+			glm::vec3 normal(cosTheta, 0.0f, sinTheta);
+			glm::vec3 position(radius * cosTheta, y, radius * sinTheta);
+			vertices.push_back({ position, normal, { u, 1.0f - v } });
+		}
+	}
+
+	for (uint32 ySegment = 0; ySegment < heightSegments; ++ySegment)
+	{
+		for (uint32 r = 0; r < radialSegments; ++r)
+		{
+			const uint32 current = ySegment * ringStride + r;
+			const uint32 next = current + ringStride;
+
+			indices.push_back(current);
+			indices.push_back(next);
+			indices.push_back(current + 1u);
+
+			indices.push_back(current + 1u);
+			indices.push_back(next);
+			indices.push_back(next + 1u);
+		}
+	}
+
+	// Top cap
+	const uint32 topCenterIndex = static_cast<uint32>(vertices.size());
+	vertices.push_back({ { 0.0f, halfHeight, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.5f, 0.5f } });
+
+	const uint32 topRingStart = static_cast<uint32>(vertices.size());
+	for (uint32 r = 0; r <= radialSegments; ++r)
+	{
+		const float u = static_cast<float>(r) * invRadial;
+		const float angle = u * glm::two_pi<float>();
+		const float cosTheta = std::cos(angle);
+		const float sinTheta = std::sin(angle);
+
+		glm::vec3 position(radius * cosTheta, halfHeight, radius * sinTheta);
+		glm::vec2 uv(cosTheta * 0.5f + 0.5f, sinTheta * 0.5f + 0.5f);
+		vertices.push_back({ position, { 0.0f, 1.0f, 0.0f }, uv });
+	}
+
+	for (uint32 r = 0; r < radialSegments; ++r)
+	{
+		const uint32 curr = topRingStart + r;
+		const uint32 next = topRingStart + r + 1u;
+		indices.push_back(topCenterIndex);
+		indices.push_back(curr);
+		indices.push_back(next);
+	}
+
+	// Bottom cap
+	const uint32 bottomCenterIndex = static_cast<uint32>(vertices.size());
+	vertices.push_back({ { 0.0f, -halfHeight, 0.0f }, { 0.0f, -1.0f, 0.0f }, { 0.5f, 0.5f } });
+
+	const uint32 bottomRingStart = static_cast<uint32>(vertices.size());
+	for (uint32 r = 0; r <= radialSegments; ++r)
+	{
+		const float u = static_cast<float>(r) * invRadial;
+		const float angle = u * glm::two_pi<float>();
+		const float cosTheta = std::cos(angle);
+		const float sinTheta = std::sin(angle);
+
+		glm::vec3 position(radius * cosTheta, -halfHeight, radius * sinTheta);
+		glm::vec2 uv(cosTheta * 0.5f + 0.5f, sinTheta * 0.5f + 0.5f);
+		vertices.push_back({ position, { 0.0f, -1.0f, 0.0f }, uv });
+	}
+
+	for (uint32 r = 0; r < radialSegments; ++r)
+	{
+		const uint32 curr = bottomRingStart + r;
+		const uint32 next = bottomRingStart + r + 1u;
+		indices.push_back(bottomCenterIndex);
+		indices.push_back(next);
+		indices.push_back(curr);
+	}
+
+	GeoInfo geo;
+	geo.m_vertices = std::move(vertices);
+	geo.m_indices = std::move(indices);
+	return geo;
+}
+
+GeoInfo GeometryFactory::CreateCapsule(float radius, float height, uint32 radialSegments, uint32 heightSegments, uint32 capSegments)
+{
+	radialSegments = std::max(radialSegments, 3u);
+	heightSegments = std::max(heightSegments, 1u);
+	capSegments = std::max(capSegments, 1u);
+
+	const float halfCylinderHeight = height * 0.5f;
+	const float capsuleHalfHeight = halfCylinderHeight + radius;
+	const float totalHeight = capsuleHalfHeight * 2.0f;
+	const float invRadial = 1.0f / static_cast<float>(radialSegments);
+	const uint32 ringStride = radialSegments + 1u;
+
+	std::vector<Vertex> vertices;
+	vertices.reserve((heightSegments + 1u + (capSegments - 1u) * 2u) * ringStride + 2u);
+
+	std::vector<uint32> indices;
+	indices.reserve(radialSegments * (heightSegments + (capSegments - 1u) * 2u) * 6u + radialSegments * 6u);
+
+	std::vector<uint32> cylinderRings;
+	cylinderRings.reserve(heightSegments + 1u);
+
+	auto computeV = [&](float y)
+		{
+			const float normalized = (y + capsuleHalfHeight) / totalHeight;
+			return 1.0f - normalized;
+		};
+
+	// Cylinder rings
+	for (uint32 ySegment = 0; ySegment <= heightSegments; ++ySegment)
+	{
+		const float t = static_cast<float>(ySegment) / static_cast<float>(heightSegments);
+		const float y = -halfCylinderHeight + t * height;
+
+		const uint32 ringStart = static_cast<uint32>(vertices.size());
+		cylinderRings.push_back(ringStart);
+
+		for (uint32 r = 0; r <= radialSegments; ++r)
+		{
+			const float u = static_cast<float>(r) * invRadial;
+			const float angle = u * glm::two_pi<float>();
+			const float cosTheta = std::cos(angle);
+			const float sinTheta = std::sin(angle);
+
+			glm::vec3 normal(cosTheta, 0.0f, sinTheta);
+			glm::vec3 position(radius * cosTheta, y, radius * sinTheta);
+			vertices.push_back({ position, normal, { u, computeV(position.y) } });
+		}
+	}
+
+	// Top cap rings (excluding equator)
+	std::vector<uint32> topCapRings;
+	topCapRings.reserve(capSegments);
+	for (uint32 stack = 1u; stack < capSegments; ++stack)
+	{
+		const float t = static_cast<float>(stack) / static_cast<float>(capSegments);
+		const float sinTheta = std::sin(t * glm::half_pi<float>());
+		const float cosTheta = std::cos(t * glm::half_pi<float>());
+
+		const uint32 ringStart = static_cast<uint32>(vertices.size());
+		topCapRings.push_back(ringStart);
+
+		for (uint32 r = 0; r <= radialSegments; ++r)
+		{
+			const float u = static_cast<float>(r) * invRadial;
+			const float angle = u * glm::two_pi<float>();
+			const float cosPhi = std::cos(angle);
+			const float sinPhi = std::sin(angle);
+
+			glm::vec3 normal = glm::normalize(glm::vec3(cosPhi * cosTheta, sinTheta, sinPhi * cosTheta));
+			glm::vec3 position(radius * normal.x, halfCylinderHeight + radius * normal.y, radius * normal.z);
+			vertices.push_back({ position, normal, { u, computeV(position.y) } });
+		}
+	}
+
+	const uint32 topPoleIndex = static_cast<uint32>(vertices.size());
+	vertices.push_back({ { 0.0f, halfCylinderHeight + radius, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.5f, computeV(halfCylinderHeight + radius) } });
+
+	// Bottom cap rings (excluding equator)
+	std::vector<uint32> bottomCapRings;
+	bottomCapRings.reserve(capSegments);
+	for (uint32 stack = 1u; stack < capSegments; ++stack)
+	{
+		const float t = static_cast<float>(stack) / static_cast<float>(capSegments);
+		const float sinTheta = std::sin(t * glm::half_pi<float>());
+		const float cosTheta = std::cos(t * glm::half_pi<float>());
+
+		const uint32 ringStart = static_cast<uint32>(vertices.size());
+		bottomCapRings.push_back(ringStart);
+
+		for (uint32 r = 0; r <= radialSegments; ++r)
+		{
+			const float u = static_cast<float>(r) * invRadial;
+			const float angle = u * glm::two_pi<float>();
+			const float cosPhi = std::cos(angle);
+			const float sinPhi = std::sin(angle);
+
+			glm::vec3 normal = glm::normalize(glm::vec3(cosPhi * cosTheta, -sinTheta, sinPhi * cosTheta));
+			glm::vec3 position(radius * normal.x, -halfCylinderHeight + radius * normal.y, radius * normal.z);
+			vertices.push_back({ position, normal, { u, computeV(position.y) } });
+		}
+	}
+
+	const uint32 bottomPoleIndex = static_cast<uint32>(vertices.size());
+	vertices.push_back({ { 0.0f, -(halfCylinderHeight + radius), 0.0f }, { 0.0f, -1.0f, 0.0f }, { 0.5f, computeV(-(halfCylinderHeight + radius)) } });
+
+	auto appendStrip = [&](uint32 lowerStart, uint32 upperStart)
+		{
+			for (uint32 r = 0; r < radialSegments; ++r)
+			{
+				indices.push_back(lowerStart + r);
+				indices.push_back(upperStart + r);
+				indices.push_back(lowerStart + r + 1u);
+
+				indices.push_back(lowerStart + r + 1u);
+				indices.push_back(upperStart + r);
+				indices.push_back(upperStart + r + 1u);
+			}
+		};
+
+	for (uint32 segment = 0; segment < heightSegments; ++segment)
+	{
+		appendStrip(cylinderRings[segment], cylinderRings[segment + 1u]);
+	}
+
+	uint32 previousRing = cylinderRings.back();
+	for (uint32 ringStart : topCapRings)
+	{
+		appendStrip(previousRing, ringStart);
+		previousRing = ringStart;
+	}
+
+	const uint32 topFanRing = previousRing;
+	for (uint32 r = 0; r < radialSegments; ++r)
+	{
+		indices.push_back(topFanRing + r);
+		indices.push_back(topFanRing + r + 1u);
+		indices.push_back(topPoleIndex);
+	}
+
+	uint32 upperRing = cylinderRings.front();
+	for (uint32 ringStart : bottomCapRings)
+	{
+		appendStrip(ringStart, upperRing);
+		upperRing = ringStart;
+	}
+
+	const uint32 bottomFanRing = bottomCapRings.empty() ? cylinderRings.front() : bottomCapRings.back();
+	for (uint32 r = 0; r < radialSegments; ++r)
+	{
+		indices.push_back(bottomPoleIndex);
+		indices.push_back(bottomFanRing + r + 1u);
+		indices.push_back(bottomFanRing + r);
+	}
+
+	GeoInfo geo;
+	geo.m_vertices = std::move(vertices);
+	geo.m_indices = std::move(indices);
 	return geo;
 }

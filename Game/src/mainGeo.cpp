@@ -7,9 +7,9 @@
 #include "Program.h"
 #include "Shader.h"
 
-
 #include <GeometryFactory.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
 
 
 int main()
@@ -21,15 +21,15 @@ int main()
     window.AddViewport(viewport);
 
 
-    const GeoInfo& tmpcube = GeometryFactory::GetGeometry(PrimitivesType::SPHERE);
-    const GeoInfo& tmpcube1 = GeometryFactory::GetGeometry(PrimitivesType::SPHERE);
-    const GeoInfo& tmpcube2 = GeometryFactory::GetGeometry(PrimitivesType::SPHERE);
-    const GeoInfo& tmpcube3 = GeometryFactory::GetGeometry(PrimitivesType::SPHERE);
+    const GeoInfo& tmpcube = GeometryFactory::GetGeometry(PrimitivesType::CUBE);
+    const GeoInfo& tmpsphere = GeometryFactory::GetGeometry(PrimitivesType::SPHERE);
+    const GeoInfo& tmpcylinder = GeometryFactory::GetGeometry(PrimitivesType::CYLINDER);
+    const GeoInfo& tmpcapsule = GeometryFactory::GetGeometry(PrimitivesType::CAPSULE);
 
     Geometry cube(tmpcube.m_vertices, tmpcube.m_indices);
-    Geometry cube1(tmpcube1.m_vertices, tmpcube1.m_indices);
-    Geometry cube2(tmpcube2.m_vertices, tmpcube2.m_indices);
-    Geometry cube3(tmpcube3.m_vertices, tmpcube3.m_indices);
+    Geometry sphere(tmpsphere.m_vertices, tmpsphere.m_indices);
+    Geometry cylinder(tmpcylinder.m_vertices, tmpcylinder.m_indices);
+    Geometry capsule(tmpcapsule.m_vertices, tmpcapsule.m_indices);
     
     Texture diffuse("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
     Texture specular("res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
@@ -48,9 +48,9 @@ int main()
 
     Mesh mesh(cube, textures, glm::mat4(1.0f));
     Mesh mesh1(cube, textures, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    Mesh mesh2(cube1, textures, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-    Mesh mesh3(cube2, textures, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-    Mesh mesh4(cube3, textures, glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)));
+    Mesh mesh2(sphere, textures, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+    Mesh mesh3(cylinder, textures, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+    Mesh mesh4(capsule, textures, glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 0.0f, 0.0f)));
     
     glm::vec3 position(0.0f, 0.0f, 5.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
@@ -68,7 +68,7 @@ int main()
     meshes.push_back(&mesh3);
     meshes.push_back(&mesh4);
     meshes.push_back(&mesh1);
-
+ 
     std::vector<glm::mat4> baseTransforms;
     baseTransforms.reserve(meshes.size());
     baseTransforms.push_back(centerTransform);
@@ -76,6 +76,25 @@ int main()
     baseTransforms.push_back(upTransform);
     baseTransforms.push_back(leftTransform);
     baseTransforms.push_back(downTransform);
+
+    std::vector<float> rotationAngles(meshes.size(), 0.0f);
+    std::vector<float> rotationSpeeds = {
+        glm::radians(45.0f),
+        glm::radians(60.0f),
+        glm::radians(90.0f),
+        glm::radians(30.0f),
+        glm::radians(75.0f)
+    };
+    rotationSpeeds.resize(meshes.size(), glm::radians(45.0f));
+
+    std::vector<glm::vec3> rotationAxes = {
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::normalize(glm::vec3(0.35f, 1.0f, 0.1f)),
+        glm::vec3(1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f),
+        glm::normalize(glm::vec3(0.2f, 1.0f, 0.5f))
+    };
+    rotationAxes.resize(meshes.size(), glm::vec3(0.0f, 1.0f, 0.0f));
 
 
     std::vector<Light> lights;
@@ -130,23 +149,25 @@ int main()
     viewport.AddPass(&geoPass);
     viewport.AddPass(&lightPass);
 
-    float rotationAngle = 0.0f;
-    const glm::vec3 rotationAxis = glm::normalize(glm::vec3(0.45f, 1.0f, 0.2f));
-    constexpr float rotationSpeed = 0.01f;
+    float lastTime = static_cast<float>(glfwGetTime());
+ 
+     while (window.IsOpen())
+     {
+         window.Clear();
+ 
+        const float currentTime = static_cast<float>(glfwGetTime());
+        const float deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
 
-    while (window.IsOpen())
-    {
-        window.Clear();
-
-        rotationAngle += rotationSpeed;
-        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), rotationAngle, rotationAxis);
         for (size_t i = 0; i < meshes.size(); ++i)
         {
-            meshes[i]->SetTransform(rotation * baseTransforms[i]);
+            rotationAngles[i] += rotationSpeeds[i] * deltaTime;
+            const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), rotationAngles[i], rotationAxes[i]);
+            meshes[i]->SetTransform(baseTransforms[i] * rotation);
         }
-
-        window.Present();
-    }
+ 
+         window.Present();
+     }
     geometryProgram.Unload();
     lightProgram.Unload();
 
