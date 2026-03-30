@@ -37,7 +37,8 @@ public:
 	static std::vector<AudioChannel*>& GetChannels() { return Instance().m_channels; };
 
 protected:
-	ma_engine m_soundEngine{};
+	ma_engine m_soundEngine;
+	ma_engine_config m_soundEngineConfig;
 	std::vector<AudioChannel*> m_channels;
 
 	float m_masterVolume = 1.f;

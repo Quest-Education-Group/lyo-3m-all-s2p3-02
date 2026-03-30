@@ -16,6 +16,11 @@ public:
 	void Stop();
 	void SetLoop(bool value);
 
+	void SetSourcePosition(ma_vec3f position);
+	ma_vec3f GetSourcePosition();
+
+	bool IsPlaying() { return m_isPlaying; };
+
 	virtual void OnUpdate(double delta) override;
 
 	static ISerializable* CreateInstance();

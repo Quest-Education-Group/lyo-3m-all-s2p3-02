@@ -4,6 +4,9 @@
 
 bool AudioServer::Init()
 {
+    Instance().m_soundEngineConfig = ma_engine_config_init();
+    Instance().m_soundEngineConfig.listenerCount = 2;
+    
     if (ma_engine_init(NULL, &Instance().m_soundEngine) != MA_SUCCESS)
     {
         printf("Failed to init audio engine\n");
@@ -20,7 +23,7 @@ void AudioServer::Shutdown()
     {
         ma_sound_group_uninit(&channel->soundGroup);
     }
-
+    //ma_engine_config config = ma_engine_config_init();
     ma_engine_uninit(&Instance().m_soundEngine);
 }
 
