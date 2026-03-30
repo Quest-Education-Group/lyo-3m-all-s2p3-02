@@ -22,14 +22,14 @@ uptr<Scene> AssetLoader::LoadSceneFromFile(std::string const& path, AssetLoader:
 
 uptr<Scene> AssetLoader::LoadFBXScene(std::string const& path)
 {
-	uptr<FBXLoader::SceneData> fbxScene = FBXLoader::LoadFile(path);
+	sptr<FBXLoader::SceneData> fbxScene = FBXLoader::LoadFile(path);
 	Scene outScene = {};
 	outScene.meshes.reserve(fbxScene->meshs.size());
 	for (uint32 i = 0; i < fbxScene->nodes.size(); ++i)
 	{
-		for (uint32 meshCount = 0; meshCount < fbxScene->nodes[i].meshesNames.size(); ++meshCount)
+		for (uint32 meshCount = 0; meshCount < fbxScene->nodes[i]->meshesIndex.size(); ++meshCount)
 		{
-			FBXLoader::Mesh mesh = fbxScene->meshs[fbxScene->nodes[i].meshesNames[meshCount]];
+			FBXLoader::Mesh mesh = *fbxScene->meshs[fbxScene->nodes[i]->meshesIndex[meshCount]];
 			Geometry geo = Geometry(mesh.vertices, mesh.indices);
 			std::vector<sptr<Texture>> texts = {};
 			std::vector<Texture*> meshcreationTexts = {};
@@ -60,10 +60,10 @@ uptr<Scene> AssetLoader::LoadFBXScene(std::string const& path)
 
 			}
 
-			glm::mat4x4 mat = fbxScene->nodes[i].transform;
-
+			glm::mat4x4 mat = fbxScene->nodes[i]->transform;
+			//mat = glm::scale(mat, { 0.1f,0.1f,0.1f });
 			SceneMeshs outMesh = {};
-			outMesh.mesh = std::make_shared<Mesh>(geo, meshcreationTexts, glm::mat4x4{1.0f});
+			outMesh.mesh = std::make_shared<Mesh>(geo, meshcreationTexts, mat);
 			outMesh.textureOfMeshes = texts;
 
 			outScene.meshes.push_back(outMesh);

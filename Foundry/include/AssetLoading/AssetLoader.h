@@ -1,26 +1,9 @@
 #ifndef FOUNDRY_ASSET_LOADER_H__
 #define FOUNDRY_ASSET_LOADER_H__
 
-#include <string>
-#include <vector>
 #include <Define.h>
-#include <Mesh.h>
-#include <Texture.h>
-#include <Passes/LightPass.h>
 #include <Expected.hpp>
-
-struct SceneMeshs
-{
-	sptr<Mesh> mesh;
-	std::vector<sptr<Texture>> textureOfMeshes;
-};
-
-struct Scene
-{
-	std::vector<SceneMeshs> meshes;
-	std::vector<Light> lights;
-	// anims
-};
+#include "AssetLoading/AssetsStructs.h"
 
 class AssetLoader
 {

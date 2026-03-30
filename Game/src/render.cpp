@@ -105,9 +105,7 @@ int main()
     lightVert.Unload();
 
     lightProgram.Use();
-    //lightProgram.SetUniform("gPosition", 0);
-    //lightProgram.SetUniform("gNormal", 1);
-    //lightProgram.SetUniform("gAlbedoSpec", 2);
+
 
     GeometryPass geoPass(geometryProgram, meshes, camera);
     LightPass lightPass(lightProgram, lights, camera);
