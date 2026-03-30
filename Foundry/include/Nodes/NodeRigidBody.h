@@ -30,6 +30,10 @@ public:
 	void DestroyRigidBody(NodeRigidBody& rigidBody);
 
 	virtual void OnUpdate(double delta) override;
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
+	static ISerializable* CreateInstance();
+
 
 	void SetNode3DParent(Node3D* owner);
 	rp3d::RigidBody* GetRigidBody() { return m_pRigidBody; }

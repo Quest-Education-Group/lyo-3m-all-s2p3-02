@@ -23,8 +23,9 @@ public:
 
 	// Engine
 	////////////////////////////////////////////////////////////
-
-
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
+	static ISerializable* CreateInstance();
 
 	// =========== Local transform (offset from RigidBody) ===========
 
@@ -65,9 +66,9 @@ protected:
 	virtual void      DestroyShape() = 0;
 	rp3d::Transform   GetLocalRp3dTransform() const;
 
-	rp3d::Collider* m_pCollider		= nullptr;
-	rp3d::CollisionShape* m_pShape	= nullptr;  
-	rp3d::RigidBody* m_pRigidBody	= nullptr;
+	rp3d::Collider* m_pCollider = nullptr;
+	rp3d::CollisionShape* m_pShape = nullptr;
+	rp3d::RigidBody* m_pRigidBody = nullptr;
 
 	NodeRigidBody* m_pAttachedRigidBody = nullptr;
 
@@ -78,35 +79,55 @@ protected:
 
 	friend class PhysicsServer;
 };
+
+
 class NodeBoxCollider : public NodeCollider
 {
 public:
 	NodeBoxCollider(std::string const& name) : NodeCollider(name) {};
 	~NodeBoxCollider() override {};
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
+	static ISerializable* CreateInstance();
+
 	void SetShape(const glm::vec3& halfExtents);
 private:
 	virtual void DestroyShape() override;
 };
+
 class NodeSphereCollider : public NodeCollider
 {
 public:
 	NodeSphereCollider(std::string const& name) : NodeCollider(name) {};
 	~NodeSphereCollider() override {};
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
+	static ISerializable* CreateInstance();
+
 	void SetShape(float radius);
 private:
 	virtual void DestroyShape() override;
 };
+
 class NodeCapsuleCollider : public NodeCollider
 {
 public:
 	NodeCapsuleCollider(std::string const& name) : NodeCollider(name) {};
 	~NodeCapsuleCollider() override {};
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
+	static ISerializable* CreateInstance();
+
 	void SetShape(float radius, float height);
 private:
 	virtual void DestroyShape() override;
 };
 
 REGISTER_ISERIALIZABLE(NodeCollider, NodeCollider::CreateInstance);
+REGISTER_ISERIALIZABLE(NodeBoxCollider, NodeBoxCollider::CreateInstance);
+REGISTER_ISERIALIZABLE(NodeSphereCollider, NodeSphereCollider::CreateInstance);
+REGISTER_ISERIALIZABLE(NodeCapsuleCollider, NodeCapsuleCollider::CreateInstance);
+
 
 #include "Scripting/Proxies/NodeColliderProxy.inl"
 

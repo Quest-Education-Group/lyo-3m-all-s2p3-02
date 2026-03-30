@@ -1,4 +1,5 @@
 #include "Nodes/NodeCollider.h"
+#include "Serialization/SerializeObject.hpp"
 
 #include "Servers/PhysicsServer.h"
 
@@ -66,7 +67,7 @@ void NodeCollider::Detach()
 
 void NodeCollider::SetBounciness(float v)
 {
-	if (v > 1.0f) v = v/100;
+	if (v > 1.0f) v = v / 100;
 	if (v > 1.0f) v = 1.0f;
 	if (v < 0.0f) v = 0.0f;
 
@@ -123,7 +124,7 @@ bool NodeCollider::IsWorldQueryCollider() const
 
 void NodeCollider::SetCollisionCategoryBits(uint16_t v)
 {
-	if (m_pCollider) 
+	if (m_pCollider)
 		PhysicsServer::SetCollisionCategoryBits(v, *this);
 }
 uint16_t NodeCollider::GetCollisionCategoryBits() const
@@ -139,6 +140,22 @@ uint16_t NodeCollider::GetCollisionBitsMask() const
 	return m_pCollider ? m_pCollider->getCollideWithMaskBits() : 0xFFFF;
 }
 
+//TODO
+void NodeCollider::Serialize(SerializedObject& datas) const
+{
+	Node3D::Serialize(datas);
+	datas.SetType("NodeCollider");
+}
+
+void NodeCollider::Deserialize(SerializedObject const& datas)
+{
+	Node3D::Deserialize(datas);
+}
+
+ISerializable* NodeCollider::CreateInstance()
+{
+	return CreateNode<NodeCollider>("NodeCollider").release();
+}
 
 
 void NodeBoxCollider::SetShape(const glm::vec3& halfExtents)
@@ -150,20 +167,68 @@ void NodeBoxCollider::DestroyShape()
 	PhysicsServer::GetPhysicsCommon().destroyBoxShape(static_cast<rp3d::BoxShape*>(m_pShape));
 }
 
+void NodeBoxCollider::Serialize(SerializedObject& datas) const
+{
+	NodeCollider::Serialize(datas);
+	datas.SetType("NodeBoxCollider");
+}
+
+void NodeBoxCollider::Deserialize(SerializedObject const& datas)
+{
+	NodeCollider::Deserialize(datas);
+}
+
+
+ISerializable* NodeBoxCollider::CreateInstance()
+{
+	return CreateNode<NodeBoxCollider>("NodeBoxCollider").release();
+}
+
+
 void NodeSphereCollider::SetShape(float radius)
 {
 	PhysicsServer::SetSphereShape(radius, *this);
 }
+
 void NodeSphereCollider::DestroyShape()
 {
 	PhysicsServer::GetPhysicsCommon().destroySphereShape(static_cast<rp3d::SphereShape*>(m_pShape));
+}
+
+void NodeSphereCollider::Serialize(SerializedObject& datas) const
+{
+	NodeCollider::Serialize(datas);
+	datas.SetType("NodeSphereCollider");
+}
+void NodeSphereCollider::Deserialize(SerializedObject const& datas)
+{
+	NodeCollider::Deserialize(datas);
+}
+ISerializable* NodeSphereCollider::CreateInstance()
+{
+	return CreateNode<NodeSphereCollider>("NodeSphereCollider").release();
 }
 
 void NodeCapsuleCollider::SetShape(float radius, float height)
 {
 	PhysicsServer::SetCapsuleShape(radius, height, *this);
 }
+
 void NodeCapsuleCollider::DestroyShape()
 {
 	PhysicsServer::GetPhysicsCommon().destroyCapsuleShape(static_cast<rp3d::CapsuleShape*>(m_pShape));
+}
+
+void NodeCapsuleCollider::Serialize(SerializedObject& datas) const
+{
+	NodeCollider::Serialize(datas);
+	datas.SetType("NodeCapsuleCollider");
+}
+void NodeCapsuleCollider::Deserialize(SerializedObject const& datas)
+{
+	NodeCollider::Deserialize(datas);
+}
+ISerializable* NodeCapsuleCollider::CreateInstance()
+{
+	return CreateNode<NodeCapsuleCollider>("NodeCapsuleCollider").release();
 }

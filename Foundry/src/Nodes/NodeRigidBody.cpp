@@ -1,4 +1,5 @@
 #include "Nodes/NodeRigidBody.h"
+#include "Serialization/SerializeObject.hpp"
 
 #include "Servers/PhysicsServer.h"
 #include "Nodes/NodeCollider.h"
@@ -73,25 +74,44 @@ void NodeRigidBody::OnUpdate(double delta)
 	}
 }
 
+
+void NodeRigidBody::Serialize(SerializedObject& datas) const
+{
+	Node::Serialize(datas);
+	datas.SetType("NodeRigidBody");
+}
+
+
+void NodeRigidBody::Deserialize(SerializedObject const& datas)
+{
+	Node::Deserialize(datas);
+}
+
+ISerializable* NodeRigidBody::CreateInstance()
+{
+	return CreateNode<NodeRigidBody>("Node3D").release();
+}
+
+
 NodeRigidBody::operator reactphysics3d::Transform()
 {
 	rp3d::Transform reactTr;
 	Node3D* parent = static_cast<Node3D*>(m_pOwner);
 	auto pos = parent->GetWorldPosition();
 	auto rot = parent->GetWorldRotationQuaternion();
-	reactTr.setPosition({ pos.x, pos.y, pos.z});
+	reactTr.setPosition({ pos.x, pos.y, pos.z });
 	reactTr.setOrientation({ rot.x, rot.y, rot.z, rot.w });
 
 	return reactTr;
 }
 
-NodeRigidBody::operator reactphysics3d::Transform*()
+NodeRigidBody::operator reactphysics3d::Transform* ()
 {
 	rp3d::Transform* reactTr = new rp3d::Transform();
 	Node3D* parent = static_cast<Node3D*>(m_pOwner);
 	auto pos = parent->GetWorldPosition();
 	auto rot = parent->GetWorldRotationQuaternion();
-	reactTr->setPosition({ pos.x, pos.y, pos.z});
+	reactTr->setPosition({ pos.x, pos.y, pos.z });
 	reactTr->setOrientation({ rot.x, rot.y, rot.z, rot.w });
 
 	return reactTr;
@@ -137,7 +157,7 @@ float NodeRigidBody::GetMassDensity() const
 void NodeRigidBody::SetBounciness(int colliderIndex, float v)
 {
 	if (m_colliders.empty() || colliderIndex > m_colliders.size()) return;
-	
+
 	m_colliders[colliderIndex]->SetBounciness(v);
 }
 float NodeRigidBody::GetBounciness(int colliderIndex) const

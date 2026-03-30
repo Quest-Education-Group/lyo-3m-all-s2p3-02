@@ -46,8 +46,8 @@ void Editor::Init()
 	std::filesystem::path ScriptStock = "ScriptStock/.foundry";
 	std::filesystem::create_directories(ScriptStock);
 
-	std::filesystem::path source = "../Game/res/foundry.d.lua";
-	std::filesystem::path dest = ScriptStock / "foundry.d.lua";
+	std::filesystem::path source = "../Game/res/.foundry";
+	std::filesystem::path dest = ScriptStock;
 
 	{
 		std::error_code ec;
@@ -56,7 +56,7 @@ void Editor::Init()
 			std::filesystem::copy_file(source, dest, ec);
 			if (ec)
 			{
-				DEBUG("[Editor] WARNING: Couldn't copy foundry.d.lua"
+				DEBUG("[Editor] WARNING: Couldn't copy"
 					<< dest.string() << " : " << ec.message() << std::endl);
 			}
 		}
