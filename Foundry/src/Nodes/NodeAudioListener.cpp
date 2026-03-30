@@ -15,7 +15,7 @@ ma_vec3f NodeAudioListener::GetListenerPosition()
 {
 	ma_engine& soundEngine = AudioServer::GetSoundEngine();
 
-	return ma_engine_listener_get_position(&soundEngine, 0); // index could cause problem, need to automatize index
+	return ma_engine_listener_get_position(&soundEngine, 0); //TODO: index0 could cause problem, need to automatize index
 }
 
 void NodeAudioListener::SetListenerDirection(ma_vec3f position)

@@ -1,22 +1,57 @@
 #include "MixerAudio.h"
 #include <algorithm>
 
-bool MixerAudio::Init()
+static void ReverbProcess(ma_node* pNode, const float** in, ma_uint32* inCount, float** out, ma_uint32* outCount)
 {
-    return true;
+    ReverbEntry* r = (ReverbEntry*)pNode; 
+    static const int cd[] = { 1557,1617,1491,1422 };
+    static const int ad[] = { 556, 441 };
+
+    for (ma_uint32 i = 0; i < *outCount; i++)
+    {
+        float s = (in[0][i * 2] + in[0][i * 2 + 1]) * 0.5f, w = 0;
+
+        for (int c = 0; c < 4; c++) 
+        {
+            float d = r->comb[c][r->ci[c]];
+            r->comb[c][r->ci[c]] = s + d * r->roomSize;
+            r->ci[c] = (r->ci[c] + 1) % cd[c];
+            w += d;
+        }
+        w *= 0.25f;
+        for (int a = 0; a < 2; a++) 
+        {
+            float d = r->ap[a][r->ai[a]], x = w + d * 0.5f;
+            r->ap[a][r->ai[a]] = x;
+            r->ai[a] = (r->ai[a] + 1) % ad[a];
+            w = d - x * 0.5f;
+        }
+
+        float m = s * (1 - r->wet) + w * r->wet;
+        out[0][i * 2] = out[0][i * 2 + 1] = m;
+    }
 }
+
+static ma_node_vtable g_reverbVtable = { ReverbProcess, NULL, 1, 1, 0 };
 
 void MixerAudio::Shutdown()
 {
     for (auto& [ch, entry] : m_delays) 
     {
-        if (entry.active) 
+        if (entry.active)
         {
             ma_delay_node_uninit(&entry.node, NULL);
         }
     }
 
+    for (auto& [ch, rev] : m_reverbs)
+    {
+        ma_node_uninit(&rev->node, NULL);
+        delete rev;
+    }
+
     m_delays.clear();
+    m_reverbs.clear();
 }
 
 void MixerAudio::AddDelay(AudioChannel* channel, float delaySeconds, float decay, float wet)
@@ -65,49 +100,59 @@ void MixerAudio::RemoveDelay(AudioChannel* channel)
     m_delays.erase(it);
 }
 
-void MixerAudio::FadeTo(AudioChannel* channel, float targetVolume, float durationSeconds)
+void MixerAudio::AddReverb(AudioChannel* channel, float roomSize, float wet)
 {
-    if (!channel || durationSeconds <= 0.0f) return;
+    if (!channel || m_reverbs.count(channel)) return;
 
-    float current = ma_sound_group_get_volume(&channel->soundGroup);
+    ReverbEntry* rev = new ReverbEntry();
+    memset(rev, 0, sizeof(ReverbEntry));
+    rev->roomSize = std::clamp(roomSize, 0.0f, 0.98f);
+    rev->wet = std::clamp(wet, 0.0f, 1.0f);
+    rev->active = true;
 
-    // Met à jour un fade existant sur ce channel s'il y en a un
-    for (auto& f : m_fades)
+    ma_engine& engine = AudioServer::GetSoundEngine();
+
+    ma_uint32 inCh = 2;
+    ma_uint32 outCh = 2;
+    ma_node_config cfg = ma_node_config_init();
+    cfg.vtable = &g_reverbVtable;
+    cfg.pInputChannels = &inCh;
+    cfg.pOutputChannels = &outCh;
+    cfg.inputBusCount = 1;
+    cfg.outputBusCount = 1;
+
+    if (ma_node_init(ma_engine_get_node_graph(&engine), &cfg, NULL, &rev->node) != MA_SUCCESS)
     {
-        if (f.channel == channel) 
-        {
-            f.current = current;
-            f.target = std::clamp(targetVolume, 0.0f, 1.0f);
-            f.speed = fabsf(f.target - f.current) / durationSeconds;
-            f.active = true;
-            return;
-        }
+        printf("[MixerAudio] AddReverb failed on '%s'\n", channel->name.c_str());
+        delete rev;
+        return;
     }
 
-    FadeEntry f{};
-    f.channel = channel;
-    f.current = current;
-    f.target = std::clamp(targetVolume, 0.0f, 1.0f);
-    f.speed = fabsf(f.target - f.current) / durationSeconds;
-    f.active = true;
-    m_fades.push_back(f);
+    ma_node* groupNode = (ma_node*)&channel->soundGroup;
+    ma_node_attach_output_bus(groupNode, 0, &rev->node, 0);
+    ma_node_attach_output_bus(&rev->node, 0, ma_engine_get_endpoint(&engine), 0);
+
+    m_reverbs[channel] = rev;
 }
 
-void MixerAudio::Update(float delta)
+void MixerAudio::SetReverbWet(AudioChannel* channel, float wet)
 {
-    for (auto& f : m_fades)
-    {
-        if (!f.active) continue;
+    auto it = m_reverbs.find(channel);
+    if (it == m_reverbs.end()) return;
+    it->second->wet = std::clamp(wet, 0.0f, 1.0f);
+}
 
-        float dir = (f.target > f.current) ? 1.0f : -1.0f;
-        f.current += dir * f.speed * delta;
+void MixerAudio::RemoveReverb(AudioChannel* channel)
+{
+    auto it = m_reverbs.find(channel);
+    if (it == m_reverbs.end()) return;
 
-        if ((dir > 0.0f && f.current >= f.target) || (dir < 0.0f && f.current <= f.target))
-        {
-            f.current = f.target;
-            f.active = false;
-        }
+    ma_node_uninit(&it->second->node, NULL);
 
-        AudioServer::SetGroupVolume(f.channel, f.current);
-    }
+    ma_node* groupNode = (ma_node*)&channel->soundGroup;
+    ma_node_attach_output_bus(groupNode, 0,
+        ma_engine_get_endpoint(&AudioServer::GetSoundEngine()), 0);
+
+    delete it->second;
+    m_reverbs.erase(it);
 }
