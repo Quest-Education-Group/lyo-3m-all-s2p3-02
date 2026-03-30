@@ -21,15 +21,6 @@ class FBXLoader
 {
 public:
 
-	struct Node
-	{
-		std::string name;
-		glm::mat4x4 transform = glm::mat4x4{ 1.0f };
-		int32 parent = -1;
-		std::vector<int32> children;
-		std::vector<uint32> meshesIndex;
-	};
-
 	struct FBXMesh
 	{
 		std::vector<Vertex> vertices;
@@ -43,27 +34,20 @@ public:
 		std::map<TextureMaterialType,std::string> textures;
 	};
 
-	struct FBXSceneData
-	{
-		std::vector<sptr<Node>> nodes;
-		std::vector<sptr<FBXMesh>> meshs;
-		std::vector<Material> textures;
-		std::vector<Light> lights;
-		std::vector<Animation> animations;
-	};
-
 	static sptr<SceneData> LoadFile(std::string const& path);
 private:
-	static uint32 BuildNodes(aiScene const* pScene, aiNode const* pNode, int32 parentIndex, FBXSceneData& outData);
-	static void BuildMeshs(aiScene const* pScene, FBXSceneData& outData);
-	static void BuildMaterials(aiScene const* pScene, FBXSceneData& outData);
-	static void BuildLights(aiScene const* pScene, FBXSceneData& outData);
-	static void BuildBones(aiMesh const* pScene, FBXMesh& outData);
-	static void BuildAnimations(aiScene const* pScene, FBXSceneData& outData);
+	static void BuildMeshs(aiScene const* pScene, SceneData& outData);
+	static void BuildMaterials(aiScene const* pScene, SceneData& outData);
+	static void BuildLights(aiScene const* pScene, SceneData& outData);
+	static void BuildBones(SceneData const& scene,aiMesh const* pMesh, std::vector<Vertex>& vertices, std::vector<uint32>& indices, std::vector<glm::mat4>& bones);
+
+	static void BuildAnimations(aiScene const* pScene, SceneData& outData);
 	static void BuildAnimationsChannles(aiAnimation const* pAnim, Animation& outAnim, uint32 channelID);
 
-	static void LoadTextures(FBXSceneData& outData,std::vector<sptr<Texture>>& vect, std::vector<Texture*>& tempVect, uint32 matIndex);
-	static sptr<SceneData> ConvertInGlobalSceneData(FBXSceneData& outData);
+	static uint32 BuildNodesTree(aiScene const* pScene, aiNode const* pNode, int32 parentIndex, SceneData& outData);
+
+	static void LoadTextures(SceneData& outData,std::vector<sptr<Texture>>& vect, std::vector<Texture*>& tempVect, uint32 matIndex);
+	static sptr<SceneData> ConvertInGlobalSceneData(SceneData& outData);
 
 private:
 	static uint8 m_sTexTypes[];

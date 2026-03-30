@@ -37,9 +37,9 @@ int main()
     sptr<Camera> camera = std::make_shared<Camera>(position, up, yaw, pitch, roll, fov);
     std::vector<Mesh*> meshes = {};
 
-    for (uint32 i = 0; i < Scene1->meshes.size(); ++i)
+    for (uint32 i = 0; i < Scene1->allMesh.size(); ++i)
     {
-        meshes.push_back(Scene1->meshes[i].mesh.get());
+        meshes.push_back(Scene1->allMesh[i].get());
     }
 
 

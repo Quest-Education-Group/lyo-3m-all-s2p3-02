@@ -1,6 +1,7 @@
 #ifndef FOUNDRY_ASSET_STRUCT_H__
 #define FOUNDRY_ASSET_STRUCT_H__
 
+#include <Define.h>
 #include <vector>
 #include <string>
 #include <Mesh.h>
@@ -8,6 +9,16 @@
 #include <Passes/LightPass.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+
+enum SceneNodeType
+{
+	GLOBAL,
+	MESH,
+	BONE,
+	ANIMATED,
+};
+ENUM_CLASS_FLAGS(SceneNodeType);
+
 
 struct AnimationChannel
 {
@@ -33,11 +44,28 @@ struct Animation
 	std::vector<AnimationChannel> animationTransform;
 };
 
+struct SceneNode
+{
+	SceneNodeType type = GLOBAL;
+
+	std::string name;
+	glm::mat4 transform;
+
+	int32 boneIndexInMesh = -1;
+	int32 parent = -1;
+	std::vector<uint32> meshesIndex;
+	std::vector<uint32> children;
+};
+
 struct SceneData
 {
-	std::vector<sptr<Mesh>> meshes;
-	std::vector<Light> lights;
+
+	sptr<SceneNode> rootNode;
+
+	std::vector<sptr<SceneNode>> allNode;
 	std::vector<Animation> animations;
+	std::vector<Light> alllights;
+	std::vector<sptr<Mesh>> allMesh;
 	std::vector<sptr<Texture>> allTextures;
 };
 

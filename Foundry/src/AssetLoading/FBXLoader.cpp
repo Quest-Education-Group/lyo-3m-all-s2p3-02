@@ -23,7 +23,7 @@ glm::mat4x4 AIMatrixToGLMMatrix(aiMatrix4x4 const& matrix)
     return glm::transpose(out);
 }
 
-void FBXLoader::LoadTextures(FBXSceneData& outData, std::vector<sptr<Texture>>& vect, std::vector<Texture*>& tempVect, uint32 matIndex)
+void FBXLoader::LoadTextures(SceneData& outData, std::vector<sptr<Texture>>& vect, std::vector<Texture*>& tempVect, uint32 matIndex)
 {
     FBXLoader::Material meshMat = {};
     if (outData.textures.size() != 0)
@@ -50,12 +50,12 @@ void FBXLoader::LoadTextures(FBXSceneData& outData, std::vector<sptr<Texture>>& 
     }
 }
 
-sptr<SceneData> FBXLoader::ConvertInGlobalSceneData(FBXSceneData& outData)
+sptr<SceneData> FBXLoader::ConvertInGlobalSceneData(SceneData& outData)
 {
     SceneData outScene = {};
-    outScene.animations = outData.animations;
-    outScene.lights = outData.lights;
-    outScene.meshes.reserve(outData.meshs.size());
+    //outScene.animations = outData.animations;
+    //outScene.alllights = outData.lights;
+    outScene.allMesh.reserve(outData.meshs.size());
     for (uint32 i = 0; i < outData.nodes.size(); ++i)
     {
         for (uint32 meshCount = 0; meshCount < outData.nodes[i]->meshesIndex.size(); ++meshCount)
@@ -68,7 +68,7 @@ sptr<SceneData> FBXLoader::ConvertInGlobalSceneData(FBXSceneData& outData)
             glm::mat4x4 mat = outData.nodes[i]->transform;
             sptr<Mesh> spMesh = std::make_shared<Mesh>(geo, meshcreationTexts, mat);
             spMesh->SetBones(mesh.bones);
-            outScene.meshes.push_back(spMesh);
+            outScene.allMesh.push_back(spMesh);
             outScene.allTextures.insert(outScene.allTextures.end(),texts.begin(), texts.end());
             meshcreationTexts.clear();
         }
@@ -96,55 +96,55 @@ sptr<SceneData> FBXLoader::LoadFile(std::string const& path)
         return nullptr;
     }
     
-    FBXLoader::FBXSceneData uScene = {};
+    SceneData uScene = {};
 
-    BuildNodes(pAScene, pAScene->mRootNode, -1, uScene);
+    BuildNodesTree(pAScene, pAScene->mRootNode, -1, uScene);
     BuildMeshs(pAScene, uScene);
     BuildMaterials(pAScene, uScene);
     BuildLights(pAScene, uScene);
     BuildAnimations(pAScene, uScene);
+    
+    m_loadedFiles[path] = std::make_shared<SceneData>(uScene);
 
-    sptr<SceneData> outScene = ConvertInGlobalSceneData(uScene);
-
-    m_loadedFiles[path] = outScene;
-
-    return outScene;
+    return m_loadedFiles[path];
 }
 
 
-uint32 FBXLoader::BuildNodes(aiScene const* pScene, aiNode const* pNode, int32 parentIndex, FBXSceneData& outData)
+uint32 FBXLoader::BuildNodesTree(aiScene const* pScene, aiNode const* pNode, int32 parentIndex, SceneData& outData)
 {
-    Node node;
+    SceneNode node;
     node.name = pNode->mName.C_Str();
     node.parent = parentIndex;
     node.transform = AIMatrixToGLMMatrix(pNode->mTransformation);
-    uint32 selfIndex = outData.nodes.size();
+    uint32 selfIndex = outData.allNode.size();
     node.meshesIndex.reserve(pNode->mNumMeshes);
     for (uint32 i = 0; i < pNode->mNumMeshes; ++i)
     {
         node.meshesIndex.push_back(pNode->mMeshes[i]);
     }
 
-    outData.nodes.push_back(std::make_shared<Node>(node));
+    outData.allNode.push_back(std::make_shared<SceneNode>(node));
     for (uint32 i = 0; i < pNode->mNumChildren;i++)
     {
-        uint32 cIndex = BuildNodes(pScene,pNode->mChildren[i], selfIndex,outData);
+        uint32 cIndex = BuildNodesTree(pScene,pNode->mChildren[i], selfIndex,outData);
         node.children.push_back(cIndex);
     }
     return selfIndex;
 }
 
-void FBXLoader::BuildMeshs(aiScene const* pScene, FBXSceneData& outData)
+void FBXLoader::BuildMeshs(aiScene const* pScene, SceneData& outData)
 {
     for (uint32 i = 0; i < pScene->mNumMeshes; ++i)
     {
         // Load Vertices
         aiMesh* pMesh = pScene->mMeshes[i];
-        FBXLoader::FBXMesh mesh = {};
-        mesh.vertices.reserve(pMesh->mNumVertices);
-        mesh.indices.reserve(pMesh->mNumFaces * 3);
 
-        mesh.matIndex = static_cast<int32>(pMesh->mMaterialIndex);
+        std::vector<Vertex> vertices = {};
+        std::vector<uint32> indices = {};
+        vertices.reserve(pMesh->mNumVertices);
+        indices.reserve(pMesh->mNumFaces * 3);
+
+        int32 matIndex = static_cast<int32>(pMesh->mMaterialIndex);
         for (uint32 vIndex = 0; vIndex < pMesh->mNumVertices; ++vIndex)
         {
             Vertex v = {};
@@ -154,28 +154,29 @@ void FBXLoader::BuildMeshs(aiScene const* pScene, FBXSceneData& outData)
                 v.normal = { pMesh->mNormals[vIndex].x, pMesh->mNormals[vIndex].y, pMesh->mNormals[vIndex].z };
             if (pMesh->HasTextureCoords(0))
                 v.texCoords = { pMesh->mTextureCoords[0][vIndex].x, pMesh->mTextureCoords[0][vIndex].y }; // Each vertex can have up to 8 uvs
-            mesh.vertices.push_back(v);
+            vertices.push_back(v);
         }
-
-
         for (uint32 fIndex = 0; fIndex < pMesh->mNumFaces; ++fIndex)
         {
             aiFace pFace = pMesh->mFaces[fIndex];
             for (uint32 iIndex = 0; iIndex < pFace.mNumIndices; ++iIndex)
             {
-                mesh.indices.push_back(pFace.mIndices[iIndex]);
+                indices.push_back(pFace.mIndices[iIndex]);
             }
-
         }
 
+        Geometry geo = Geometry(vertices, indices);
         if (pMesh->HasBones())
-            BuildBones(pMesh, mesh);
+        {
+            std::vector<glm::mat4> bones = {};
+            BuildBones(outData,pMesh,vertices,indices,bones);
+        }
 
-        outData.meshs.push_back(std::make_shared<FBXMesh>(mesh));
+        outData.allMesh.push_back(std::make_shared<Mesh>(mesh));
     }
 }
 
-void FBXLoader::BuildMaterials(aiScene const* pScene, FBXSceneData& outData)
+void FBXLoader::BuildMaterials(aiScene const* pScene, SceneData& outData)
 {
 
     for (uint32 i = 0; i < pScene->mNumMaterials; ++i)
@@ -223,13 +224,11 @@ void FBXLoader::BuildMaterials(aiScene const* pScene, FBXSceneData& outData)
 
             mat.textures[static_cast<TextureMaterialType>(c)] = fullPath;
         }
-
-        outData.textures.push_back(mat);
     }
 }
 
 
-void FBXLoader::BuildLights(aiScene const* pScene, FBXSceneData& outData)
+void FBXLoader::BuildLights(aiScene const* pScene, SceneData& outData)
 {
     if (pScene->HasLights() == false)
         return;
@@ -247,29 +246,37 @@ void FBXLoader::BuildLights(aiScene const* pScene, FBXSceneData& outData)
     }
 }
 
-void FBXLoader::BuildBones(aiMesh const* pMesh, FBXMesh& outMesh)
+void FBXLoader::BuildBones(SceneData const& scene, aiMesh const* pMesh, std::vector<Vertex>& vertices, std::vector<uint32>& indices, std::vector<glm::mat4>& bones)
 {
-    outMesh.bones.reserve(pMesh->mNumBones);
+    bones.reserve(pMesh->mNumBones);
     for (uint32 i = 0; i < pMesh->mNumBones; ++i)
     {
         aiBone* pBone = pMesh->mBones[i];
-        outMesh.bones.push_back(AIMatrixToGLMMatrix(pBone->mOffsetMatrix));
+        for (uint32 k = 0; k < scene.allNode.size(); ++k)
+        {
+            if (scene.allNode[k]->name == std::string(pBone->mName.C_Str()))
+            {
+                scene.allNode[k]->type = BONE;
+                scene.allNode[k]->boneIndexInMesh = i;
+            }
+        }
+        bones.push_back(AIMatrixToGLMMatrix(pBone->mOffsetMatrix));
         for (uint32 wIndex = 0; wIndex < pBone->mNumWeights; ++wIndex)
         {
             int index = 0;
             for (uint32 n = 0; n < 4; ++n)
             {
-                if (outMesh.vertices[pBone->mWeights[wIndex].mVertexId].boneIDS[n] == -1)
+                if (vertices[pBone->mWeights[wIndex].mVertexId].boneIDS[n] == -1)
                     index = n;
             }
-            outMesh.vertices[pBone->mWeights[wIndex].mVertexId].weights[index] = pBone->mWeights[wIndex].mWeight;
-            outMesh.vertices[pBone->mWeights[wIndex].mVertexId].boneIDS[index] = i;
+            vertices[pBone->mWeights[wIndex].mVertexId].weights[index] = pBone->mWeights[wIndex].mWeight;
+            vertices[pBone->mWeights[wIndex].mVertexId].boneIDS[index] = i;
         }
     }
 }
 
 
-void FBXLoader::BuildAnimations(aiScene const* pScene, FBXSceneData& outData)
+void FBXLoader::BuildAnimations(aiScene const* pScene, SceneData& outData)
 {
     if (pScene->HasAnimations() == false)
         return;
