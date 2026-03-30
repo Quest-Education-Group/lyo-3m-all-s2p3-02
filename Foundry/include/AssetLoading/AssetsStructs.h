@@ -33,17 +33,12 @@ struct Animation
 	std::vector<AnimationChannel> animationTransform;
 };
 
-struct SceneMeshs
-{
-	sptr<Mesh> mesh;
-	std::vector<sptr<Texture>> textureOfMeshes;
-};
-
 struct SceneData
 {
-	std::vector<SceneMeshs> meshes;
+	std::vector<sptr<Mesh>> meshes;
 	std::vector<Light> lights;
 	std::vector<Animation> animations;
+	std::vector<sptr<Texture>> allTextures;
 };
 
 #endif // !FOUNDRY_ASSET_STRUCT_H__

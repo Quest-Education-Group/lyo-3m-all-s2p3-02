@@ -66,11 +66,10 @@ sptr<SceneData> FBXLoader::ConvertInGlobalSceneData(FBXSceneData& outData)
             LoadTextures(outData, texts, meshcreationTexts, mesh.matIndex);
             Geometry geo = Geometry(mesh.vertices, mesh.indices);
             glm::mat4x4 mat = outData.nodes[i]->transform;
-            SceneMeshs outMesh = {};
-            outMesh.mesh = std::make_shared<Mesh>(geo, meshcreationTexts, mat);
-            outMesh.mesh->SetBones(mesh.bones);
-            outMesh.textureOfMeshes = texts;
-            outScene.meshes.push_back(outMesh);
+            sptr<Mesh> spMesh = std::make_shared<Mesh>(geo, meshcreationTexts, mat);
+            spMesh->SetBones(mesh.bones);
+            outScene.meshes.push_back(spMesh);
+            outScene.allTextures.insert(outScene.allTextures.end(),texts.begin(), texts.end());
             meshcreationTexts.clear();
         }
     }
