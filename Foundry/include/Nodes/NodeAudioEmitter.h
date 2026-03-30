@@ -7,6 +7,8 @@
 class NodeAudioEmitter : public Node
 {
 public:
+	class Proxy;
+
 	NodeAudioEmitter(std::string const& name);
 	~NodeAudioEmitter() override = default;
 
@@ -33,5 +35,7 @@ private:
 };
 
 REGISTER_ISERIALIZABLE(NodeAudioEmitter, NodeAudioEmitter::CreateInstance);
+
+#include "Scripting/Proxies/NodeAudioEmitterProxy.inl"
 
 #endif

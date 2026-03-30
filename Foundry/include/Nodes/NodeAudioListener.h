@@ -7,6 +7,8 @@
 class NodeAudioListener : public Node
 {
 public:
+	class Proxy;
+
 	NodeAudioListener(std::string const& name);
 	~NodeAudioListener() override = default;
 
@@ -21,13 +23,13 @@ public:
 	static ISerializable* CreateInstance();
 
 protected:
-	ma_sound m_sound{};
-	bool m_isPlaying = false;
 
 private:
 
 };
 
 REGISTER_ISERIALIZABLE(NodeAudioListener, NodeAudioListener::CreateInstance);
+
+#include "Scripting/Proxies/NodeAudioListenerProxy.inl"
 
 #endif
