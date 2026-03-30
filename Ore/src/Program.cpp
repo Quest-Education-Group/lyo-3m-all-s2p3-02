@@ -24,7 +24,11 @@ void Program::Load()
     glGetProgramiv(m_programId, GL_LINK_STATUS, (int*)&isLinked);
     if(isLinked == GL_FALSE)
     {
-        Logger::LogWithLevel(LogLevel::ERROR, "Program is not linked");
+        Logger::LogWithLevel(LogLevel::ERROR, "Program is not linked : ");
+        std::string log;
+        log.resize(GL_INFO_LOG_LENGTH);
+        glGetProgramInfoLog(m_programId, GL_INFO_LOG_LENGTH, nullptr, log.data());
+        Logger::LogWithLevel(LogLevel::ERROR, log);
     }
 }
 

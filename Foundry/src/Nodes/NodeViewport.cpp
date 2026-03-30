@@ -14,26 +14,21 @@ NodeViewport::NodeViewport(std::string const& name) : Node2D(name)
 	OnParentChange += [&](Node& n)
 	{
 		if (auto parent = FindFirstParentOfType<NodeWindow>())
-			parent->get().AddViewport(*m_pViewPort);
+			parent->get().AddViewport(*this);
 	};
 }
 
-void NodeViewport::LoadPrograms()
+void NodeViewport::Setup() const
 {
-	m_geometryProgram.AddShader(&GraphicServer::GetGeoFrag());
-	m_geometryProgram.AddShader(&GraphicServer::GetGeoVert());
-	m_geometryProgram.Load();
-
-	m_ligthProgram.AddShader(&GraphicServer::GetLightVert());
-	m_ligthProgram.AddShader(&GraphicServer::GetLightFrag());
-	m_ligthProgram.Load();
+	m_pViewPort->Setup({0.0f, 0.0f}, {10.0f, 10.0f}, m_clearColor);
+	UpdateViewport();
 }
 
 void NodeViewport::OnUpdate(double const delta)
 {
-	if (m_transform.GetDirty())
-		UpdateViewport();
+	bool const dirty = m_transform.GetDirty();
 	Node2D::OnUpdate(delta);
+	if (dirty) UpdateViewport();
 }
 
 void NodeViewport::SetBackgroundColor(Color const &color) const

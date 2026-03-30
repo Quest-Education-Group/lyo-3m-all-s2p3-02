@@ -11,7 +11,7 @@ class Window;
 template <>
 struct Command<class GraphicServer>
 {
-    enum class CmdType { LOADPROGRAMS, OPENWINDOW, CLEAR, PRESENT } Type;
+    enum class CmdType { LOADSHADERS, SETUPVIEWPORT, OPENWINDOW, CLEAR, PRESENT } Type;
     union
     {
         NodeWindow* pNodeWindow = nullptr;
@@ -32,16 +32,20 @@ public:
     static Shader& GetGeoVert() { return Instance().m_geoVert; }
     static Shader& GetGeoFrag() { return Instance().m_geoFrag; }
     static Shader& GetLightVert() { return Instance().m_lightVert; }
-    static Shader& GetLightFrag() { return Instance().m_geoFrag; }
+    static Shader& GetLightFrag() { return Instance().m_lightFrag; }
 
 private:
     void FlushCommandsImpl() override;
     void BuildTasksImpl(TaskGraph& graph) override;
 	void OnInitialize() override;
     void OnUnInitialize() override;
+    void LoadShader();
 
 private:
     //default shaders
+    Program m_geoProgram;
+    Program m_lightProgram;
+
     Shader m_geoVert {ShaderType::TYPE_VERTEX};
     Shader m_geoFrag {ShaderType::TYPE_FRAGMENT};
 

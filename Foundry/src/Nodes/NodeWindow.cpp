@@ -5,6 +5,7 @@
 NodeWindow::NodeWindow(std::string const& name) : Node2D(name)
 {
     m_pWindow = std::make_unique<Window>(1920, 1080, name);
+    m_transform.SetScale(1920, 1080);
     GraphicServer::OpenWindow(this);
 }
 
@@ -24,9 +25,21 @@ void NodeWindow::OnUpdate(double const delta)
     GraphicServer::Present(this);
 }
 
-void NodeWindow::AddViewport(Viewport& viewport) const
+void NodeWindow::AddViewport(NodeViewport& viewport)
 {
-    m_pWindow->AddViewport(viewport);
+    m_nViewports.push_back(viewport);
+    m_pWindow->AddViewport(*viewport.m_pViewPort);
+}
+
+void NodeWindow::RemoveViewport(NodeViewport &viewport)
+{
+    auto it = std::ranges::find_if(m_nViewports, [&](std::reference_wrapper<NodeViewport> v)
+    {
+        return v.get().m_name == viewport.m_name;
+    });
+
+    if (it != m_nViewports.end())
+        m_nViewports.erase(it);
 }
 
 void NodeWindow::SetDecoration(bool const decoration) const
@@ -51,15 +64,19 @@ void NodeWindow::UpdateWindow() const
 
     int32 viewportsC = m_pWindow->GetViewportsCount();
 
+    //Automatic viewport splitting
     for (int8 i = 0; i < viewportsC; i ++)
-        m_pWindow->GetViewport(i)->SetSize(scale.x / viewportsC, (viewportsC + 1) >> 2);
-
+    {
+        NodeViewport& viewport =  m_nViewports[i].get();
+        int const s = ((viewportsC + 1) * 0.5f);
+        viewport.m_transform.SetScale(scale.x / viewportsC, scale.y / s);
+        viewport.m_transform.SetPosition((scale.x / (viewportsC) - 1) * i,  (s - 1) * i);
+    }
 }
 
 void NodeWindow::OpenWindow() const
 {
     m_pWindow->Open();
-    m_pWindow->GetViewport(0)->Setup({0, 0}, m_pWindow->GetSize(), m_clearColor);
 }
 
 void NodeWindow::ClearWindow() const

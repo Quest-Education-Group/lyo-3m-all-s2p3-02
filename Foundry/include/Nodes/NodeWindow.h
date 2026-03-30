@@ -4,6 +4,7 @@
 #include "Define.h"
 #include "Window.h"
 #include "Node2D.h"
+#include "NodeViewport.h"
 
 #include <string>
 
@@ -18,7 +19,8 @@ public:
 
     bool IsOpen() const { return m_pWindow->IsOpen(); }
 
-    void AddViewport(Viewport& viewport) const;
+    void AddViewport(NodeViewport& viewport);
+    void RemoveViewport(NodeViewport& viewport);
     void SetDecoration(bool decoration) const;
     void SetIcon(std::string const& path) const;
 
@@ -32,8 +34,8 @@ private:
 
 private:
     uptr<Window> m_pWindow;
+    std::vector<std::reference_wrapper<NodeViewport>> m_nViewports;
     std::string m_windowTitle;
-    Color m_clearColor {Color::SKY_BLUE};
 
     friend class GraphicServer;
 };
