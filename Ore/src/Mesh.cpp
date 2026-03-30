@@ -17,7 +17,7 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::Draw(IProgram const* pProgram)
+void Mesh::Draw(IProgram const& pProgram)
 {
     Logger::Log("Start Draw Mesh");
     uint32 diffuseNr = 1;

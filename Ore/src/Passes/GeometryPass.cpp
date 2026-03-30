@@ -6,9 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-GeometryPass::GeometryPass(Program const& program, std::vector<Mesh*> const& meshes, sptr<Camera> pCamera) : Pass(program, pCamera)
+GeometryPass::GeometryPass(Program const& program, std::span<Mesh const> meshes, sptr<Camera> pCamera) : Pass(program, pCamera), m_meshes(meshes)
 {
-    m_meshes = meshes;
 }
 
 GeometryPass::~GeometryPass()
@@ -31,7 +30,7 @@ void GeometryPass::Execute()
     Logger::Log("Start geometries");
     for(uint32 i = 0; i<m_meshes.size(); ++i)
     {
-        if(m_meshes[i]->GetIsActive() == false)
+        if(m_meshes[i].GetIsActive() == false)
             continue;
 
         Logger::Log("Mesh");
