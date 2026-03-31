@@ -13,7 +13,8 @@ Action::Action() : m_controls(), m_event()
 		};
 }
 
-Action::Action(ControlType controlType, EventInput eventInput)
+Action::Action(ControlType controlType, Event<void(IControl&)> event, EventInput eventInput) :
+	m_event(event)
 {
 	AddControl(controlType, eventInput);
 	EventManager::getKey += [&](EventInput in, EventAction ac)
@@ -35,6 +36,11 @@ Action::Action(ControlType controlType, EventInput eventInput)
 
 Action::~Action() {}
 
+
+void Action::SetEvent(Event<void(IControl&)> event)
+{
+	m_event = event;
+}
 
 Event<void(IControl&)> Action::GetEvent() const
 {

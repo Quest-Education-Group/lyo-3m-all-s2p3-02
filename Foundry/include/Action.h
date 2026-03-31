@@ -22,10 +22,11 @@ class Action /*: public ISerializable*/
 {
 public:
 	Action();
-	Action(ControlType controlType, EventInput eventInput);
+	Action(ControlType controlType, Event<void(IControl&)> event, EventInput eventInput);
 
 	~Action();
 	
+	void SetEvent(Event<void(IControl&)> event);
 	Event<void(IControl&)> GetEvent() const;
 
 	uint32 AddControl(ControlType const& type, EventInput const& eventInput);

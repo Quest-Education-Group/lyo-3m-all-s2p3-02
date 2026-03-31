@@ -18,15 +18,15 @@ struct ActionMapProxyBinding
 {
 	static void Bind(Binder& binder)
 	{
+		binder.BindEnum<ButtonState>("ButtonState",
+			"Up", ButtonState::UP,
+			"Down", ButtonState::DOWN
+		);
+
 		binder.BindEnum<ControlType>("ControlType",
 			"Button", ControlType::BUTTON,
 			"Slider", ControlType::SLIDER,
 			"Stick", ControlType::STICK
-		);
-
-		binder.BindEnum<ButtonState>("ButtonState",
-			"Up", ButtonState::UP,
-			"Down", ButtonState::DOWN
 		);
 
 
@@ -63,6 +63,7 @@ struct ActionMapProxyBinding
 		binder.BindClass<Action>("action",
 			sol::constructors<Action(), Action(ControlType, EventInput)>(),
 			"GetEvent", &Action::GetEvent,
+			"SetEvent", &Action::SetEvent,
 			"AddControl", &Action::AddControl,
 			"GetControl", &Action::GetControl
 		);

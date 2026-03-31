@@ -31,10 +31,6 @@ int main(int argc, char** argv)
     GameLoop loop;
     loop.StartGame(defaultSceneTree);
 
-    bool isRunning = true;
-    while (isRunning) 
-    {
-    }
 
 	return 0;
 }
