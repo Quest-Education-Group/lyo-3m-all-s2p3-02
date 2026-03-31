@@ -4,11 +4,11 @@ NodeAudioEmitter::NodeAudioEmitter(std::string const& name) : Node(name)
 {
 }
 
-bool NodeAudioEmitter::Load(const char* filePath, AudioChannel* channel)
+bool NodeAudioEmitter::Load(const std::string& filePath, AudioChannel* channel)
 {
     ma_engine& soundEngine = AudioServer::GetSoundEngine();
 
-    if (ma_sound_init_from_file(&soundEngine, filePath, 0, &channel->soundGroup, NULL, &m_sound) != MA_SUCCESS)
+    if (ma_sound_init_from_file(&soundEngine, filePath.c_str(), 0, &channel->soundGroup, NULL, &m_sound) != MA_SUCCESS)
     {
         printf("Failed to load sound: %s\n", filePath);
         return false;
