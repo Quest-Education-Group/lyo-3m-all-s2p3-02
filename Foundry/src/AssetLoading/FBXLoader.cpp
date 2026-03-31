@@ -69,10 +69,11 @@ sptr<SceneData> FBXLoader::LoadFile(std::string const& path)
     Material allTextures = {};
     uint32 nodeCount = 0;
     BuildMaterials(pAScene, allTextures);
-    BuildLights(pAScene, uScene);
-    BuildAnimations(pAScene, uScene);
     BuildNodesTree(pAScene, pAScene->mRootNode, -1, uScene,allTextures);
     BuildMeshs(pAScene,uScene,allTextures);
+
+    BuildAnimations(pAScene, uScene);
+    BuildLights(pAScene, uScene);
     m_loadedFiles[path] = std::make_shared<SceneData>(uScene);
     return m_loadedFiles[path];
 }
@@ -275,16 +276,24 @@ void FBXLoader::BuildAnimations(aiScene const* pScene, SceneData& outData)
 
         for (uint32 animCount = 0; animCount < pAnim->mNumChannels; animCount++)
         {
-            BuildAnimationsChannles(pAnim, anim, animCount);
+            BuildAnimationsChannels(outData,pAnim, anim, animCount);
         }
         outData.animations.push_back(anim);
     }
 }
 
-void FBXLoader::BuildAnimationsChannles(aiAnimation const* pAnim, Animation& outAnim, uint32 channelID)
+void FBXLoader::BuildAnimationsChannels(SceneData& outData,aiAnimation const* pAnim, Animation& outAnim, uint32 channelID)
 {
     AnimationChannel channel = {};
     aiNodeAnim* pAnimNode = pAnim->mChannels[channelID];
+    for (uint32 i = 0; i < outData.allNode.size(); ++i)
+    {
+        if (std::string(pAnimNode->mNodeName.C_Str()) == outData.allNode[i]->name)
+        {
+            channel.sceneNodeImpacted = i;
+            break;
+        }
+    }
     channel.positionKeys.reserve(pAnimNode->mNumPositionKeys);
     channel.rotationKeys.reserve(pAnimNode->mNumRotationKeys);
     channel.scalingKeys.reserve(pAnimNode->mNumScalingKeys);

@@ -40,7 +40,7 @@ private:
 	static void BuildLights(aiScene const* pScene, SceneData& outData);
 	
 	static void BuildAnimations(aiScene const* pScene, SceneData& outData);
-	static void BuildAnimationsChannles(aiAnimation const* pAnim, Animation& outAnim, uint32 channelID);
+	static void BuildAnimationsChannels(SceneData& outData,aiAnimation const* pAnim, Animation& outAnim, uint32 channelID);
 
 
 	static void LoadTextures(FBXLoader::Material& materials,std::vector<sptr<Texture>>& vect, std::vector<Texture*>& tempVect, uint32 matIndex);

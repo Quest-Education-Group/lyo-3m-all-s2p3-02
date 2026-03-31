@@ -56,7 +56,6 @@ struct Animation
 	std::vector<AnimationChannel> animationTransform;
 };
 
-
 struct SceneData
 {
 
