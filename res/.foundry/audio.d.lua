@@ -1,4 +1,4 @@
--- NodeAudioListener
+-- -- NodeAudioListener -- --
 ---@class NodeAudioListener
 AudioListener = {}
 
@@ -11,15 +11,40 @@ function NodeAudioListener:new(name) end
 ---@return vec3
 function NodeAudioListener:GetListenerPosition() end
 
+---@param position
+function NodeAudioListener:SetListenerPosition(position) end
+
+---@return vec3
+function NodeAudioListener:GetListenerDirection() end
+
+---@param position
+function NodeAudioListener:SetListenerDirection(position) end
 
 
+-- -- NodeAudioEmitter -- --
+---@class NodeAudioEmitter
+AudioListener = {}
 
+-- Constructeur de la classe NodeAudioEmitter
+---@param name
+---@return NodeAudioEmitter
+function NodeAudioEmitter:new(name) end
 
+---@param filePath
+---@return boolean
+function NodeAudioEmitter:Load(filePath) end
 
+function NodeAudioEmitter:Play() end
+function NodeAudioEmitter:Stop() end
 
+---@param isLooping
+function NodeAudioEmitter:SetLoop(isLooping) end
 
-function NomDeMaFonction(int params)
+---@param position
+function NodeAudioEmitter:SetSourcePosition(position) end
 
-	-- code...
+---@return vec3
+function NodeAudioEmitter:GetSourcePosition() end
 
-end
+---@return boolean
+function NodeAudioEmitter:IsPlaying() end

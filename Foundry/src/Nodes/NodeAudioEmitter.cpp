@@ -35,9 +35,9 @@ void NodeAudioEmitter::Stop()
     }
 }
 
-void NodeAudioEmitter::SetLoop(bool value)
+void NodeAudioEmitter::SetLoop(bool isLooping)
 {
-    ma_sound_set_looping(&m_sound, value);
+    ma_sound_set_looping(&m_sound, isLooping);
 }
 
 void NodeAudioEmitter::SetSourcePosition(glm::vec3 position)

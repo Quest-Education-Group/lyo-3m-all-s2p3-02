@@ -17,7 +17,7 @@ public:
 
 	void Play();
 	void Stop();
-	void SetLoop(bool value);
+	void SetLoop(bool isLooping);
 
 	void SetSourcePosition(glm::vec3 position);
 	glm::vec3 GetSourcePosition();

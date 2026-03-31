@@ -10,7 +10,7 @@ public:
 
 	void Play() { return m_pNode->Play(); }
 	void Stop() { return m_pNode->Stop(); }
-	void SetLoop(bool value) { return m_pNode->SetLoop(value); }
+	void SetLoop(bool isLooping) { return m_pNode->SetLoop(isLooping); }
 
 	void SetSourcePosition(glm::vec3 position) { return m_pNode->SetSourcePosition(position); }
 	glm::vec3 GetSourcePosition() { return m_pNode->GetSourcePosition(); }
