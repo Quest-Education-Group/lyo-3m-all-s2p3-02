@@ -1,19 +1,23 @@
----@type NodeAudioEmitter
-self = Node
+-----@type NodeAudioEmitter
+---self = Node
 
 local audioEm = nil
 local audioEm2 = nil
 local audioListen = nil
 
+local mixer = nil
+local music = nil
+local sfx = nil
+
 function OnInit()
 	--- Audio Server ---
 	AudioServer:Init();
 
-	local music = AudioServer:CreateChannel("Music");
-	local sfx = AudioServer:CreateChannel("Sfx");
+	music = AudioServer:CreateChannel("Music");
+	sfx = AudioServer:CreateChannel("Sfx");
 
 	--- Mixer ---
-	MixerAudio mixer;
+	mixer = MixerAudio:new()
 
 	--mixer.AddDelay(sfx, 0.3f, 0.4f, 0.3f);
 	mixer.AddReverb(music, 0.85, 0.3);
@@ -27,7 +31,7 @@ function OnInit()
 	audioEm:Load("res/freeman.mp3", music);
 	audioEm2:Load("res/applause.mp3", sfx);
 
-	audioEm2:SetSourcePosition({ 100,0,0 }); --allways after load
+	audioEm2:SetSourcePosition({ x=100,y=0,z=0 }); --allways after load
 
 	--audioEm->SetLoop(true);
 	audioEm2:SetLoop(true);
@@ -37,7 +41,7 @@ function OnInit()
 
 	--- Audio Listener ---
 	audioListen = NodeAudioListener:new("AudioListener")
-	audioListen:SetListenerPosition({ 0,0,0 });
+	audioListen:SetListenerPosition({ x=0,y=0,z=0 });
 
 	--printf("audio1 x:%.6f\n", audioEm->GetSourcePosition().x);
 	--printf("audio2 x:%.6f\n", audioEm2->GetSourcePosition().x);
@@ -56,43 +60,43 @@ function OnInit()
 			Sleep(200);
 		elseif (GetAsyncKeyState(VK_ADD) & 0x8000) then
 			--Group volume
-			float next = AudioServer:GetGroupVolume(*sfx) + 0.01;
+			local next = AudioServer:GetGroupVolume(sfx) + 0.01;
 			AudioServer:SetGroupVolume(sfx, next);
 			--printf("GroupVolume: %.6f\n", AudioServer::GetGroupVolume(*sfx));
 		elseif (GetAsyncKeyState(VK_SUBTRACT) & 0x8000) then
 			--Group volume
-			float next = AudioServer:GetGroupVolume(*sfx) - 0.01;
+			local next = AudioServer:GetGroupVolume(sfx) - 0.01;
 			AudioServer:SetGroupVolume(sfx, next);
 			--printf("GroupVolume: %.6f\n", AudioServer::GetGroupVolume(*sfx));
 		elseif (GetAsyncKeyState('T') & 0x8000) then
 			--Master volume
-			float next = AudioServer:GetMasterVolume() + 0.05;
+			local next = AudioServer:GetMasterVolume() + 0.05;
 			AudioServer:SetMasterVolume(next);
 			--printf("MasterVolume: %.6f\n", AudioServer::GetMasterVolume());
 		elseif (GetAsyncKeyState('Y') & 0x8000) then
 			--Master volume
-			float next = AudioServer:GetMasterVolume() - 0.05;
+			local next = AudioServer:GetMasterVolume() - 0.05;
 			AudioServer:SetMasterVolume(next);
 			--printf("MasterVolume: %.6f\n", AudioServer::GetMasterVolume());
 		elseif (GetAsyncKeyState('W') & 0x8000) then --PositionAudio3D Emitter
-			audioListen:SetListenerPosition({ 0,0,0 });
-		elseif (GetAsyncKeyState('X') & 0x8000)
-			audioEm:SetSourcePosition({ 50,0,0 });
+			audioListen:SetListenerPosition({ x=0,y=0,z=0 });
+		elseif (GetAsyncKeyState('X') & 0x8000) then
+			audioEm:SetSourcePosition({ x=50,y=0,z=0 });
 		elseif (GetAsyncKeyState('Z') & 0x8000) then --PositionAudio3D Listener
-			glm::vec3 newPos = audioListen:GetListenerPosition();
-			newPos.y += 0.1;
+			local newPos = audioListen:GetListenerPosition();
+			newPos.y = newPos.y + 0.1;
 			audioListen:SetListenerPosition(newPos);
 		elseif (GetAsyncKeyState('Q') & 0x8000) then
-			glm::vec3 newPos = audioListen:GetListenerPosition();
-			newPos.x -= 0.1;
+			local newPos = audioListen:GetListenerPosition();
+			newPos.x = newPos.x - 0.1;
 			audioListen:SetListenerPosition(newPos);
 		elseif (GetAsyncKeyState('S') & 0x8000) then
-			glm::vec3 newPos = audioListen:GetListenerPosition();
-			newPos.y -= 0.1;
+			local newPos = audioListen:GetListenerPosition();
+			newPos.y = newPos.y - 0.1;
 			audioListen:SetListenerPosition(newPos);
 		elseif (GetAsyncKeyState('D') & 0x8000) then
-			glm::vec3 newPos = audioListen:GetListenerPosition();
-			newPos.x += 0.1;
+			local newPos = audioListen:GetListenerPosition();
+			newPos.x = newPos.x + 0.1;
 			audioListen:SetListenerPosition(newPos);
 		end
 
@@ -100,7 +104,7 @@ function OnInit()
 	end
 
 	mixer.Shutdown();
-	AudioServer::Shutdown();
+	AudioServer:Shutdown();
 end
 
 function OnUpdate(dt)
