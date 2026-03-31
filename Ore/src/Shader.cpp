@@ -41,8 +41,16 @@ void Shader::Load(std::filesystem::path const& path)
 
     GLint isCompiled;
     glGetShaderiv(m_id, GL_COMPILE_STATUS, &isCompiled);
-    if(isCompiled == GL_FALSE)
+    if (isCompiled == GL_FALSE)
+    {
         Logger::LogWithLevel(LogLevel::ERROR, "Shader is not compiled");
+        GLint infoLogLength;
+        glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &infoLogLength);
+        std::string infolog;
+        infolog.resize(infoLogLength);
+        glGetShaderInfoLog(m_id, infoLogLength, nullptr, infolog.data());
+        Logger::LogWithLevel(LogLevel::ERROR, infolog);
+    }
 }
 
 void Shader::Unload()

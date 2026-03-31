@@ -14,8 +14,8 @@ struct Vertex
     glm::vec3 normal;
     glm::vec2 texCoords;
 
-    std::array<int32, 4> boneIDS = { -1,-1,-1,-1 };
-    std::array<float,4> weights;
+    glm::ivec4 boneIDS = { -1,-1,-1,-1 };
+    glm::vec4 weights;
 };
 
 class VertexArrayObject;

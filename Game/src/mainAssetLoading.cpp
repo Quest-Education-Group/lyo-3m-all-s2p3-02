@@ -9,7 +9,10 @@
 #include <Shader.h>
 #include <Passes/GeometryPass.h>
 #include <Passes/LightPass.h>
+#include <Passes/AnimatedPass.h>
 #include <Logger.hpp>
+#include <Nodes/NodeMeshAnimated3D.h>
+#include <Servers/AnimationServer.h>
 
 namespace rl
 {
@@ -28,7 +31,11 @@ int main()
     //sptr<SceneData> Scene2 = AssetLoader::LoadSceneFromFile("res/fbx/Test_Anim.fbx", AssetLoader::FileType::FBX);
     //sptr<SceneData> Scene3 = AssetLoader::LoadSceneFromFile("res/fbx/Test_Bones.fbx", AssetLoader::FileType::FBX);
 
-    glm::vec3 position(0.0f, 0.0f, 10.0f);
+    
+    uptr<NodeMeshAnimated3D> pNode = Node::CreateNode<NodeMeshAnimated3D>("AA");
+    pNode->Instanciate(*Scene4->allMesh[0], *Scene4->animations[0]);
+
+    glm::vec3 position(0.0f, 0.0f, 15.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
 
     float yaw = -90.0f;
@@ -38,13 +45,6 @@ int main()
     float fov = 45.0f;
 
     sptr<Camera> camera = std::make_shared<Camera>(position, up, yaw, pitch, roll, fov);
-    std::vector<Mesh*> meshes = {};
-
-    for (uint32 i = 0; i < Scene1->allMesh.size(); ++i)
-    {
-        meshes.push_back(Scene1->allMesh[i].get());
-    }
-
 
     std::vector<Light> lights;
     for (int i = 0; i < 20; ++i)
@@ -62,6 +62,7 @@ int main()
 
     Program geometryProgram;
     Program lightProgram;
+    Program animateProgram;
 
     Shader geoFrag(ShaderType::TYPE_FRAGMENT);
     geoFrag.Load("res/shaders/GBuffer.frag");
@@ -75,7 +76,6 @@ int main()
     geoFrag.Unload();
     geoVert.Unload();
 
-
     Shader lightFrag(ShaderType::TYPE_FRAGMENT);
     lightFrag.Load("res/shaders/LightPass.frag");
     Shader lightVert(ShaderType::TYPE_VERTEX);
@@ -88,14 +88,33 @@ int main()
     lightFrag.Unload();
     lightVert.Unload();
 
-    GeometryPass geoPass(geometryProgram, meshes, camera);
+    Shader animFrag(ShaderType::TYPE_FRAGMENT);
+    animFrag.Load("res/shaders/GBuffer.frag");
+    Shader animVert(ShaderType::TYPE_VERTEX);
+    animVert.Load("res/shaders/Animated.vert");
+
+    animateProgram.AddShader(&lightFrag);
+    animateProgram.AddShader(&lightVert);
+    animateProgram.Load();
+
+    animFrag.Unload();
+    animVert.Unload();
+
+    GeometryPass geoPass(geometryProgram, camera);
+    AnimatedPass animPass(animateProgram, camera);
     LightPass lightPass(lightProgram, lights, camera);
 
-    viewport.AddPass(&geoPass);
+    //viewport.AddPass(&geoPass);
+    viewport.AddPass(&animPass);
     viewport.AddPass(&lightPass);
+
+    AnimationServer::InitAnimationPass(&animPass);
+    pNode->PlayAnimation("Test Anim 2");
 
 	while(true)
     {
+        pNode->OnUpdate(1 / 60.0f);
+        AnimationServer::FlushCommands();
         window.Clear();
 
         window.Present();

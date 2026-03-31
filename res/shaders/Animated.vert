@@ -1,8 +1,9 @@
+#version 450 core
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aTexCoords;
 layout (location = 2) in vec3 aNormal;
 layout (location = 3) in ivec4 aBoneIDs;
-layout (location = 4) in vec3 aWeights;
+layout (location = 4) in vec4 aWeights;
 
 out vec2 TexCoords;
 out vec3 Normal;
@@ -17,7 +18,7 @@ uniform mat4 gBones[MAX_BONES];
 
 void main()
 {
-    vec4 worldPos = model * vec4(aPos, 1.0);
+    vec4 worldPos = model * vec4(aPosition, 1.0);
 
     mat4 BoneTransform = gBones[aBoneIDs[0]] * aWeights[0];
     BoneTransform += gBones[aBoneIDs[1]] * aWeights[1];
@@ -26,8 +27,8 @@ void main()
 
     vec4 PosL = BoneTransform * vec4(aPosition, 1.0);
     gl_Position = projection * worldPos * view * PosL;
-    TexCoord = aTexCoord;
+    TexCoords = aTexCoords;
     vec4 NormalL = BoneTransform * vec4(aNormal, 0.0);
-    Normal = (gWorld * NormalL).xyz;
-    FragPos = (gWorld * PosL).xyz;
+    Normal = (worldPos * NormalL).xyz;
+    FragPos = (worldPos * PosL).xyz;
 }

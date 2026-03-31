@@ -48,7 +48,6 @@ private:
 
 private:
 	static uint8 m_sTexTypes[];
-	inline static std::unordered_map<std::string, sptr<SceneData>> m_loadedFiles = {};
 };
 
 

@@ -50,8 +50,6 @@ void FBXLoader::LoadDefaultsTextures(std::vector<sptr<Texture>>& vect, std::vect
 
 sptr<SceneData> FBXLoader::LoadFile(std::string const& path)
 {
-    if (m_loadedFiles.contains(path))
-        return m_loadedFiles[path];
     Assimp::Importer importer = Assimp::Importer();
     int importFlags = aiProcess_CalcTangentSpace |
                          aiProcess_Triangulate |
@@ -74,8 +72,7 @@ sptr<SceneData> FBXLoader::LoadFile(std::string const& path)
 
     BuildAnimations(pAScene, uScene);
     BuildLights(pAScene, uScene);
-    m_loadedFiles[path] = std::make_shared<SceneData>(uScene);
-    return m_loadedFiles[path];
+    return std::make_shared<SceneData>(uScene);;
 }
 
 
@@ -117,9 +114,9 @@ void FBXLoader::BuildMeshs(aiScene const* pScene, SceneData& outData, Material& 
             indices.reserve(pMesh->mNumFaces * 3);
             BuildGeometry(pMesh,vertices, indices);
             Geometry geo = Geometry(vertices, indices);
+            std::vector<glm::mat4> bones = {};
             if (pMesh->HasBones())
             {
-                std::vector<glm::mat4> bones = {};
                 BuildBones(outData,pMesh,vertices,indices,bones);
             }
             std::vector<Texture*> meshCreation = {};
@@ -131,6 +128,7 @@ void FBXLoader::BuildMeshs(aiScene const* pScene, SceneData& outData, Material& 
             else
                 LoadDefaultsTextures(textures, meshCreation);
             outData.allMesh.push_back(std::make_shared<Mesh>(geo,meshCreation, outData.allNode[nodeIdx]->transform));
+            outData.allMesh[outData.allMesh.size() - 1]->SetBones(bones);
             outData.allTextures.insert(outData.allTextures.end(), textures.begin(), textures.end());
             meshCreation.clear();
         }
@@ -226,7 +224,7 @@ void FBXLoader::BuildLights(aiScene const* pScene, SceneData& outData)
         l.quadratic = pScene->mLights[i]->mAttenuationQuadratic;
         l.linear = pScene->mLights[i]->mAttenuationLinear;
         l.color = Color(pScene->mLights[i]->mColorAmbient.r, pScene->mLights[i]->mColorAmbient.g, pScene->mLights[i]->mColorAmbient.b, 1.0f);
-        outData.alllights.push_back(l);
+        outData.alllights.push_back(std::make_shared<Light>(l));
     }
 }
 
@@ -278,7 +276,7 @@ void FBXLoader::BuildAnimations(aiScene const* pScene, SceneData& outData)
         {
             BuildAnimationsChannels(outData,pAnim, anim, animCount);
         }
-        outData.animations.push_back(anim);
+        outData.animations.push_back(std::make_shared<Animation>(anim));
     }
 }
 
@@ -290,10 +288,13 @@ void FBXLoader::BuildAnimationsChannels(SceneData& outData,aiAnimation const* pA
     {
         if (std::string(pAnimNode->mNodeName.C_Str()) == outData.allNode[i]->name)
         {
+            if (outData.allNode[i]->type != BONE)
+                return;
             channel.sceneNodeImpacted = i;
             break;
         }
     }
+    channel.frameCount = pAnimNode->mNumPositionKeys;
     channel.positionKeys.reserve(pAnimNode->mNumPositionKeys);
     channel.rotationKeys.reserve(pAnimNode->mNumRotationKeys);
     channel.scalingKeys.reserve(pAnimNode->mNumScalingKeys);
@@ -318,5 +319,5 @@ void FBXLoader::BuildAnimationsChannels(SceneData& outData,aiAnimation const* pA
         f.vec = { pAnimNode->mScalingKeys[k].mValue.x, pAnimNode->mScalingKeys[k].mValue.y,pAnimNode->mScalingKeys[k].mValue.z };
         channel.scalingKeys.push_back(f);
     }
-    outAnim.animationTransform.push_back(channel);
+    outAnim.animationTransform.push_back(std::make_shared<AnimationChannel>(channel));
 }

@@ -21,7 +21,7 @@ void AnimatedPass::AddSkeletalMesh(Mesh const& mesh)
 
 void AnimatedPass::Execute()
 {
-    Logger::Log("Start Geometry Pass Execution");
+    Logger::Log("Start Animation Pass Execution");
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

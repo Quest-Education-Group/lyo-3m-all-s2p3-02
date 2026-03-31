@@ -20,6 +20,7 @@ public:
     glm::mat4 const& GetTransform() const { return m_transform; }
     void SetBones(std::vector<glm::mat4> const& bones);
     std::vector<glm::mat4> GetBonesTransform() const { return m_bonesTransform; }
+    void SetBoneValue(uint32 indx, glm::mat4 const& bone);
 
 private:
     sptr<Geometry> m_pGeometry;
