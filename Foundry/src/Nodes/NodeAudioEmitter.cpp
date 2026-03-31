@@ -40,14 +40,16 @@ void NodeAudioEmitter::SetLoop(bool value)
     ma_sound_set_looping(&m_sound, value);
 }
 
-void NodeAudioEmitter::SetSourcePosition(ma_vec3f position)
+void NodeAudioEmitter::SetSourcePosition(glm::vec3 position)
 {
     ma_sound_set_position(&m_sound, position.x, position.y, position.z);
 }
 
-ma_vec3f NodeAudioEmitter::GetSourcePosition()
+glm::vec3 NodeAudioEmitter::GetSourcePosition()
 {
-    return ma_sound_get_position(&m_sound);
+    ma_vec3f posMa = ma_sound_get_position(&m_sound);
+    glm::vec3 posGlm = { posMa.x, posMa.y, posMa.z };
+    return posGlm;
 }
 
 void NodeAudioEmitter::OnUpdate(double delta)

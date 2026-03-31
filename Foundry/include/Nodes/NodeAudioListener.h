@@ -3,6 +3,7 @@
 
 #include "Node.h"
 #include "Servers/AudioServer.h"
+#include "Transform3D.h"
 
 class NodeAudioListener : public Node
 {
@@ -12,11 +13,11 @@ public:
 	NodeAudioListener(std::string const& name);
 	~NodeAudioListener() override = default;
 
-	void SetListenerPosition(ma_vec3f position);
-	ma_vec3f GetListenerPosition();
+	void SetListenerPosition(glm::vec3 position);
+	glm::vec3 GetListenerPosition();
 
-	void SetListenerDirection(ma_vec3f position);
-	ma_vec3f GetListenerDirection();
+	void SetListenerDirection(glm::vec3 position);
+	glm::vec3 GetListenerDirection();
 
 	virtual void OnUpdate(double delta) override;
 

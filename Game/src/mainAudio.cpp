@@ -99,28 +99,28 @@ int main()
 
 		else if (GetAsyncKeyState('Z') & 0x8000) //PositionAudio3D Listener
 		{
-			ma_vec3f newPos = audioListen->GetListenerPosition();
+			glm::vec3 newPos = audioListen->GetListenerPosition();
 			newPos.y += 0.1f;
 
 			audioListen->SetListenerPosition(newPos);
 		}
 		else if (GetAsyncKeyState('Q') & 0x8000)
 		{
-			ma_vec3f newPos = audioListen->GetListenerPosition();
+			glm::vec3 newPos = audioListen->GetListenerPosition();
 			newPos.x -= 0.1f;
 
 			audioListen->SetListenerPosition(newPos);
 		}
 		else if (GetAsyncKeyState('S') & 0x8000)
 		{
-			ma_vec3f newPos = audioListen->GetListenerPosition();
+			glm::vec3 newPos = audioListen->GetListenerPosition();
 			newPos.y -= 0.1f;
 
 			audioListen->SetListenerPosition(newPos);
 		}
 		else if (GetAsyncKeyState('D') & 0x8000)
 		{
-			ma_vec3f newPos = audioListen->GetListenerPosition();
+			glm::vec3 newPos = audioListen->GetListenerPosition();
 			newPos.x += 0.1f;
 
 			audioListen->SetListenerPosition(newPos);

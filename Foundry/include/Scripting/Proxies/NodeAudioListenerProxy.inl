@@ -6,11 +6,11 @@ public:
 
 	Proxy(Node& node) : Node::Proxy(node) {}
 
-	void SetListenerPosition(ma_vec3f position) { return m_pNode->SetListenerPosition(position); }
-	ma_vec3f GetListenerPosition() { return m_pNode->GetListenerPosition(); }
+	void SetListenerPosition(glm::vec3 position) { return m_pNode->SetListenerPosition(position); }
+	glm::vec3 GetListenerPosition() { return m_pNode->GetListenerPosition(); }
 
-	void SetListenerDirection(ma_vec3f position) { return m_pNode->SetListenerDirection(position); }
-	ma_vec3f GetListenerDirection() { return m_pNode->GetListenerDirection(); }
+	void SetListenerDirection(glm::vec3 position) { return m_pNode->SetListenerDirection(position); }
+	glm::vec3 GetListenerDirection() { return m_pNode->GetListenerDirection(); }
 
 private:
 	NodeAudioListener* m_pNode;

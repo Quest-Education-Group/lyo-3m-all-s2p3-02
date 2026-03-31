@@ -3,6 +3,7 @@
 
 #include "Node.h"
 #include "Servers/AudioServer.h"
+#include "Transform3D.h"
 
 class NodeAudioEmitter : public Node
 {
@@ -18,8 +19,8 @@ public:
 	void Stop();
 	void SetLoop(bool value);
 
-	void SetSourcePosition(ma_vec3f position);
-	ma_vec3f GetSourcePosition();
+	void SetSourcePosition(glm::vec3 position);
+	glm::vec3 GetSourcePosition();
 
 	bool IsPlaying() { return m_isPlaying; };
 
