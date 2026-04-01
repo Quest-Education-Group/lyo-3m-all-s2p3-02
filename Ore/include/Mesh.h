@@ -8,7 +8,7 @@
 #include <span>
 #include <glm/glm.hpp>
 
-using TextureSpan = std::span<std::reference_wrapper<Texture>>;
+using TextureSpan = std::span<sptr<Texture>>;
 
 class Mesh final : public IMesh 
 {
@@ -25,7 +25,7 @@ public:
 
     void SetTransform(glm::mat4 const& transform) { m_transform = transform;}
     void SetGeometry(sptr<Geometry> const& geometry) { m_pGeometry = geometry; }
-    void SetTextures(std::span<std::reference_wrapper<Texture>> textures) { m_textures = textures; }
+    void SetTextures(TextureSpan const textures) { m_textures = textures; }
 
 private:
     sptr<Geometry> m_pGeometry;

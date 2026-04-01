@@ -12,7 +12,6 @@ public:
     Pass(Program& program);
     Pass(Program& program, Camera* camera);
     ~Pass() override = default;
-    void SetSize(uint32 width, uint32 height) {m_screenWidth = width, m_screenHeight = height;}
     void SetCamera(Camera* pCamera) { m_pCamera = pCamera; }
 
 private:

@@ -7,14 +7,36 @@
 
 uptr<Node> LoadScene()
 {
-    uptr<Node> scene = Node::CreateNode<Node>("Scene");
-    uptr<NodeCamera> camera = Node::CreateNode<NodeCamera>("Camera");
-    camera->SetLocalZ(5);
-    camera->SetLocalY(-90);
+    sptr<Texture> normal = std::make_shared<Texture>("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
+    sptr<Texture> specular = std::make_shared<Texture>("res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
 
-    uptr<Node> mesh = Node::CreateNode<NodeMesh>("Cube");
-    scene->AddChild(std::move(camera));
-    scene->AddChild(mesh);
+    uptr<Node> scene = Node::CreateNode<Node>("Scene");
+
+    uptr<Node> viewport = Node::CreateNode<NodeViewport>("Viewport");
+    uptr<Node> viewport2 = Node::CreateNode<NodeViewport>("Viewport2");
+
+    uptr<NodeCamera> camera = Node::CreateNode<NodeCamera>("Camera");
+    camera->SetLocalZ(-5);
+    camera->SetLocalRotationDeg(0, -90, 0);
+
+    uptr<NodeCamera> camera2 = Node::CreateNode<NodeCamera>("Camera2");
+    camera2->SetLocalZ(-5);
+    camera2->SetLocalRotationDeg(0, -90, 0);
+
+    uptr<NodeMesh> mesh = Node::CreateNode<NodeMesh>("Cube");
+    mesh->AddTextures(normal, specular);
+
+    uptr<NodeMesh> mesh2 = Node::CreateNode<NodeMesh>("Cube2");
+    mesh2->AddTextures(normal, specular);
+
+    viewport2->AddChild(std::move(camera));
+    viewport2->AddChild(std::move(mesh));
+
+    viewport->AddChild(std::move(mesh2));
+    viewport->AddChild(std::move(camera2));
+
+    scene->AddChild(std::move(viewport));
+    scene->AddChild(std::move(viewport2));
 
     return scene;
 }
@@ -22,8 +44,6 @@ uptr<Node> LoadScene()
 int main()
 {
     uptr<Node> root = Node::CreateNode<NodeWindow>("Window");
-    uptr<Node> viewport = Node::CreateNode<NodeViewport>("Viewport");
-    root->AddChild(viewport);
 
     SceneTree defaultSceneTree(root);
 

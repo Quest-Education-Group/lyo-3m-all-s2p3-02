@@ -22,6 +22,7 @@ private:
     uint32 m_screenWidth;
     uint32 m_screenHeight;
     uint32 m_gBuffer;
+    uint32 m_rboDepth;
 
     std::vector<Pass*> m_passes;
 

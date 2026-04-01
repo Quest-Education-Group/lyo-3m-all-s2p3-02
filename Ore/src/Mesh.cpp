@@ -19,11 +19,11 @@ void Mesh::Draw(IProgram const& pProgram) const
     uint32 normalNr = 1;
     uint32 heightNr = 1;
 
-    for(uint32 i = 0; i<m_textures.size(); ++i)
+    for(uint32 i = 0; i < m_textures.size(); ++i)
     {
         glActiveTexture(GL_TEXTURE0 + i); 
         std::string name;
-        TextureMaterialType matType = m_textures[i].get().GetTextureMaterialType();
+        TextureMaterialType matType = m_textures[i]->GetTextureMaterialType();
         switch(matType)
         {
         case(TextureMaterialType::DIFFUSE):
@@ -42,7 +42,7 @@ void Mesh::Draw(IProgram const& pProgram) const
 
         Logger::Log(name);
         glUniform1i(glGetUniformLocation(pProgram.GetProgramId(), name.c_str()), i);
-        m_textures[i].get().GetTextureObject().Bind();
+        m_textures[i]->GetTextureObject().Bind();
     }
 
     m_pGeometry->Draw();

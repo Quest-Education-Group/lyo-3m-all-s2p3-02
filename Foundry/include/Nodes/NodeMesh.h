@@ -19,22 +19,22 @@ public:
     void SetGeometry(sptr<Geometry> const& geometry) const;
 
     template <typename ... Args>
-    void AddTextures(Args& ... textures);
+    void AddTextures(Args ... textures);
 
     static ISerializable* CreateInstance();
 
 private:
     uptr<Mesh> m_pMesh;
-    std::vector<std::reference_wrapper<Texture>> m_textures;
+    std::vector<sptr<Texture>> m_textures;
 
     friend class NodeViewport;
 };
 
 
 template <typename ... Args>
-void NodeMesh::AddTextures(Args& ... textures)
+void NodeMesh::AddTextures(Args ... textures)
 {
-    (m_textures.push_back(std::ref(textures)), ...);
+    (m_textures.push_back(textures), ...);
     m_pMesh->SetTextures(m_textures);
 }
 

@@ -6,6 +6,7 @@ NodeWindow::NodeWindow(std::string const& name) : Node2D(name)
 {
     m_pWindow = std::make_unique<Window>(1920, 1080, name);
     m_transform.SetScale(1920, 1080);
+    m_pWindow->onResizeEvent += [&](int32 const width, int32 const height) { m_transform.SetScale(width, height); };
     GraphicServer::OpenWindow(this);
 }
 
@@ -20,14 +21,15 @@ void NodeWindow::OnUpdate(double const delta)
     Node2D::OnUpdate(delta);
     if (dirty) UpdateWindow();
 
-    GraphicServer::Clear(this);
-    GraphicServer::Present(this);
+    GraphicServer::BeginFrame(this);
+    GraphicServer::EndFrame(this);
 }
 
 void NodeWindow::AddViewport(NodeViewport& viewport)
 {
     m_nViewports.push_back(viewport);
     m_pWindow->AddViewport(*viewport.m_pViewPort);
+    UpdateWindow();
 }
 
 void NodeWindow::RemoveViewport(NodeViewport const& viewport)

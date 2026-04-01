@@ -17,7 +17,7 @@ struct Command<class GraphicServer>
 {
     enum class CmdType
     {
-        LOADSHADERS, SETUPVIEWPORT, ATTACHCAMERA, ATTACHVIEWPORT, OPENWINDOW, CLEAR, PRESENT
+        LOADSHADERS, SETUPVIEWPORT, ATTACHCAMERA, ATTACHVIEWPORT, OPENWINDOW, CLEAR, PRESENT, BEGINFRAME, ENDFRAME
     } Type;
 
     NodeWindow* pNodeWindow = nullptr;
@@ -33,8 +33,10 @@ public:
     static void AttachToWindow(NodeViewport* pViewport, NodeWindow* pWindow);
     static void AttachToViewport(NodeCamera* pCamera, NodeViewport* pViewport);
     static void OpenWindow(NodeWindow* pWindow);
-    static void Present(NodeWindow* pWindow);
-    static void Clear(NodeWindow* pWindow);
+    static void Present(NodeViewport* pViewport);
+    static void Clear(NodeViewport* pViewport);
+    static void BeginFrame(NodeWindow* pWindow);
+    static void EndFrame(NodeWindow* pWindow);
     static void LoadShaderPrograms(NodeViewport* pViewport);
 
     static Shader& GetGeoVert() { return Instance().m_geoVert; }
@@ -67,6 +69,8 @@ private:
 
     sptr<Geometry> m_defaultCubeGeo;
     sptr<Texture> m_defaultTexture;
+
+    std::vector<NodeWindow*> m_pWindowsToSwap;
 };
 
 #endif

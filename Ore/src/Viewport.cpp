@@ -34,11 +34,9 @@ void Viewport::SetSize(uint16 width, uint16 height)
 
 void Viewport::Clear() const
 {
-    glEnable(GL_SCISSOR_TEST);
-    glScissor(m_x, m_y, m_width, m_height);
+    glViewport(m_x, m_y, m_width, m_height);
     glClearColor(m_backgroundColor.r, m_backgroundColor.g, m_backgroundColor.b, m_backgroundColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDisable(GL_SCISSOR_TEST);
 }
 
 void Viewport::AddPass(Pass* pPass)

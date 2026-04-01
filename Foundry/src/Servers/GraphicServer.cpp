@@ -10,14 +10,24 @@ void GraphicServer::OpenWindow(NodeWindow* pWindow)
     Instance().m_commands.push({CommandType::OPENWINDOW, pWindow});
 }
 
-void GraphicServer::Present(NodeWindow* pWindow)
+void GraphicServer::Present(NodeViewport* pViewport)
 {
-    Instance().m_commands.push({CommandType::PRESENT, pWindow});
+    Instance().m_commands.push({CommandType::PRESENT, nullptr, pViewport});
 }
 
-void GraphicServer::Clear(NodeWindow* pWindow)
+void GraphicServer::Clear(NodeViewport* pViewport)
 {
-    Instance().m_commands.push({CommandType::CLEAR, pWindow});
+    Instance().m_commands.push({CommandType::CLEAR, nullptr, pViewport});
+}
+
+void GraphicServer::BeginFrame(NodeWindow* pWindow)
+{
+    Instance().m_commands.push({CommandType::BEGINFRAME, pWindow});
+}
+
+void GraphicServer::EndFrame(NodeWindow* pWindow)
+{
+    Instance().m_commands.push({CommandType::ENDFRAME, pWindow});
 }
 
 void GraphicServer::AttachToWindow(NodeViewport *pViewport, NodeWindow *pWindow)
@@ -68,8 +78,17 @@ void GraphicServer::LoadShader()
     m_lightProgram.AddShader(&m_lightFrag);
     m_lightProgram.Load();
 
-    GeoInfo cubeInfo = GeometryFactory::MakeCube(.5f, .5f, .5f);
-    m_defaultCubeGeo = std::make_shared<Geometry>(cubeInfo.m_vertices, cubeInfo.m_indices);
+    std::vector<Vertex> vertices;
+    vertices.push_back({ glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f) });
+    vertices.push_back({ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f) });
+    vertices.push_back({ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f) });
+    vertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f) });
+
+    std::vector<uint32> indices = {
+        0,1,2,
+        0,2,3
+    };
+    m_defaultCubeGeo = std::make_shared<Geometry>(vertices, indices);
     m_defaultTexture = std::make_shared<Texture>("res/textures/Default.png", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
 }
 
@@ -98,12 +117,21 @@ void GraphicServer::FlushCommandsImpl()
                 cmd.pNodeWindow->OpenWindow();
                 break;
             case CommandType::CLEAR:
-                cmd.pNodeWindow->ClearWindow();
+                cmd.pNodeViewport->Clear();
                 break;
             case CommandType::PRESENT:
-                cmd.pNodeWindow->PresentWindow();
+                cmd.pNodeViewport->Present();
+                break;
+            case CommandType::BEGINFRAME:
+                cmd.pNodeWindow->ClearWindow();
+                break;
+        case CommandType::ENDFRAME:
+                m_pWindowsToSwap.push_back(cmd.pNodeWindow);
                 break;
         }
         m_commands.pop();
     }
+
+    std::ranges::for_each(m_pWindowsToSwap, [](NodeWindow const* pWindow){pWindow->PresentWindow(); });
+    m_pWindowsToSwap.clear();
 }

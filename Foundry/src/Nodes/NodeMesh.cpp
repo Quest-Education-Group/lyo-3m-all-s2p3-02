@@ -8,8 +8,7 @@ NodeMesh::NodeMesh(std::string const& name) : NodeVisual(name)
     m_pMesh = std::make_unique<Mesh>();
     m_pMesh->SetGeometry(GraphicServer::GetDefaultGeo());
     //problem here
-    Texture normal = Texture("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
-    AddTextures(*GraphicServer::GetDefaultTexture());
+    AddTextures(GraphicServer::GetDefaultTexture());
     m_pMesh->SetTransform(m_transform.GetMatrix());
 }
 
@@ -18,7 +17,8 @@ void NodeMesh::OnUpdate(double delta)
     NodeVisual::OnUpdate(delta);
     m_pMesh->SetTransform(m_transform.GetMatrix());
 
-    if (IsVisible()) m_pViewport->AddMesh(*this);
+    if (IsVisible() && m_pViewport)
+        m_pViewport->AddMesh(*this);
 }
 
 bool NodeMesh::IsVisible()

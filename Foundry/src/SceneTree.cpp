@@ -20,5 +20,5 @@ SceneTree& SceneTree::operator=(SceneTree const& other)
 void SceneTree::ChangeSceneToNode(uptr<Node> newScene)
 {
     if (m_pCurrentScene) m_pCurrentScene->Destroy();
-    m_root->GetChild(0).AddChild(newScene);
+    m_root->AddChild(newScene);
 }

@@ -31,6 +31,7 @@ public:
     void UpdateVectors();
 
     void SetPosition(glm::vec3 const& position)    { m_position = position;}
+    void SetWorldUp(glm::vec3 const& up) { m_worldUp = up; }
 
     void SetYaw(float yaw) {m_yaw = yaw; UpdateVectors(); };
     void SetPitch(float pitch) {m_pitch = pitch; UpdateVectors(); }

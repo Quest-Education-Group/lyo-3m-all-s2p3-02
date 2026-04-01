@@ -32,6 +32,8 @@ public:
 private:
 	void UpdateViewport() const;
 	void TryAttachToWindow();
+	void Clear();
+	void Present();
 
 protected:
 	uptr<Viewport> m_pViewPort;

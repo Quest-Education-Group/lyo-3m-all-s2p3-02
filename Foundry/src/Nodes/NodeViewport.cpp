@@ -21,6 +21,13 @@ void NodeViewport::Setup()
 	m_pViewPort->Setup({0.0f, 0.0f}, {10.0f, 10.0f}, m_clearColor);
 	m_pGeometryPass = std::make_unique<GeometryPass>(GraphicServer::GetGeoProgram());
 	m_pLightPass = std::make_unique<LightPass>(GraphicServer::GetLightProgram(), dummyLight);
+
+	GraphicServer::GetLightProgram().Use();
+	GraphicServer::GetLightProgram().SetUniform("gPosition", 0);
+	GraphicServer::GetLightProgram().SetUniform("gNormal", 1);
+	GraphicServer::GetLightProgram().SetUniform("gAlbedoSpec", 2);
+
+
 	m_pViewPort->AddPass(m_pGeometryPass.get());
 	m_pViewPort->AddPass(m_pLightPass.get());
 	UpdateViewport();
@@ -31,6 +38,9 @@ void NodeViewport::OnUpdate(double const delta)
 	bool const dirty = m_transform.GetDirty();
 	Node2D::OnUpdate(delta);
 	if (dirty) UpdateViewport();
+
+	GraphicServer::Clear(this);
+	GraphicServer::Present(this);
 }
 
 void NodeViewport::SetBackgroundColor(Color const &color)
@@ -62,6 +72,16 @@ void NodeViewport::TryAttachToWindow()
 {
 	if (auto const window = FindFirstParentOfType<NodeWindow>())
 		GraphicServer::AttachToWindow(this, &window->get());
+}
+
+void NodeViewport::Clear()
+{
+	m_pViewPort->Clear();
+}
+
+void NodeViewport::Present()
+{
+	m_pViewPort->Present();
 }
 
 ISerializable* NodeViewport::CreateInstance() { return CreateNode<NodeViewport>("NodeViewport").release(); }

@@ -91,19 +91,10 @@ void Window::Open()
 void Window::Clear()
 {
     glfwMakeContextCurrent(m_pWindow);
-    for(Viewport const* pViewport : m_viewports)
-    {
-        pViewport->Clear();
-    }
 }
 
 void Window::Present()
 {
-    for(Viewport const* pViewport : m_viewports)
-    {
-        pViewport->Present();
-    }
-
 	glfwSwapBuffers(m_pWindow);
 	glfwPollEvents();
 }
