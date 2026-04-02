@@ -4,6 +4,8 @@
 #include "Node.h"
 #include "NodeRigidBody.h"
 
+#include <functional>
+
 class NodeCollider : public Node3D
 {
 public:
@@ -19,7 +21,7 @@ public:
 	void Detach();
 	bool IsAttached() const { return m_pCollider != nullptr; }
 
-	//rp3d::Collider* GetCollider() const { return m_pCollider; }
+
 
 	// Engine
 	////////////////////////////////////////////////////////////
@@ -60,6 +62,14 @@ public:
 	void     SetCollideWithMaskBits(uint16_t mask);
 	uint16_t GetCollisionBitsMask() const;
 
+	// =========== RP3D Events ===========
+
+
+	void ContactEvent(NodeCollider& other);
+	void TriggerEvent(NodeCollider& other);
+
+	Event<void(NodeCollider&, const NodeRigidBody& data)> OnContact;
+	Event<void(NodeCollider&, const NodeRigidBody& data)> OnTrigger;
 
 protected:
 	virtual void      DestroyShape() = 0;
@@ -67,9 +77,10 @@ protected:
 
 	rp3d::Collider* m_pCollider		= nullptr;
 	rp3d::CollisionShape* m_pShape	= nullptr;  
-	rp3d::RigidBody* m_pRigidBody	= nullptr;
+	rp3d::RigidBody* m_pRigidBodyRP3D = nullptr;
 
-	NodeRigidBody* m_pAttachedRigidBody = nullptr;
+	NodeRigidBody* m_pNodeRigidBody = nullptr;
+
 
 	glm::vec3 m_localPosition{ 0.0f, 0.0f, 0.0f };
 	glm::quat m_localRotation{ 1.0f, 0.0f, 0.0f, 0.0f };
@@ -78,6 +89,11 @@ protected:
 
 	friend class PhysicsServer;
 };
+
+
+
+// =========== Specific colliders ===========
+
 class NodeBoxCollider : public NodeCollider
 {
 public:
@@ -87,6 +103,7 @@ public:
 private:
 	virtual void DestroyShape() override;
 };
+
 class NodeSphereCollider : public NodeCollider
 {
 public:
@@ -96,6 +113,7 @@ public:
 private:
 	virtual void DestroyShape() override;
 };
+
 class NodeCapsuleCollider : public NodeCollider
 {
 public:

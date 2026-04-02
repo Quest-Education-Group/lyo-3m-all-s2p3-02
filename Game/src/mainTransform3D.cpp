@@ -68,9 +68,8 @@
 //	}
 //};
  
-
 // Class events to redefine for custom collision and trigger events
-class PhysicsEvents : public rp3d::EventListener
+class PhysicsEventz : public rp3d::EventListener
 {
 public:
 	virtual void onContact(const rp3d::CollisionCallback::CallbackData& data) = 0;
@@ -78,7 +77,7 @@ public:
 };
 
 
-class Events : public PhysicsEvents
+class Events : public PhysicsEventz
 {
 public:
 	bool hit = false;
@@ -368,12 +367,6 @@ int main() {
 
 		if (IsKeyDown(KEY_Q)) ref_playerRB->ApplyWorldForceAtCenterOfMass({ 0, 500, 0 });	// Up = A
 		if (IsKeyDown(KEY_E)) ref_playerRB->ApplyWorldForceAtCenterOfMass({ 0, -500, 0 });	// Down = E
-
-		//if(ref_triggerCollider->IsTrigger())
-		//	DEBUG("Trigger is on\n");
-		//else
-		//	DEBUG("Trigger is off\n");
-
 
 		if (IsKeyDown(KEY_V))  ref_playerRB->ApplyLocalTorque({ 500,0,0 });
 		if (IsKeyDown(KEY_B)) ref_playerRB->ApplyLocalTorque({ 0,500,0 });
