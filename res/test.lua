@@ -11,7 +11,7 @@ function OnInit()
 end
 
 function OnUpdate(dt)
-    local vec = fmaths.vec3.new()
+    local vec = fmaths.vec3:new()
     print(vec.x)
 
     print(hook)
