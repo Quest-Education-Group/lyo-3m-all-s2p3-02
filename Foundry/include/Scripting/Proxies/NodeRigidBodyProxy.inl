@@ -84,6 +84,7 @@ private:
 };
 
 BindProxy(NodeRigidBody::Proxy,
+	binder.BindFunction("CreateNodeRigidBody", &NodeRigidBody::Proxy::CreateNodeRigidBodyProxy);
 	return binder.BindClass<NodeRigidBody::Proxy>("noderigidbody",
 		"ApplyLocalForceAtCenterOfMass", BIND(ApplyLocalForceAtCenterOfMass),
 	"ApplyLocalForceAtLocalPosition", BIND(ApplyLocalForceAtLocalPosition),
