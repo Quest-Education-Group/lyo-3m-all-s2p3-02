@@ -32,9 +32,9 @@ void Program::Load()
     }
 }
 
-void Program::AddShader(IShader* pShader)
+void Program::AddShader(IShader const& pShader)
 {
-    m_shaderIds.push_back(static_cast<GLuint>(pShader->GetId()));
+    m_shaderIds.push_back(pShader.GetId());
 }
 
 void Program::Use()

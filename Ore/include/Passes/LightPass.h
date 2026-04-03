@@ -18,8 +18,6 @@ struct Light
     float linear = 0.7f;
     float quadratic = 1.8f;
     Color color = {1.0f, 1.0f, 1.0f, 1.0f};
-
-    Light() = default;
 };
 
 class LightPass final : public Pass
@@ -27,7 +25,7 @@ class LightPass final : public Pass
 public:
     LightPass(Program& program, LightSpan lights);
     LightPass(Program& program, LightSpan lights, Camera* pCamera);
-    ~LightPass() override;
+    ~LightPass() = default;
 
     void SetLights(LightSpan const& lights);
     void Execute() override;

@@ -29,8 +29,10 @@ public:
 	void AddMesh(NodeMesh const &mesh) const;
 
 	static ISerializable* CreateInstance();
+
+	Event<void(uint32, uint32)> OnViewportResize;
 private:
-	void UpdateViewport() const;
+	void UpdateViewport();
 	void TryAttachToWindow();
 	void Clear() const;
 	void Present() const;

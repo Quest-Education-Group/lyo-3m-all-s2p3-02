@@ -14,7 +14,7 @@ public:
     NodeCamera(std::string const& name);
     ~NodeCamera() override = default;
 
-    void SetFOV(float const fov) { m_camera.SetFov(fov); }
+    void SetFOV(float const fov) { m_camera.Perspective.fov = fov; }
 
     virtual void OnUpdate(double delta) override;
     virtual void Reparent(Node& newParent, bool keepGlobalTransform = true) override {};

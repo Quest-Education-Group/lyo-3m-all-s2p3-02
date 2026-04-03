@@ -7,14 +7,8 @@
 NodeCamera::NodeCamera(std::string const &name) : Node3D(name)
 {
     SetFOV(45);
-    m_camera.SetWorldUp({0.0f, 1.0f, 0.0f});
+    m_camera.Perspective.up = {0.0f, 1.0f, 0.0f};
     OnHierarchyChanged += [&](){ TryAttachToViewport(); };
-
-    m_camera.SetYaw(-90);
-    m_camera.SetPosition({0.0f, 0.0f, 50.0f});
-    m_camera.UpdateVectors();
-    //m_camera.SetPitch(m_transform.GetPitch());
-    //m_camera.SetRoll(m_transform.GetRoll());
 }
 
 void NodeCamera::OnUpdate(double delta)
@@ -24,11 +18,8 @@ void NodeCamera::OnUpdate(double delta)
 
     if (need_update)
     {
-        m_camera.SetYaw(-90);
-        //m_camera.SetPitch(m_transform.GetPitch());
-        //m_camera.SetRoll(m_transform.GetRoll());
-        m_camera.SetPosition({0.0f, 0.0f, 5.0f});
-        m_camera.UpdateVectors();
+        m_camera.SetTransform(m_transform.GetMatrix());
+        m_camera.UpdateCamera();
     }
 }
 
@@ -57,5 +48,10 @@ void NodeCamera::UpdateCameraOwner(NodeViewport& newOwner)
 {
     if (m_pCurrentViewport) m_pCurrentViewport->SetCamera(nullptr);
     m_pCurrentViewport = &newOwner;
+    m_pCurrentViewport->OnViewportResize += [&](uint32 const width, uint32 const height)
+    {
+        m_camera.Perspective.aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+        m_camera.UpdateCamera();
+    };
     newOwner.SetCamera(this);
 }

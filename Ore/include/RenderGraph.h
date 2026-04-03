@@ -10,7 +10,7 @@ class RenderGraph : public IRenderGraph
 {
 public:
     RenderGraph(Viewport& viewport);
-    ~RenderGraph() override; 
+    ~RenderGraph() = default;
 
     void AddPass(Pass* pPass);
     void Execute() override;

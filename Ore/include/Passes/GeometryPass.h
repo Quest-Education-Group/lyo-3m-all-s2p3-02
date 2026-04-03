@@ -10,7 +10,7 @@ class GeometryPass final : public Pass
 public:
     GeometryPass(Program& program);
     GeometryPass(Program& program, Camera* pCamera);
-    ~GeometryPass() override;
+    ~GeometryPass() = default;
 
     void Execute() override;
     void AddMesh(Mesh const& mesh);

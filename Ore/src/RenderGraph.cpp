@@ -24,10 +24,6 @@ RenderGraph::RenderGraph(Viewport& viewport) : m_viewport(viewport)
     RenderGraph::CreateGBuffer(viewport.GetWidth(), viewport.GetHeight());
 }
 
-RenderGraph::~RenderGraph()
-{
-}
-
 void RenderGraph::UpdateGBuffer()
 {
     CreateGBuffer(m_viewport.GetWidth(), m_viewport.GetHeight());

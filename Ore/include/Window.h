@@ -4,7 +4,6 @@
 #include "IWindow.h"
 #include "Viewport.h"
 
-#include <map>
 #include <vector>
 #include <GLFW/glfw3.h>
 
@@ -12,7 +11,7 @@ class Window : public IWindow
 {
 public:
     Window(int width, int height, std::string name, bool enableTransparency = false, bool visible = true);
-    ~Window() override;
+    ~Window();
 
     void Clear() override;
     void Close() override;

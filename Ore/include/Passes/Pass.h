@@ -11,7 +11,6 @@ class Pass : public IPass
 public:
     Pass(Program& program);
     Pass(Program& program, Camera* camera);
-    ~Pass() override = default;
     void SetCamera(Camera* pCamera) { m_pCamera = pCamera; }
 
 private:

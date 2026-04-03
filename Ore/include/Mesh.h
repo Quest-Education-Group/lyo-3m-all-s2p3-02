@@ -15,7 +15,7 @@ class Mesh final : public IMesh
 public:
     Mesh() = default;
     Mesh(sptr<Geometry> const& geometry, TextureSpan textures, glm::mat4 const& transform);
-    ~Mesh() override = default;
+    ~Mesh() = default;
 
     void SetActive(bool const isActive) {m_isActive = isActive;}
     bool GetIsActive() const {return m_isActive;}
@@ -30,8 +30,8 @@ public:
 private:
     sptr<Geometry> m_pGeometry;
     TextureSpan m_textures;
-    bool m_isActive = true;
     glm::mat4 m_transform;
+    bool m_isActive = true;
 };
 
 #endif

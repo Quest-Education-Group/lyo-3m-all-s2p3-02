@@ -60,12 +60,13 @@ void NodeViewport::AddMesh(NodeMesh const& mesh) const
 	m_pGeometryPass->AddMesh(*mesh.m_pMesh);
 }
 
-void NodeViewport::UpdateViewport() const
+void NodeViewport::UpdateViewport()
 {
 	glm::vec2 const& pos = m_transform.GetPosition();
 	glm::vec2 const& scale = m_transform.GetScale();
 	m_pViewPort->SetPos(pos.x, pos.y);
 	m_pViewPort->SetSize(scale.x, scale.y);
+	OnViewportResize(scale.x, scale.y);
 }
 
 void NodeViewport::TryAttachToWindow()

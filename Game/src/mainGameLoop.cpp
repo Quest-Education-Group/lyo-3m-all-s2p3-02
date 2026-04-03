@@ -16,12 +16,10 @@ uptr<Node> LoadScene()
     uptr<Node> viewport2 = Node::CreateNode<NodeViewport>("Viewport2");
 
     uptr<NodeCamera> camera = Node::CreateNode<NodeCamera>("Camera");
-    camera->SetLocalZ(-5);
-    camera->SetLocalRotationDeg(0, -90, 0);
+    camera->SetLocalZ(5);
 
     uptr<NodeCamera> camera2 = Node::CreateNode<NodeCamera>("Camera2");
-    camera2->SetLocalZ(-5);
-    camera2->SetLocalRotationDeg(0, -90, 0);
+    camera2->SetLocalZ(5);
 
     uptr<NodeMesh> mesh = Node::CreateNode<NodeMesh>("Cube");
     mesh->AddTextures(normal, specular);

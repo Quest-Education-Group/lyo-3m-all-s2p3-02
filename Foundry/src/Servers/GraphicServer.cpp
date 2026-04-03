@@ -70,12 +70,12 @@ void GraphicServer::LoadShader()
     m_lightVert.Load("res/shaders/LightPass.vert");
     m_lightFrag.Load("res/shaders/LightPass.frag");
 
-    m_geoProgram.AddShader(&m_geoVert);
-    m_geoProgram.AddShader(&m_geoFrag);
+    m_geoProgram.AddShader(m_geoVert);
+    m_geoProgram.AddShader(m_geoFrag);
     m_geoProgram.Load();
 
-    m_lightProgram.AddShader(&m_lightVert);
-    m_lightProgram.AddShader(&m_lightFrag);
+    m_lightProgram.AddShader(m_lightVert);
+    m_lightProgram.AddShader(m_lightFrag);
     m_lightProgram.Load();
 
     GeoInfo cubeInfo = GeometryFactory::MakeCube(1.0f, 1.0f, 1.0f);

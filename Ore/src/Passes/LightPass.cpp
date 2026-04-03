@@ -45,10 +45,6 @@ void LightPass::GenerateQuad()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 }
 
-LightPass::~LightPass()
-{
-}
-
 void LightPass::SetLights(LightSpan const& lights)
 {
     m_lights = lights;

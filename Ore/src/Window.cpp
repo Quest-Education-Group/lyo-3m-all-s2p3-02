@@ -26,7 +26,7 @@ Window::Window(int width, int height, std::string name, bool enableTransparency,
 
 Window::~Window()
 {
-    Close();
+	Window::Close();
 }
 
 void Window::SetIcon(std::string const& path)
