@@ -5,6 +5,8 @@
 #include "Nodes/NodeViewport.h"
 #include "Nodes/NodeWindow.h"
 
+#include "Scripting/Lua/LuaScriptInstance.hpp"
+
 uptr<Node> LoadScene()
 {
     sptr<Texture> normal = std::make_shared<Texture>("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
@@ -37,6 +39,9 @@ uptr<Node> LoadScene()
 
     scene->AddChild(std::move(viewport));
     scene->AddChild(std::move(viewport2));
+
+    uptr<LuaScriptInstance> script = std::make_unique<LuaScriptInstance>("res/test.lua");
+    Node::AttachScript(script, *scene);
 
     return scene;
 }
