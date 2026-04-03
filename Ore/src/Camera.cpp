@@ -1,6 +1,7 @@
 #include "Camera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <array>
 
 std::array<glm::vec3, 8> Camera::GetFrustum() const
 {
