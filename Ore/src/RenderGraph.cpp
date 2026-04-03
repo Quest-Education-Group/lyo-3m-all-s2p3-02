@@ -95,17 +95,10 @@ void RenderGraph::Execute()
    End();
 }
 
-
 void RenderGraph::End()
 {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_gBuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-    uint32 width = m_viewport.GetWidth();
-    uint32 height = m_viewport.GetHeight();
-    uint32 y = m_viewport.GetPosY();
-    uint32 x = m_viewport.GetPosX();
-
 
     glBlitFramebuffer(0,0, m_viewport.GetWidth(), m_viewport.GetHeight(),
         m_viewport.GetPosX(), m_viewport.GetPosY(), m_viewport.GetPosX() + m_viewport.GetWidth(), m_viewport.GetPosY() + m_viewport.GetHeight(),

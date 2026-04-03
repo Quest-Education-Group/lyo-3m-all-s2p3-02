@@ -25,7 +25,7 @@ uptr<Node> LoadScene()
 
     uptr<NodeMesh> mesh = Node::CreateNode<NodeMesh>("Cube");
     mesh->AddTextures(normal, specular);
-    //mesh->SetLocalX(1.2);
+    mesh->SetLocalX(1.5);
 
     uptr<NodeMesh> mesh2 = Node::CreateNode<NodeMesh>("Cube2");
     mesh2->AddTextures(normal, specular);
