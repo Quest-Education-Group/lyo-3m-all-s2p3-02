@@ -2,8 +2,6 @@
 #define FOUNDRY_LUA_ENVIRO__H_
 
 #include "Scripting/ScriptInstance.h"
-
-#include <functional>
 #include <sol/sol.hpp>
 
 class LuaScriptInstance : public ScriptInstance
@@ -12,7 +10,7 @@ public:
 	LuaScriptInstance(std::string const& scriptPath);
 
 	template <typename T>
-	void AttachToProxy(T* const proxy);
+	void AttachToProxy(T* proxy);
 
 	std::string& GetPath() { return m_stringPath; }
 
