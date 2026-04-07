@@ -130,7 +130,6 @@ int main()
 
     uptr<Node> pNode = Node::CreateNode<NodeMeshAnimated3D>("AA");
     NodeMeshAnimated3D* pMesh = dynamic_cast<NodeMeshAnimated3D*>(pNode.get());
-    Node3D* p3D = dynamic_cast<Node3D*>(pNode.get());
     pMesh->SetMesh(*Scene4->allMesh[0]);
     pMesh->SetAnimation(*Scene4->animations[0]);
     //pNode3D->AddChild(pNode);
@@ -146,7 +145,7 @@ int main()
     {
         window.Clear();
         pNode->Update(0.16f);
-        //p3D->AddLocalRotation({ 0.0f,0.016f,0.0f });
+        pMesh->AddLocalRotation({ 0.0f,0.016f,0.0f });
         AnimationServer::FlushCommands();
         window.Present();
     }
