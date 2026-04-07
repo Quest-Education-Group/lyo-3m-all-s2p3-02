@@ -31,18 +31,18 @@ int main()
     };
 
     sptr<Geometry> cube = std::make_shared<Geometry>(vertices, indices);
-    Texture diffuse("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
-    Texture specular("res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
-    Texture normal("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
+    sptr<Texture> diffuse = std::make_shared<Texture>("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
+    sptr<Texture> specular = std::make_shared<Texture>("res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
+    sptr<Texture> normal = std::make_shared<Texture>("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
 
-    std::vector<std::reference_wrapper<Texture>> textures;
+    std::vector<sptr<Texture>> textures;
     textures.push_back(diffuse);
     textures.push_back(specular);
     textures.push_back(normal);
 
     Mesh mesh(cube, textures, glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 10.0f)));
 
-    Mesh mesh1(cube, textures, glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)));
+    //Mesh mesh1(cube, textures, glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 2.0f)));
 
     glm::vec3 position(0.0f, 0.0f, 5.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
@@ -50,13 +50,12 @@ int main()
     float yaw = -90.0f;
     float pitch = 0.0f;
     float roll = 0.0f;
-
     float fov = 45.0f;
 
-    sptr<Camera> camera = std::make_shared<Camera>(position, up, yaw, pitch, roll, fov);
+    Camera camera = Camera();
     std::vector<Mesh*> meshes;
-    meshes.push_back(&mesh);
-    meshes.push_back(&mesh1);
+    //meshes.push_back(&mesh);
+    //meshes.push_back(&mesh1);
 
     std::vector<Light> lights;
 
@@ -83,18 +82,10 @@ int main()
     Shader geoVert(ShaderType::TYPE_VERTEX);
     geoVert.Load("res/shaders/GBuffer.vert");
 
-    geometryProgram.AddShader(&geoFrag);
-    geometryProgram.AddShader(&geoVert);
+    geometryProgram.AddShader(geoFrag);
+    geometryProgram.AddShader(geoVert);
     geometryProgram.Load();
 
-    Shader animationVert(ShaderType::TYPE_VERTEX);
-    animationVert.Load("res/shaders/Animated.vert");
-
-    animatedProgram.AddShader(&animationVert);
-    animatedProgram.AddShader(&geoFrag);
-    animatedProgram.Load();
-    
-    animationVert.Unload();
     geoFrag.Unload();
     geoVert.Unload();
 
@@ -103,29 +94,25 @@ int main()
     Shader lightVert(ShaderType::TYPE_VERTEX);
     lightVert.Load("res/shaders/LightPass.vert");
 
-    lightProgram.AddShader(&lightFrag);
-    lightProgram.AddShader(&lightVert);
+    lightProgram.AddShader(lightFrag);
+    lightProgram.AddShader(lightVert);
     lightProgram.Load();
     
     lightFrag.Unload();
     lightVert.Unload();
 
     lightProgram.Use();
-    lightProgram.SetUniform("gPosition", 0);
-    lightProgram.SetUniform("gNormal", 1);
-    lightProgram.SetUniform("gAlbedoSpec", 2);
 
-    GeometryPass geoPass(geometryProgram, camera.get());
-    LightPass lightPass(lightProgram, lights, camera.get());
+    GeometryPass geoPass(geometryProgram, &camera);
+    LightPass lightPass(lightProgram, lights, &camera);
 
-    viewport.AddPass(&animPass);
     viewport.AddPass(&geoPass);
     viewport.AddPass(&lightPass);
 
     while (window.IsOpen())
     {
-        geoPass.AddMesh(mesh);
         window.Clear();
+        viewport.Clear();
 
         //glm::vec3 camPos = camera->GetPosition() + glm::vec3(0.016f,0.0f,0.0f);
         //glm::mat4 meshTransform = glm::translate(mesh.GetTransform(), glm::vec3(-0.0016f, 0.0f, 0.0f));
@@ -137,6 +124,7 @@ int main()
 
         geoPass.AddMesh(mesh);
         //geoPass.AddMesh(mesh1);
+        viewport.Present();
         window.Present();
     }
 

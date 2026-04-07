@@ -18,12 +18,13 @@ void AnimationServer::AddMesh(Mesh* pMesh)
 
 glm::mat4 AnimationServer::InterpolateFrames(AnimationChannel const& pChannel, float delta)
 {
-    glm::vec3 newPos = Maths::Lerp(pChannel.positionKeys[pChannel.currentFrame].vec, pChannel.positionKeys[pChannel.currentFrame + 1].vec, delta);
-    glm::quat newRot = Maths::Slerp(pChannel.rotationKeys[pChannel.currentFrame].quaternion, pChannel.rotationKeys[pChannel.currentFrame + 1].quaternion, delta);
-    glm::vec3 newScale = Maths::Lerp(pChannel.scalingKeys[pChannel.currentFrame].vec, pChannel.scalingKeys[pChannel.currentFrame + 1].vec, delta);
+    //glm::vec3 newPos = Maths::Lerp(pChannel.positionKeys[pChannel.currentFrame].vec, pChannel.positionKeys[pChannel.currentFrame + 1].vec, delta);
+    //glm::quat newRot = Maths::Slerp(pChannel.rotationKeys[pChannel.currentFrame].quaternion, pChannel.rotationKeys[pChannel.currentFrame + 1].quaternion, delta);
+    //glm::vec3 newScale = Maths::Lerp(pChannel.scalingKeys[pChannel.currentFrame].vec, pChannel.scalingKeys[pChannel.currentFrame + 1].vec, delta);
 
-    glm::mat4 rotationMatrix = glm::mat4_cast(newRot);
-    return Maths::Translate(newPos) * rotationMatrix * Maths::Scale(newScale);
+    //glm::mat4 rotationMatrix = glm::mat4_cast(newRot);
+    //return Maths::Translate(newPos) * rotationMatrix * Maths::Scale(newScale);
+    return glm::mat4(1.0);
 }
 
 void AnimationServer::BoneGlobalTransformHierarchy(Mesh* pMesh,uint32 ID, glm::mat4 const& parentTransform)

@@ -10,7 +10,9 @@ enum class TextureMaterialType : uint8
     DIFFUSE,
     SPECULAR,
     NORMAL,
-    HEIGHT
+    HEIGHT,
+
+    COUNT
 };
 
 class ITexture 

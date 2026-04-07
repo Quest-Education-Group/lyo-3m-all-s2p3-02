@@ -43,16 +43,16 @@ int main()
         0,2,3
     };
 
-    Geometry cube(vertices, indices);
-    Texture diffuse("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
-    Texture specular("res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
-    Texture normal("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
+    sptr<Geometry> cube = std::make_shared<Geometry>(vertices, indices);
+    sptr<Texture> diffuse  = std::make_shared<Texture>("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
+    sptr<Texture> specular = std::make_shared<Texture>("res/textures/specular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
+    sptr<Texture> normal   = std::make_shared<Texture>("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
 
-    std::vector<Texture*> textures;
-    textures.push_back(&diffuse);
-    textures.push_back(&specular);
-    textures.push_back(&normal);
-    Mesh mesh(cube, textures, glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 10.0f)));
+    std::vector<sptr<Texture>> textures;
+    textures.push_back(diffuse);
+    textures.push_back(specular);
+    textures.push_back(normal);
+    Mesh mesh = Mesh(cube, textures, glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 10.0f)));
 
     glm::vec3 position(-10.0f, 0.0f, 0.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
@@ -62,8 +62,8 @@ int main()
     float roll = 0.0f;
 
     float fov = 45.0f;
-
-    sptr<Camera> camera = std::make_shared<Camera>(position, up, yaw, pitch, roll, fov);
+    Camera::PerspectiveSettings settings = {};
+    Camera camera = Camera();
 
     std::vector<Light> lights;
     for (int i = 0; i < 20; ++i)
@@ -88,8 +88,8 @@ int main()
     Shader geoVert(ShaderType::TYPE_VERTEX);
     geoVert.Load("res/shaders/GBuffer.vert");
 
-    geometryProgram.AddShader(&geoFrag);
-    geometryProgram.AddShader(&geoVert);
+    geometryProgram.AddShader(geoFrag);
+    geometryProgram.AddShader(geoVert);
     geometryProgram.Load();
 
     geoFrag.Unload();
@@ -100,8 +100,8 @@ int main()
     Shader lightVert(ShaderType::TYPE_VERTEX);
     lightVert.Load("res/shaders/LightPass.vert");
 
-    lightProgram.AddShader(&lightFrag);
-    lightProgram.AddShader(&lightVert);
+    lightProgram.AddShader(lightFrag);
+    lightProgram.AddShader(lightVert);
     lightProgram.Load();
 
     lightFrag.Unload();
@@ -112,8 +112,8 @@ int main()
     Shader animVert(ShaderType::TYPE_VERTEX);
     animVert.Load("res/shaders/Animated.vert");
 
-    animateProgram.AddShader(&animFrag);
-    animateProgram.AddShader(&animVert);
+    animateProgram.AddShader(animFrag);
+    animateProgram.AddShader(animVert);
     animateProgram.Load();
 
     animFrag.Unload();
@@ -122,8 +122,8 @@ int main()
     //mesh = *Scene4->allMesh[0];
 
     //GeometryPass geoPass(geometryProgram, camera);
-    AnimatedPass animPass(animateProgram, camera);
-    LightPass lightPass(lightProgram, lights, camera);
+    AnimatedPass animPass(animateProgram, &camera);
+    LightPass lightPass(lightProgram, lights, &camera);
 
 
     AnimationServer::InitAnimationPass(&animPass);

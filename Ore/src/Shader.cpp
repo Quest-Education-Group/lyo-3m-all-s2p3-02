@@ -42,7 +42,7 @@ void Shader::Load(std::filesystem::path const& path)
     if (isCompiled == GL_FALSE)
     {
         Logger::LogWithLevel(LogLevel::ERROR, "Shader is not compiled");
-
+    }
     Logger::Log("Loaded Shader : ", path, "| With ID ", m_id);
 }
 

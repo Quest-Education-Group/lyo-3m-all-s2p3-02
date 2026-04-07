@@ -8,8 +8,8 @@ class Mesh;
 class AnimatedPass final : public Pass
 {
 public:
-    AnimatedPass(Program const& shader, sptr<Camera> camera);
-    ~AnimatedPass() override;
+    AnimatedPass(Program& shader, Camera* camera);
+    ~AnimatedPass() = default;
 
     void Execute() override;
     void AddSkeletalMesh(Mesh const& mesh);

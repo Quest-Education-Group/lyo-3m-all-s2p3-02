@@ -11,24 +11,24 @@ out vec3 FragPos;
 
 const int MAX_BONES = 200;
 
-uniform mat4 view;
-uniform mat4 projection;
 uniform mat4 model;
+uniform mat4 viewProj;
+
 uniform mat4 gBones[MAX_BONES];
 
 void main()
 {
-    vec4 worldPos = model * vec4(aPosition, 1.0);
-
     mat4 BoneTransform = gBones[aBoneIDs[0]] * aWeights[0];
     BoneTransform += gBones[aBoneIDs[1]] * aWeights[1];
     BoneTransform += gBones[aBoneIDs[2]] * aWeights[2];
     BoneTransform += gBones[aBoneIDs[3]] * aWeights[3];
 
     vec4 PosL = BoneTransform * vec4(aPosition, 1.0);
-    gl_Position = projection * view * model  * PosL;
+    vec4 worldPos = model  * PosL;
+    gl_Position =  viewProj * worldPos;
+    
     TexCoords = aTexCoords;
     vec4 NormalL = BoneTransform * vec4(aNormal, 0.0);
     Normal = (worldPos * NormalL).xyz;
-    FragPos = (worldPos * PosL).xyz;
+    FragPos = worldPos.xyz;
 }

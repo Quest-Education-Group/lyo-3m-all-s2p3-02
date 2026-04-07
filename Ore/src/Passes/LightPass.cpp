@@ -16,10 +16,10 @@ LightPass::LightPass(Program& program, LightSpan lights, Camera* pCamera) : Pass
     m_quadVAOId = 0;
     m_quadVBOId = 0;
 
-    m_pProgram->Use();
-    m_pProgram->SetUniform("gPosition",0);
-    m_pProgram->SetUniform("gNormal",1);
-    m_pProgram->SetUniform("gAlbedoSpec",2);
+    m_program.Use();
+    m_program.SetUniform("gPosition",0);
+    m_program.SetUniform("gNormal",1);
+    m_program.SetUniform("gAlbedoSpec",2);
 
     SetLights(lights);
     GenerateQuad();

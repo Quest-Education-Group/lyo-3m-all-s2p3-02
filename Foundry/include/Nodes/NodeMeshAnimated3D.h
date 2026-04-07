@@ -18,7 +18,7 @@ public:
 
 	virtual void OnUpdate(double delta) override;
 	
-	void SetMesh(SceneMesh const& mesh);
+	void SetMesh(SceneMesh& mesh);
 	void SetAnimation(Animation& anim);
 
 	void PlayAnimation(std::string const& name, bool isLooping = false);

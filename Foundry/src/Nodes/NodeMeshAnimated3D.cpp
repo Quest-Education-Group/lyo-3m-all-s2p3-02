@@ -34,16 +34,11 @@ void NodeMeshAnimated3D::OnUpdate(double delta)
 	AnimationServer::AddMesh(m_mesh.get());
 }
 
-void NodeMeshAnimated3D::SetMesh(SceneMesh const& mesh)
+void NodeMeshAnimated3D::SetMesh(SceneMesh& mesh)
 {
 
-	Geometry geo = Geometry(mesh.vertices, mesh.indices);
-	std::vector<Texture*> text = {};
-	for (uint8 i = 0 ; i < mesh.meshTextures.size();++i)
-	{
-		text.push_back(mesh.meshTextures[i].get());
-	}
-	m_mesh = std::make_unique<Mesh>(geo, text, mesh.meshMatrix);
+	sptr<Geometry> geo = std::make_shared<Geometry>(Geometry(mesh.vertices, mesh.indices));
+	m_mesh = std::make_unique<Mesh>(Mesh(geo, mesh.meshTextures, mesh.meshMatrix));
 	m_mesh->SetBonesOffsets(mesh.bonesOffest);
 	glm::mat4 GlobalTransformation = glm::mat4(1.0f);
 
