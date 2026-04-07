@@ -3,14 +3,14 @@
 
 
 #include "Define.h"
-#include "Serialization/ISerializable.h"
-#include "Event.hpp"
-#include "EventManager.h"
+//#include "Serialization/ISerializable.h"
 #include "IControl.h"
 
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <iostream>
+#include <functional>
 
 
 class ActionMap;
@@ -21,18 +21,17 @@ enum class ControlType : byte;
 class Action /*: public ISerializable*/
 {
 public:
-	Action();
-	Action(ControlType controlType, EventInput eventInput);
-
+	Action(ControlType controlType, EventInput eventInput, ActionMap* pActionMap = nullptr);
 	~Action();
 
 	uint32 AddControl(ControlType const& type, EventInput const& eventInput);
 	IControl* GetControl(uint32 index);
 
-	Event<void(IControl&)> Event {};
+	std::function<void(IControl&)> Event;
 
 private:
 	std::vector<IControl*> m_controls;
+	ActionMap* m_pOwner;
 
 	friend ActionMap;
 };

@@ -1,33 +1,30 @@
 #include "Action.h"
-#include "IControl.h"
+#include "EventManager.h"
+#include "ActionMap.h"
 
-Action::Action() : m_controls(), Event()
-{
-	EventManager::getKey += [&](EventInput in, EventAction ac)
-		{
-			for (int i = 0; i < m_controls.size(); i++)
-			{
-				if (in == m_controls[i]->GetEventInput())
-					Event.Invoke(*m_controls[i]);
-			}
-		};
-}
-
-Action::Action(ControlType controlType, EventInput eventInput) :
-	m_controls(), Event()
+Action::Action(ControlType controlType, EventInput eventInput, ActionMap* pActionMap) :
+	m_controls(), Event(), m_pOwner(pActionMap)
 {
 	AddControl(controlType, eventInput);
 	EventManager::getKey += [&](EventInput in, EventAction ac)
 		{
-			for (int i = 0; i < m_controls.size(); i++)
+			if (m_pOwner == nullptr || m_pOwner->Active == false)
+				return;
+			for (int i = 0; i  < m_controls.size(); i++)
 			{
 				if (in == m_controls[i]->GetEventInput() && ac == EventAction::PRESS)
-					Event.Invoke(*m_controls[i]);
+					std::invoke(Event, *m_controls[i]);
 			}
 		};
 }
 
-Action::~Action() {}
+Action::~Action() 
+{
+	for (IControl* iControl : m_controls)
+	{
+		delete iControl;
+	}
+}
 
 
 uint32 Action::AddControl(ControlType const& type, EventInput const& eventInput)
@@ -44,8 +41,6 @@ uint32 Action::AddControl(ControlType const& type, EventInput const& eventInput)
 		m_controls.push_back(new StickControl(eventInput, this));
 		break;
 	}
-
-	m_controls.back()->SetAction(this);
 
 	return m_controls.size() - 1;
 }

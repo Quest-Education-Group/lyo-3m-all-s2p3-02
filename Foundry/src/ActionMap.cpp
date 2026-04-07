@@ -2,7 +2,7 @@
 #include "Action.h"
 #include "Event.hpp"
 
-ActionMap::ActionMap() : m_actions(std::unordered_map<std::string, Action*>()) {}
+ActionMap::ActionMap(std::string const& name) : m_name(name), m_actions(std::unordered_map<std::string, Action*>()) {}
 
 ActionMap::~ActionMap() {}
 
@@ -14,7 +14,9 @@ bool ActionMap::Emplace(std::string_view const& name, Action* pAction)
 	if (m_actions.find(std::string(name)) != m_actions.end())
 		return false;
 
-	m_actions[std::string(name)] = pAction;
+	Action* temp = std::move(pAction);
+
+	m_actions[std::string(name)] = temp;
 	
 	return true;
 }
@@ -25,7 +27,7 @@ bool ActionMap::Erase(std::string_view const& name)
 
 	if (it == m_actions.end())
 		return false;
-
+	
 	m_actions.erase(it);
 
 	return true;
@@ -60,3 +62,13 @@ void ActionMap::Rename(std::string_view const& old, std::string_view const& name
 	m_actions[std::string(name)] = m_actions[std::string(old)];
 	m_actions.erase(m_actions.find(std::string(old)));
 }
+
+void ActionMap::CreateAction(std::string_view const& name, ControlType type, EventInput eventInput)
+{
+	uptr<Action> pAction = std::make_unique<Action>(type, eventInput, this);
+
+	Action* temp = std::move(pAction.get());
+
+	Emplace(name, temp);
+}
+

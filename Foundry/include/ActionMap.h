@@ -2,7 +2,7 @@
 #define FOUNDRY_ACTIONMAP_H__
 
 
-#include "Event.hpp"
+#include "Action.h"
 #include "IControl.h"
 
 
@@ -12,16 +12,13 @@
 #include <vector>
 
 
-class Action;
-
-
 /// <summary>
 /// ActionMap is a custom container made to store Action objects, with each Action representing a Callback specified to a group of inputs
 /// </summary>
 class ActionMap
 {
 public:
-	ActionMap();
+	ActionMap(std::string const& name);
 	~ActionMap();
 
 	ActionMap(ActionMap const& other) = delete;
@@ -33,16 +30,19 @@ public:
 
 	bool	Emplace(std::string_view const& name, Action* pAction);
 	bool	Erase(std::string_view const& name);
-			
+
 	Action*	GetAction(std::string_view const& name);
 	Action*	operator[](std::string const& name);
 			
 	uint32	Length() const;
 	void	Rename(std::string_view const& old, std::string_view const& name);
 
+	void	CreateAction(std::string_view const& name, ControlType type, EventInput eventInput);
+
 	bool	Active = true;
 
 protected:
+	std::string_view m_name;
 	std::unordered_map<std::string, Action*> m_actions;
 
 	friend struct ActionMapProxyBinding;
