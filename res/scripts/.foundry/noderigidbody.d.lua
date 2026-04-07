@@ -6,34 +6,34 @@ NodeRigidBody = {}
 ---@param name string 
 function CreateNodeRigidBody(name) end
 
----@param force vec3
+---@param force fmath.vec3
 function NodeRigidBody:ApplyLocalForceAtCenterOfMass(force) end
 
----@param force vec3
----@param point vec3
+---@param force fmath.vec3
+---@param point fmath.vec3
 function NodeRigidBody:ApplyLocalForceAtLocalPosition(force, point) end
 
----@param force vec3
----@param point vec3
+---@param force fmath.vec3
+---@param point fmath.vec3
 function NodeRigidBody:ApplyLocalForceAtWorldPosition(force, point) end
 
 
----@param force vec3
+---@param force fmath.vec3
 function NodeRigidBody:ApplyWorldForceAtCenterOfMass(force) end
 
----@param force vec3
----@param point vec3
+---@param force fmath.vec3
+---@param point fmath.vec3
 function NodeRigidBody:ApplyWorldForceAtLocalPosition(force, point) end
 
----@param force vec3
----@param point vec3
+---@param force fmath.vec3
+---@param point fmath.vec3
 function NodeRigidBody:ApplyWorldForceAtWorldPosition(force, point) end
 
 
----@param torque vec3
+---@param torque fmath.vec3
 function NodeRigidBody:ApplyLocalTorque(torque) end
 
----@param torque vec3
+---@param torque fmath.vec3
 function NodeRigidBody:ApplyWorldTorque(torque) end
 
 
@@ -46,10 +46,10 @@ function NodeRigidBody:GetAngularDamping() end
 function NodeRigidBody:GetTotalForce() end
 
 
----@param velocity vec3
+---@param velocity fmath.vec3
 function NodeRigidBody:SetLinearVelocity(velocity) end
 
----@param velocity vec3
+---@param velocity fmath.vec3
 function NodeRigidBody:SetAngularVelocity(velocity) end
 
 --- set the linear decelerating factor

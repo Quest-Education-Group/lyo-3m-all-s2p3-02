@@ -5,7 +5,7 @@ NodeBoxCollider = {}
 
 ---@param name string The node name.
 function CreateBoxCollider(name) end
----@param halfExtents vec3
+---@param halfExtents fmath.vec3
 function NodeBoxCollider:SetShape(halfExtents) end
 
 ---@class NodeSphereCollider

@@ -4,7 +4,7 @@ class Node3D::Proxy : public Node::Proxy
 public:
 	struct ProxyBinding;
 
-	Proxy(Node& node) : Node::Proxy(node) {}
+	Proxy(Node& node) : Node::Proxy(node), m_pNode(static_cast<Node3D*>(&node)) {}
 
 	static Proxy* CreateNode3DProxy(std::string const& name);
 
@@ -39,15 +39,15 @@ public:
 	glm::mat4x4 const& GetWorldMatrix() const						{ return m_pNode->GetWorldMatrix(); }
 	glm::vec3 GetWorldPosition() const								{ return m_pNode->GetWorldPosition(); }
 	glm::vec3 GetWorldScale() const									{ return m_pNode->GetWorldScale(); }
-	// Pitch, Yaw, Roll  / x, y, z												
-	// -- Angles in Degrees 													
+	// Pitch, Yaw, Roll  / x, y, z
+	// -- Angles in Degrees
 	glm::vec3 GetWorldRotation() const								{ return m_pNode->GetWorldRotation(); }
-	// { w, x, y, z }													
+	// { w, x, y, z }
 	glm::quat const& GetWorldRotationQuaternion() const				{ return m_pNode->GetWorldRotationQuaternion(); }
 
 	// =========== Setters ===========
 
-	void SetLocalPosition(glm::vec3 const pos)						{ m_pNode->SetLocalPosition(glm::vec4(pos, 1.0f)); }
+	void SetLocalPosition(glm::vec3 const pos)						{ m_pNode->SetLocalPosition(pos); }
 	void SetLocalX(float const x)									{ m_pNode->SetLocalX(x); }
 	void SetLocalY(float const y)									{ m_pNode->SetLocalY(y); }
 	void SetLocalZ(float const z)									{ m_pNode->SetLocalZ(z); }
@@ -57,7 +57,7 @@ public:
 	// { w, x, y, z }
 	void SetLocalRotationQuat(glm::quat rot)						{ m_pNode->SetLocalRotationQuat(rot); }
 
-	void SetScale(glm::vec3 const scale)							{ m_pNode->SetScale(glm::vec4(scale, 1.0f)); }
+	void SetScale(glm::vec3 const scale)							{ m_pNode->SetScale(scale); }
 
 	void SetWorldPosition(glm::vec3 const& worldPos)				{ m_pNode->SetWorldPosition(worldPos); }
 	void SetWorldScale(glm::vec3 const& worldScale)					{ m_pNode->SetWorldScale(worldScale); }
@@ -69,18 +69,18 @@ public:
 
 	// =========== Adders ===========
 
-	void AddScale(glm::vec3 const scale)							{ m_pNode->AddScale(glm::vec4(scale, 1.0f)); }
-	void AddLocalPosition(glm::vec3 const pos)						{ m_pNode->AddLocalPosition(glm::vec4(pos, 1.0f)); }
+	void AddScale(glm::vec3 const scale)							{ m_pNode->AddScale(scale); }
+	void AddLocalPosition(glm::vec3 const pos)						{ m_pNode->AddLocalPosition(pos); }
 	void AddLocalX(float const x)									{ m_pNode->AddLocalX(x); }
 	void AddLocalY(float const y)									{ m_pNode->AddLocalY(y); }
 	void AddLocalZ(float const z)									{ m_pNode->AddLocalZ(z); }
-	// -- Angles in Radians											
-	void AddLocalRotation(glm::vec3 const rot)						{ m_pNode->AddLocalRotation(glm::vec4(rot, 1.0f)); }
-	// -- Angles in Radians											
+	// -- Angles in Radians
+	void AddLocalRotation(glm::vec3 const rot)						{ m_pNode->AddLocalRotation(rot); }
+	// -- Angles in Radians
 	void AddLocalYaw(float const yaw)								{ m_pNode->AddLocalYaw(yaw); }
-	// -- Angles in Radians											
+	// -- Angles in Radians
 	void AddLocalPitch(float const pitch)							{ m_pNode->AddLocalPitch(pitch); }
-	// -- Angles in Radians											
+	// -- Angles in Radians
 	void AddLocalRoll(float const roll)								{ m_pNode->AddLocalRoll(roll); }
 
 private:

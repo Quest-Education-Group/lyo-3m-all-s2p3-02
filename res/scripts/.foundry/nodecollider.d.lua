@@ -8,10 +8,10 @@ function CreateNodeCollider(name) end
 
 --- =========== Local transform (offset from RigidBody) ===========
 
----@param pos vec3
+---@param pos fmath.vec3
 function NodeCollider:SetLocalPosition(pos) end
 
----@param rot vec3
+---@param rot fmath.vec3
 function NodeCollider:SetLocalRotation(rot) end
 
 function NodeCollider:GetLocalPosition() end
