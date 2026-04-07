@@ -8,8 +8,9 @@ class Mesh;
 class GeometryPass final : public Pass
 {
 public:
-    GeometryPass(Program const& shader, sptr<Camera> camera);
-    ~GeometryPass() override;
+    GeometryPass(Program& program);
+    GeometryPass(Program& program, Camera* pCamera);
+    ~GeometryPass() = default;
 
     void Execute() override;
     void AddMesh(Mesh const& mesh);

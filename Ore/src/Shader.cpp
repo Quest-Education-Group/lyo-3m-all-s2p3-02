@@ -13,8 +13,6 @@ Shader::~Shader()
 
 void Shader::Load(std::filesystem::path const& path)
 {
-    Logger::Log("Start Shader");
-
     std::string shader;
     std::ifstream shaderFile;
 
@@ -44,16 +42,12 @@ void Shader::Load(std::filesystem::path const& path)
     if (isCompiled == GL_FALSE)
     {
         Logger::LogWithLevel(LogLevel::ERROR, "Shader is not compiled");
-        GLint infoLogLength;
-        glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &infoLogLength);
-        std::string infolog;
-        infolog.resize(infoLogLength);
-        glGetShaderInfoLog(m_id, infoLogLength, nullptr, infolog.data());
-        Logger::LogWithLevel(LogLevel::ERROR, infolog);
-    }
+
+    Logger::Log("Loaded Shader : ", path, "| With ID ", m_id);
 }
 
 void Shader::Unload()
 {
     glDeleteShader(m_id);
+    Logger::Log("Unloaded Shader : ", m_id);
 }

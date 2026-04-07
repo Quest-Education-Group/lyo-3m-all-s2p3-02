@@ -4,23 +4,29 @@ self = Node3D
 
 test = 0;
 
-function OnUpdate(dt)
+
+function OnInit()
     local node = CreateNode("Created from lua")
-    print(node:GetName())
-    local vec = maths.vec3.new()
-    print(vec.x)
+    print("billy")
+    local n = CreateNode3D("bob")
+    print("bob")
+end
 
-    print(hook)
+function OnUpdate(dt)
+    -- local vec = fmaths.vec3.new()
+    -- print(vec.x)
 
-    hook.Add("MyEvent", "MyFunc", function()
-        print("Hello")
-    end)
+    -- print(hook)
 
-    hook.Call("MyEvent")
-    print(timer)
+    -- hook.Add("MyEvent", "MyFunc", function()
+    --     print("Hello")
+    -- end)
 
-    timer.Create("Test" .. test, 0, 1, function()
-        print("executed from timer")
-    end)
-    test = test + 1;
+    -- hook.Call("MyEvent")
+    -- print(timer)
+
+    -- timer.Create("Test" .. test, 0, 1, function()
+    --     print("executed from timer")
+    -- end)
+    -- test = test + 1;
 end
