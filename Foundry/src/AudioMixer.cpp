@@ -1,34 +1,39 @@
 #include "AudioMixer.h"
 #include <algorithm>
 
-static void ReverbProcess(ma_node* pNode, const float** in, ma_uint32* inCount, float** out, ma_uint32* outCount)
+static void ReverbProcess(ma_node* pNode, const float** in, uint32* inCount, float** out, uint32* outCount)
 {
-    ReverbEntry* r = (ReverbEntry*)pNode; 
-    static const int cd[] = { 1557,1617,1491,1422 };
-    static const int ad[] = { 556, 441 };
+    ReverbEntry* reverb = (ReverbEntry*)pNode;
 
-    for (ma_uint32 i = 0; i < *outCount; i++)
+    static const int combDelays[] = { 1557, 1617, 1491, 1422 };
+    static const int allpassDelays[] = { 556, 441 };
+
+    for (ma_uint32 frame = 0; frame < *outCount; frame++)
     {
-        float s = (in[0][i * 2] + in[0][i * 2 + 1]) * 0.5f, w = 0;
+        float monoIn = (in[0][frame * 2] + in[0][frame * 2 + 1]) * 0.5f;
+        float combSum = 0.0f;
 
-        for (int c = 0; c < 4; c++) 
+        for (int c = 0; c < 4; c++)
         {
-            float d = r->comb[c][r->ci[c]];
-            r->comb[c][r->ci[c]] = s + d * r->roomSize;
-            r->ci[c] = (r->ci[c] + 1) % cd[c];
-            w += d;
-        }
-        w *= 0.25f;
-        for (int a = 0; a < 2; a++) 
-        {
-            float d = r->ap[a][r->ai[a]], x = w + d * 0.5f;
-            r->ap[a][r->ai[a]] = x;
-            r->ai[a] = (r->ai[a] + 1) % ad[a];
-            w = d - x * 0.5f;
+            float delayed = reverb->comb[c][reverb->ci[c]];
+            reverb->comb[c][reverb->ci[c]] = monoIn + delayed * reverb->roomSize;
+            reverb->ci[c] = (reverb->ci[c] + 1) % combDelays[c];
+            combSum += delayed;
         }
 
-        float m = s * (1 - r->wet) + w * r->wet;
-        out[0][i * 2] = out[0][i * 2 + 1] = m;
+        float signal = combSum * 0.25f;
+
+        for (int a = 0; a < 2; a++)
+        {
+            float delayed = reverb->ap[a][reverb->ai[a]];
+            float filtered = signal + delayed * 0.5f;
+            reverb->ap[a][reverb->ai[a]] = filtered;
+            reverb->ai[a] = (reverb->ai[a] + 1) % allpassDelays[a];
+            signal = delayed - filtered * 0.5f;
+        }
+
+        float mixed = monoIn * (1.0f - reverb->wet) + signal * reverb->wet;
+        out[0][frame * 2] = out[0][frame * 2 + 1] = mixed;
     }
 }
 
@@ -68,7 +73,7 @@ void AudioMixer::AddDelay(AudioChannel* channel, float delaySeconds, float decay
 
     if (ma_delay_node_init(ma_engine_get_node_graph(&engine), &cfg, NULL, &entry.node) != MA_SUCCESS)
     {
-        printf("[MixerAudio] AddDelay failed on '%s'\n", channel->name.c_str());
+        Logger::Log("[MixerAudio] AddDelay failed on " + channel->name);
         return;
     }
 
@@ -104,16 +109,16 @@ void AudioMixer::AddReverb(AudioChannel* channel, float roomSize, float wet)
 {
     if (!channel || m_reverbs.count(channel)) return;
 
-    ReverbEntry* rev = new ReverbEntry();
-    memset(rev, 0, sizeof(ReverbEntry));
-    rev->roomSize = std::clamp(roomSize, 0.0f, 0.98f);
-    rev->wet = std::clamp(wet, 0.0f, 1.0f);
-    rev->active = true;
+    uptr<ReverbEntry> rev = std::make_unique<ReverbEntry>(ReverbEntry());
+    memset(rev.get(), 0, sizeof(ReverbEntry));
+    rev.get()->roomSize = std::clamp(roomSize, 0.0f, 0.98f);
+    rev.get()->wet = std::clamp(wet, 0.0f, 1.0f);
+    rev.get()->active = true;
 
     ma_engine& engine = AudioServer::GetSoundEngine();
 
-    ma_uint32 inCh = 2;
-    ma_uint32 outCh = 2;
+    uint32 inCh = 2;
+    uint32 outCh = 2;
     ma_node_config cfg = ma_node_config_init();
     cfg.vtable = &g_reverbVtable;
     cfg.pInputChannels = &inCh;
@@ -121,10 +126,10 @@ void AudioMixer::AddReverb(AudioChannel* channel, float roomSize, float wet)
     cfg.inputBusCount = 1;
     cfg.outputBusCount = 1;
 
-    if (ma_node_init(ma_engine_get_node_graph(&engine), &cfg, NULL, &rev->node) != MA_SUCCESS)
+    if (ma_node_init(ma_engine_get_node_graph(&engine), &cfg, NULL, &rev.get()->node) != MA_SUCCESS)
     {
-        printf("[MixerAudio] AddReverb failed on '%s'\n", channel->name.c_str());
-        delete rev;
+        Logger::Log("[MixerAudio] AddReverb failed on " + channel->name);
+        delete rev.get();
         return;
     }
 
@@ -132,7 +137,7 @@ void AudioMixer::AddReverb(AudioChannel* channel, float roomSize, float wet)
     ma_node_attach_output_bus(groupNode, 0, &rev->node, 0);
     ma_node_attach_output_bus(&rev->node, 0, ma_engine_get_endpoint(&engine), 0);
 
-    m_reverbs[channel] = rev;
+    m_reverbs[channel] = rev.get();
 }
 
 void AudioMixer::SetReverbWet(AudioChannel* channel, float wet)

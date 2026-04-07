@@ -54,113 +54,107 @@ int main()
     // --- Actions ---
     ActionMap actionMap;
 
-    Action* pauseAction = new Action(ControlType::BUTTON, EventInput::KEY_P);
-    pauseAction->Event += [&](IControl& control)
+    uptr<Action> pauseAction = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_P);
+    pauseAction.get()->Event += [&](IControl& control)
         {
             if (audioEm->IsPlaying())
             {
                 audioEm->Stop();
-                printf("Pause\n");
+                Logger::Log("Pause");
             }
             else
             {
                 audioEm->Play();
-                printf("Play\n");
+                Logger::Log("Play");
             }
         };
-    actionMap.Emplace("Pause", pauseAction);
+    actionMap.Emplace("Pause", pauseAction.get());
 
-    Action* volUpSfx = new Action(ControlType::BUTTON, EventInput::KEY_B);
-    volUpSfx->Event += [&](IControl& control)
+    uptr<Action> volUpSfx = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_B);
+    volUpSfx.get()->Event += [&](IControl& control)
         {
             float next = AudioServer::GetGroupVolume(*music) + 0.01f;
             AudioServer::SetGroupVolume(music, next);
-            printf("GroupVolume: %.6f\n", AudioServer::GetGroupVolume(*music));
+            Logger::Log("GroupVolume: ", AudioServer::GetGroupVolume(*music));
         };
-    actionMap.Emplace("VolUpSfx", volUpSfx);
+    actionMap.Emplace("VolUpSfx", volUpSfx.get());
 
-    Action* volDownSfx = new Action(ControlType::BUTTON, EventInput::KEY_N);
-    volDownSfx->Event += [&](IControl& control)
+    uptr<Action> volDownSfx = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_N);
+    volDownSfx.get()->Event += [&](IControl& control)
         {
             float next = AudioServer::GetGroupVolume(*music) - 0.01f;
             AudioServer::SetGroupVolume(music, next);
-            printf("GroupVolume: %.6f\n", AudioServer::GetGroupVolume(*music));
+            Logger::Log("GroupVolume: ", AudioServer::GetGroupVolume(*music));
         };
-    actionMap.Emplace("VolDownSfx", volDownSfx);
+    actionMap.Emplace("VolDownSfx", volDownSfx.get());
 
-    Action* masterUp = new Action(ControlType::BUTTON, EventInput::KEY_T);
-    masterUp->Event += [&](IControl& control)
+    uptr<Action> masterUp = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_T);
+    masterUp.get()->Event += [&](IControl& control)
         {
             float next = AudioServer::GetMasterVolume() + 0.05f;
             AudioServer::SetMasterVolume(next);
-            printf("MasterVolume: %.6f\n", AudioServer::GetMasterVolume());
+            Logger::Log("MasterVolume: ", AudioServer::GetMasterVolume());
         };
-    actionMap.Emplace("MasterUp", masterUp);
+    actionMap.Emplace("MasterUp", masterUp.get());
 
-    Action* masterDown = new Action(ControlType::BUTTON, EventInput::KEY_Y);
-    masterDown->Event += [&](IControl& control)
+    uptr<Action> masterDown = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_Y);
+    masterDown.get()->Event += [&](IControl& control)
         {
             float next = AudioServer::GetMasterVolume() - 0.05f;
             AudioServer::SetMasterVolume(next);
-            printf("MasterVolume: %.6f\n", AudioServer::GetMasterVolume());
+            Logger::Log("MasterVolume: ", AudioServer::GetMasterVolume());
         };
-    actionMap.Emplace("MasterDown", masterDown);
+    actionMap.Emplace("MasterDown", masterDown.get());
 
-    Action* resetListener = new Action(ControlType::BUTTON, EventInput::KEY_W);
-    resetListener->Event += [&](IControl& control)
+    uptr<Action> resetListener = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_W);
+    resetListener.get()->Event += [&](IControl& control)
         {
             audioListen->SetListenerPosition({ 0, 0, 0 });
         };
-    actionMap.Emplace("ResetListener", resetListener);
+    actionMap.Emplace("ResetListener", resetListener.get());
 
-    Action* moveEmitter = new Action(ControlType::BUTTON, EventInput::KEY_X);
-    moveEmitter->Event += [&](IControl& control)
+    uptr<Action> moveEmitter = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_X);
+    moveEmitter.get()->Event += [&](IControl& control)
         {
             audioEm->SetSourcePosition({ 50, 0, 0 });
         };
-    actionMap.Emplace("MoveEmitter", moveEmitter);
+    actionMap.Emplace("MoveEmitter", moveEmitter.get());
 
-    Action* moveUp = new Action(ControlType::BUTTON, EventInput::KEY_Z);
-    moveUp->Event += [&](IControl& control)
+    uptr<Action> moveUp = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_Z);
+    moveUp.get()->Event += [&](IControl& control)
         {
             glm::vec3 newPos = audioListen->GetListenerPosition();
             newPos.y += 0.1f;
             audioListen->SetListenerPosition(newPos);
         };
-    actionMap.Emplace("MoveUp", moveUp);
+    actionMap.Emplace("MoveUp", moveUp.get());
 
-    Action* moveLeft = new Action(ControlType::BUTTON, EventInput::KEY_Q);
-    moveLeft->Event += [&](IControl& control)
+    uptr<Action> moveLeft = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_Q);
+    moveLeft.get()->Event += [&](IControl& control)
         {
             glm::vec3 newPos = audioListen->GetListenerPosition();
             newPos.x -= 0.1f;
             audioListen->SetListenerPosition(newPos);
         };
-    actionMap.Emplace("MoveLeft", moveLeft);
+    actionMap.Emplace("MoveLeft", moveLeft.get());
 
-    Action* moveDown = new Action(ControlType::BUTTON, EventInput::KEY_S);
-    moveDown->Event += [&](IControl& control)
+    uptr<Action> moveDown = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_S);
+    moveDown.get()->Event += [&](IControl& control)
         {
             glm::vec3 newPos = audioListen->GetListenerPosition();
             newPos.y -= 0.1f;
             audioListen->SetListenerPosition(newPos);
         };
-    actionMap.Emplace("MoveDown", moveDown);
+    actionMap.Emplace("MoveDown", moveDown.get());
 
-    Action* moveRight = new Action(ControlType::BUTTON, EventInput::KEY_D);
-    moveRight->Event += [&](IControl& control)
+    uptr<Action> moveRight = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_D);
+    moveRight.get()->Event += [&](IControl& control)
         {
             glm::vec3 newPos = audioListen->GetListenerPosition();
             newPos.x += 0.1f;
             audioListen->SetListenerPosition(newPos);
         };
-    actionMap.Emplace("MoveRight", moveRight);
-
-    // --- Main Loop ---
-    //while (true)
-    //{
-    //    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    //}
+    actionMap.Emplace("MoveRight", moveRight.get());
 
     GameLoop loop;
     loop.StartGame(defaultSceneTree);

@@ -3,6 +3,7 @@
 
 #include "Servers/AudioServer.h"
 
+#include "Define.h"
 //Struct for each effects
 
 struct ExampleEntry
@@ -50,7 +51,7 @@ protected:
     std::unordered_map<AudioChannel*, ReverbEntry*> m_reverbs;
 
 private:
-    static void ReverbProcess(ma_node* pNode, const float** in, ma_uint32* inCount, float** out, ma_uint32* outCount);
+    static void ReverbProcess(ma_node* pNode, const float** in, uint32* inCount, float** out, uint32* outCount);
 
 };
 

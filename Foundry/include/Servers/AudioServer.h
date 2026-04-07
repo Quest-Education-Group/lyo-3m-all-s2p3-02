@@ -30,8 +30,8 @@ public:
 	static AudioChannel* GetChannel(const std::string& name);
 	static AudioChannel* CreateChannel(const std::string& name);
 
-	static ma_uint32 AllocateListenerIndex();
-	static void ReleaseListenerIndex(ma_uint32 index);
+	static uint32 AllocateListenerIndex();
+	static void ReleaseListenerIndex(uint32 index);
 
 	static void SetMasterVolume(float volume);
 	static void SetGroupVolume(AudioChannel* channel, float volume);
@@ -46,8 +46,8 @@ protected:
 	ma_engine m_soundEngine;
 	ma_engine_config m_soundEngineConfig;
 	std::vector<AudioChannel*> m_channels;
-	std::vector<ma_uint32> m_availableListenerIndex;
-	ma_uint32 m_nextListenerIndex = 0;
+	std::vector<uint32> m_availableListenerIndex;
+	uint32 m_nextListenerIndex = 0;
 	float m_masterVolume = 1.f;
 
 private:

@@ -41,26 +41,26 @@ AudioChannel* AudioServer::CreateChannel(const std::string& name)
 {
     if (GetChannel(name) != nullptr) { return GetChannel(name); }
 
-    AudioChannel* newChannel = new AudioChannel();
-    newChannel->name = name;
+    uptr<AudioChannel> newChannel = std::make_unique<AudioChannel>(AudioChannel());
+    newChannel.get()->name = name;
 
-    if (ma_sound_group_init(&Instance().m_soundEngine, 0, NULL, &newChannel->soundGroup) != MA_SUCCESS)
+    if (ma_sound_group_init(&Instance().m_soundEngine, 0, NULL, &newChannel.get()->soundGroup) != MA_SUCCESS)
     {
         Logger::Log("Failed to create sound group: " + name);
-        delete newChannel;
+        delete newChannel.get();
         return nullptr;
     }
 
-    GetChannels().push_back(newChannel);
+    GetChannels().push_back(newChannel.get());
 
-    return newChannel;
+    return newChannel.get();
 }
 
-ma_uint32 AudioServer::AllocateListenerIndex()
+uint32 AudioServer::AllocateListenerIndex()
 {
     if (!Instance().m_availableListenerIndex.empty())
     {
-        ma_uint32 index = Instance().m_availableListenerIndex.back();
+        uint32 index = Instance().m_availableListenerIndex.back();
         Instance().m_availableListenerIndex.pop_back();
         return index;
     }
@@ -73,7 +73,7 @@ ma_uint32 AudioServer::AllocateListenerIndex()
     return Instance().m_nextListenerIndex++;
 }
 
-void AudioServer::ReleaseListenerIndex(ma_uint32 index)
+void AudioServer::ReleaseListenerIndex(uint32 index)
 {
     Instance().m_availableListenerIndex.push_back(index);
 }
