@@ -566,32 +566,34 @@ void EditorImGui::ShowLoadSceneBrowsing()
 
 	if (m_loadBrowser.HasSelected())
 	{
-		std::filesystem::path selected = m_loadBrowser.GetSelected();
+		std::filesystem::path const selected = m_loadBrowser.GetSelected();
+		std::string selectedLogicalPath;
 
 		if (selected.extension() == ".json")
 		{
-			const std::filesystem::path logical = selected.parent_path() / selected.stem(); // enlève .json
+			std::filesystem::path const logical = selected.parent_path() / selected.stem();
 
 			if (logical.extension() == ".sc")
 			{
-				m_scenePathBuffer = logical.string();     // stocké sans .json
-				m_nodeSavePathBuffer.clear();
+				m_scenePathBuffer = logical.string();
+				selectedLogicalPath = m_scenePathBuffer;
 			}
 			else if (logical.extension() == ".nd")
 			{
-				m_nodeSavePathBuffer = logical.string();  // stocké sans .json
-				m_scenePathBuffer.clear();
+				m_nodeSavePathBuffer = logical.string();
+				selectedLogicalPath = m_nodeSavePathBuffer;
 			}
 		}
 
-		if (m_scenePathBuffer.length() > 0 || m_nodeSavePathBuffer.length() > 0)
+		if (!selectedLogicalPath.empty())
 		{
 			m_haveFileSelected = true;
 			m_command.type = EditorCommand::Type::LOAD_SCENE;
-			m_command.stringParam1 = m_scenePathBuffer; // ici usitliser m_nodeSavePathBuffer
+			m_command.stringParam1 = selectedLogicalPath + ".json";
 			m_pSelectedNode = nullptr;
 			m_pViewRoot = m_pSceneRoot;
 		}
+
 		m_loadBrowser.ClearSelected();
 		m_loadBrowser.Close();
 	}

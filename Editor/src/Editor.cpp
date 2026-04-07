@@ -494,7 +494,7 @@ void Editor::UpdateScriptPathsInJson(json& nodeJson, ScriptPathMap const& script
 void Editor::RemoveStringClone(Node* pNode) {
 	std::string thisnodeName = pNode->GetName();
 	if (thisnodeName.size() >= 4 && thisnodeName.substr(thisnodeName.size() - 4) == "Copy") {
-		pNode->SetName(thisnodeName.substr(0, 4));
+		pNode->SetName(thisnodeName.substr(0, thisnodeName.size() - 4));
 	}
 	for (uint32 i = 0; i < pNode->GetChildCount(); i++)
 	{
