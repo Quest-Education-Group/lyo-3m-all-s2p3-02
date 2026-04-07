@@ -161,7 +161,7 @@ uptr<T> Node::LoadNodeFromJSON(std::filesystem::path path)
 	nlohmann::json jsonFile(nlohmann::json::parse(file));
 	file.close();
 
-	uptr<Node> firstNode = Node::CreateNode<Node>("Node");
+	uptr<T> firstNode = Node::CreateNode<T>("Node");
 
 	SerializedObject object = {};
 	if (jsonFile[0].contains("Root")) {
