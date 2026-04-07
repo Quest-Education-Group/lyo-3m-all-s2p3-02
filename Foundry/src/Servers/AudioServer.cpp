@@ -49,12 +49,8 @@ AudioChannel* AudioServer::CreateChannel(const std::string& name)
         return nullptr;
     }
 
-    AudioChannel* raw = newChannel.get();
     GetChannels().push_back(std::move(newChannel));
-
-    newChannel.release(); 
-
-    return raw;
+    return GetChannels().back().get();
 }
 
 uint32 AudioServer::AllocateListenerIndex()
