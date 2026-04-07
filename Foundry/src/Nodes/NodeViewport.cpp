@@ -24,10 +24,11 @@ void NodeViewport::Setup()
 	m_pLightPass = std::make_unique<LightPass>(GraphicServer::GetLightProgram(), dummyLight);
 	m_pAnimatedPass = std::make_unique<AnimatedPass>(GraphicServer::GetAnimatedProgram());
 
-	//GraphicServer::GetLightProgram().Use();
-	//GraphicServer::GetLightProgram().SetUniform("gPosition", 0);
-	//GraphicServer::GetLightProgram().SetUniform("gNormal", 1);
-	//GraphicServer::GetLightProgram().SetUniform("gAlbedoSpec", 2);
+	Program& lightProgram = GraphicServer::GetLightProgram();
+	lightProgram.Use();
+	lightProgram.SetUniform("gPosition", 0);
+	lightProgram.SetUniform("gNormal", 1);
+	lightProgram.SetUniform("gAlbedoSpec", 2);
 
 	m_pViewPort->AddPass(m_pGeometryPass.get());
 	m_pViewPort->AddPass(m_pLightPass.get());
