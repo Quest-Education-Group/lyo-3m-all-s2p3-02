@@ -10,6 +10,7 @@ function OnInit()
     nTestChild = CreateNode3D("bobChild")
 
     print("billy")
+
     -- local vec = fmaths.vec3:new(0,0,2)
     -- print("vec = (", vec.x,",", vec.y,",", vec.z,")" )
     -- nTest:SetWorldPosition(vec)

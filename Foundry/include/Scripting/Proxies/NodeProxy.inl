@@ -65,6 +65,7 @@ public:
 
 private:
 	Node* m_pNode;
+	sol::table m_userData;
 };
 
 struct Node::Proxy::ProxyBinding

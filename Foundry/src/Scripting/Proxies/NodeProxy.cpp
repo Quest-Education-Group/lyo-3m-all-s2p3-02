@@ -155,6 +155,12 @@ void Proxy::ProxyBinding::Bind(Binder &binder)
 	binder.BindFunction("LoadNode", &Node::Proxy::LoadNode);
 	binder.BindClass<Proxy>("node",
 		sol::meta_function::garbage_collect, BIND(GCNodeProxy),
+		sol::meta_function::new_index, [](Proxy& n, sol::stack_object key, sol::stack_object value) {
+			n.m_userData.set(key, value);
+		},
+		sol::meta_function::index, [](Proxy& n, sol::stack_object key) {
+			return n.m_userData.get<sol::object>(key);
+		},
 		"AddChild", BIND(AddChild),
 		"RemoveChild", OVERLOAD(Proxy, void, Proxy&)(BIND(RemoveChild)),
 		"RemoveChild", OVERLOAD(Proxy, void, std::string const&)(BIND(RemoveChild)),
