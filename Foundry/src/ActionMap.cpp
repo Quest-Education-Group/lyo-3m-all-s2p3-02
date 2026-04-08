@@ -7,10 +7,7 @@ ActionMap::ActionMap(std::string const& name) : m_name(name), Active(true), m_ac
 ActionMap::~ActionMap() 
 {
 	for (auto it = m_actions.begin(); it != m_actions.end(); it++)
-	{
 		delete it->second;
-	}
-
 }
 
 bool ActionMap::Emplace(std::string_view const& name, Action* pAction)
