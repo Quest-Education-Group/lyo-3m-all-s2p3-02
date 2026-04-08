@@ -27,7 +27,7 @@ void AudioServer::Shutdown()
     ma_engine_uninit(&Instance().m_soundEngine);
 }
 
-AudioChannel* AudioServer::GetChannel(const std::string& name)
+AudioChannel* AudioServer::GetChannel(std::string const& name)
 {
     for (auto& channel : Instance().m_channels)
     {
@@ -36,7 +36,7 @@ AudioChannel* AudioServer::GetChannel(const std::string& name)
     return nullptr;
 }
 
-AudioChannel* AudioServer::CreateChannel(const std::string& name) 
+AudioChannel* AudioServer::CreateChannel(std::string const& name)
 {
     if (GetChannel(name) != nullptr) { return GetChannel(name); }
 
