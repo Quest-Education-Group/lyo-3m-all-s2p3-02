@@ -6,10 +6,10 @@
 
 namespace
 {
-    sptr<Geometry> BuildPrimitiveGeometry(PrimitivesType const primitiveType)
+    sptr<Ore::Geometry> BuildPrimitiveGeometry(PrimitivesType const primitiveType)
     {
         GeoInfo const &geoInfo = GeometryFactory::GetGeometry(primitiveType);
-        return std::make_shared<Geometry>(geoInfo.m_vertices, geoInfo.m_indices);
+        return std::make_shared<Ore::Geometry>(geoInfo.m_vertices, geoInfo.m_indices);
     }
 }
 
@@ -90,7 +90,7 @@ void NodeMesh::Deserialize(SerializedObject const &datas)
     Node3D::Deserialize(datas);
 
     if (!m_pMesh)
-        m_pMesh = std::make_unique<Mesh>();
+        m_pMesh = std::make_unique<Ore::Mesh>();
 
     int geometrySourceType = static_cast<int>(MeshGeometrySourceType::PRIMITIVE);
     int primitiveType = static_cast<int>(PrimitivesType::CUBE);
@@ -124,16 +124,16 @@ void NodeMesh::Deserialize(SerializedObject const &datas)
     datas.GetPublicElement("TextureCount", &textureCount);
     if (textureCount == 0)
     {
-        m_textureMaterialTypes.push_back(TextureMaterialType::DIFFUSE);
+        m_textureMaterialTypes.push_back(Ore::TextureMaterialType::DIFFUSE);
     }
     else
     {
-        m_textureMaterialTypes.assign(textureCount, TextureMaterialType::DIFFUSE);
+        m_textureMaterialTypes.assign(textureCount, Ore::TextureMaterialType::DIFFUSE);
     }
 
-    for (TextureMaterialType const type : m_textureMaterialTypes)
+    for (Ore::TextureMaterialType const type : m_textureMaterialTypes)
     {
-        m_textures.push_back(std::make_shared<Texture>("res/textures/Default.png", TextureType::TYPE_2D, type));
+        m_textures.push_back(std::make_shared<Ore::Texture>("res/textures/Default.png", Ore::TextureType::TYPE_2D, type));
     }
 
     m_pMesh->SetTextures(m_textures);

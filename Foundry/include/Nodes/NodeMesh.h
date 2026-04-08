@@ -39,7 +39,7 @@ public:
 private:
     uptr<Ore::Mesh> m_pMesh;
     std::vector<sptr<Ore::Texture>> m_textures;
-    std::vector<TextureMaterialType> m_textureMaterialTypes;
+    std::vector<Ore::TextureMaterialType> m_textureMaterialTypes;
     MeshGeometrySourceType m_geometrySourceType = MeshGeometrySourceType::PRIMITIVE;
     PrimitivesType m_primitiveType = PrimitivesType::CUBE;
     std::filesystem::path m_fbxPath{};
