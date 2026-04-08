@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <array>
 
+namespace Ore
+{
 struct Vertex 
 {
     glm::vec3 position;
@@ -43,5 +45,5 @@ private:
     std::vector<glm::mat4> m_bonesTransform;
 
 };
-
+}
 #endif //!ORE_GEOMETRY__H_

@@ -7,7 +7,8 @@
 
 #include <span>
 #include <glm/glm.hpp>
-
+namespace Ore
+{
 using TextureSpan = std::span<sptr<Texture>>;
 
 class Mesh final : public IMesh 
@@ -43,5 +44,5 @@ private:
     std::vector<glm::mat4> m_bonesOffset;
     bool m_isActive = true;
 };
-
+}
 #endif
