@@ -26,7 +26,7 @@ public:
 	static ISerializable* CreateInstance();
 
 protected:
-	ma_uint32 m_listenerIndex;
+	uint32 m_listenerIndex;
 };
 
 REGISTER_ISERIALIZABLE(NodeAudioListener, NodeAudioListener::CreateInstance);
