@@ -52,8 +52,8 @@ public:
 	void SetLocalY(float const y)									{ m_pNode->SetLocalY(y); }
 	void SetLocalZ(float const z)									{ m_pNode->SetLocalZ(z); }
 
-	void SetLocalRotationDeg(float x, float y, float z)				{ m_pNode->SetLocalRotationDeg(x, y, z); }
-	void SetLocalRotationRad(float pitch, float yaw, float roll)	{ m_pNode->SetLocalRotationRad(pitch, yaw, roll); }
+	void SetLocalRotationDeg(glm::vec3 const& rotation)				{ m_pNode->SetLocalRotationDeg(rotation); }
+	void SetLocalRotationRad(glm::vec3 const& rotation)				{ m_pNode->SetLocalRotationRad(rotation); }
 	// { w, x, y, z }
 	void SetLocalRotationQuat(glm::quat rot)						{ m_pNode->SetLocalRotationQuat(rot); }
 
@@ -94,6 +94,9 @@ struct Node3D::Proxy::ProxyBinding
 		binder.BindFunction("CreateNode3D", &Node3D::Proxy::CreateNode3DProxy);
 		binder.BindClass<Node3D::Proxy>("node3d",
 			sol::base_classes, sol::bases<Node::Proxy>(),
+			sol::meta_function::garbage_collect, BIND(GCNodeProxy),
+			sol::meta_function::new_index, StoreUserData(),
+			sol::meta_function::index, LoadUserData(),
 			"GetPosition", BIND(GetPosition),
 			"GetX", BIND(GetX),
 			"GetY", BIND(GetY),
