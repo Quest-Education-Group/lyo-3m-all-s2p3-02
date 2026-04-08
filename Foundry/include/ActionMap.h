@@ -28,11 +28,11 @@ public:
 	void operator=(ActionMap&& other) = delete;
 
 
-	bool	Emplace(std::string_view const& name, Action* pAction);
+	bool	Emplace(std::string_view const& name, Action action);
 	bool	Erase(std::string_view const& name);
 
-	Action*	GetAction(std::string_view const& name);
-	Action*	operator[](std::string const& name);
+	Action&	GetAction(std::string_view const& name);
+	Action&	operator[](std::string const& name);
 			
 	uint32	Length() const;
 	void	Rename(std::string_view const& old, std::string_view const& name);
@@ -43,7 +43,7 @@ public:
 
 protected:
 	std::string_view m_name;
-	std::unordered_map<std::string, Action*> m_actions;
+	std::unordered_map<std::string, Action> m_actions;
 
 	friend struct ActionMapProxyBinding;
 };
