@@ -3,7 +3,7 @@
 #include "ActionMap.h"
 
 Action::Action(ControlType controlType, EventInput eventInput, ActionMap* pActionMap) :
-	m_controls(), Event(), m_pOwner(pActionMap)
+	m_controls(std::vector<IControl*>()), Event(), m_pOwner(pActionMap)
 {
 	AddControl(controlType, eventInput);
 	EventManager::getKey += [&](EventInput in, EventAction ac)
@@ -12,13 +12,19 @@ Action::Action(ControlType controlType, EventInput eventInput, ActionMap* pActio
 				return;
 			for (int i = 0; i  < m_controls.size(); i++)
 			{
-				if (in == m_controls[i].GetEventInput() && ac == EventAction::PRESS)
-					std::invoke(Event, m_controls[i]);
+				if (in == m_controls[i]->GetEventInput() && ac == EventAction::PRESS)
+ 					std::invoke(Event, *m_controls[i]);
 			}
 		};
 }
 
-Action::~Action() {}
+Action::~Action() 
+{
+	for (IControl* iControl : m_controls)
+		delete iControl;
+
+	m_pOwner = nullptr;
+}
 
 
 uint32 Action::AddControl(ControlType const& type, EventInput const& eventInput)
@@ -26,13 +32,13 @@ uint32 Action::AddControl(ControlType const& type, EventInput const& eventInput)
 	switch (type)
 	{
 	case ControlType::BUTTON:
-		m_controls.push_back(ButtonControl(eventInput, this));
+		m_controls.push_back(new ButtonControl(eventInput, this));
 		break;
 	case ControlType::SLIDER:
-		m_controls.push_back(SliderControl(eventInput, this));
+		m_controls.push_back(new SliderControl(eventInput, this));
 		break;
 	case ControlType::STICK:
-		m_controls.push_back(StickControl(eventInput, this));
+		m_controls.push_back(new StickControl(eventInput, this));
 		break;
 	}
 
@@ -44,5 +50,5 @@ IControl& Action::GetControl(uint32 index)
 	IControl ic = IControl();
 	if (index > m_controls.size())
 		return ic;
-	return m_controls[index];
+	return *m_controls[index];
 }

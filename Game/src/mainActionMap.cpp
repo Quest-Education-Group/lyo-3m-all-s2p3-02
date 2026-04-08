@@ -10,23 +10,31 @@
 #include "SceneTree.h"
 #include <Nodes/NodeWindow.h>
 
+void Test(IControl& iControl)
+{
+    std::cout << "je suis un test\n";
+    iControl.GetControlType();
+}
+
+
 int main(int argc, char** argv)
 {
     uptr<Node> root = Node::CreateNode<NodeWindow>("Root");
     uptr<Node> scene = Node::CreateNode<Node>("Scene");    //Load this with the default .st file
+
+
+    //ActionMap map = ActionMap("DEFAULT");
+    //map.CreateAction("test", ControlType::BUTTON, EventInput::KEY_SPACE);
+
+    //map.GetAction("test").Event = Test;
+
+    //map.GetAction("test").Event(map.GetAction("test").GetControl(0));
+
+    uptr<LuaScriptInstance> script = std::make_unique<LuaScriptInstance>("res/test.lua");
+    Node::AttachScript(script, *scene);
     root->AddChild(scene);
+
     SceneTree defaultSceneTree(root);
-
-    Event<void(IControl&)> Zevent;
-    Zevent.Subscribe(
-        std::function<void(IControl&)>([](IControl& iControl)
-            { std::cout << "YEEEEEHHH" << std::endl; }
-        )
-    );
-    Action* pAction1 = new Action(ControlType::BUTTON, Zevent, EventInput::KEY_Z);
-
-    ActionMap actionMap = ActionMap();
-    actionMap.Emplace("MOVE_UP", pAction1);
 
     GameLoop loop;
     loop.StartGame(defaultSceneTree);

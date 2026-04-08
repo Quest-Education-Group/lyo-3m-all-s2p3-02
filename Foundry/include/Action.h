@@ -31,7 +31,7 @@ public:
 	std::function<void(IControl&)> Event;
 
 private:
-	std::vector<IControl> m_controls;
+	std::vector<IControl*> m_controls;
 	ActionMap* m_pOwner;
 
 	friend ActionMap;
