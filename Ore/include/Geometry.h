@@ -6,6 +6,7 @@
 
 #include <Define.h>
 #include <glm/glm.hpp>
+#include <array>
 
 namespace Ore
 {
@@ -14,6 +15,9 @@ struct Vertex
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texCoords;
+
+    glm::ivec4 boneIDS = { -1,-1,-1,-1 };
+    glm::vec4 weights;
 };
 
 class VertexArrayObject;
@@ -38,6 +42,7 @@ private:
     uptr<Buffer<uint32>> m_pIndexBuffer;
     uptr<VertexArrayObject> m_pVao;
     uint32 m_indiceSize;
+    std::vector<glm::mat4> m_bonesTransform;
 
 };
 }
