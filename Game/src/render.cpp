@@ -94,8 +94,8 @@ int main()
 
     lightProgram.Use();
 
-    GeometryPass geoPass(geometryProgram, &camera);
-    LightPass lightPass(lightProgram, lights, &camera);
+    GeometryPass geoPass(geometryProgram, camera.get());
+    LightPass lightPass(lightProgram, lights, camera.get());
 
     viewport.AddPass(&geoPass);
     viewport.AddPass(&lightPass);
