@@ -27,7 +27,7 @@ public:
 	void SetBackgroundColor(Ore::Color const& color);
 
 	//Set to nullptr if no camera is used
-	void SetCamera(NodeCamera *pCamera) const;
+	void SetCamera(NodeCamera *pCamera);
 	void AddMesh(NodeMesh const &mesh) const;
 	void AddSkeletalMesh(NodeMeshAnimated3D const &mesh) const;
 
@@ -52,6 +52,7 @@ protected:
 	//TODO REMOVE
 	std::array<Ore::Light, 5> dummyLight {};
 
+	NodeCamera* m_pCamera = nullptr;
 
 	friend class GraphicServer;
 	friend class NodeWindow;
