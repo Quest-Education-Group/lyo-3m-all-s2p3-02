@@ -59,7 +59,7 @@ int main()
     // --- Actions ---
     ActionMap actionMap;
 
-    uptr<Action> pauseAction = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_P);
+    uptr<Action> pauseAction = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_P);
     pauseAction.get()->OnAction += [&](IControl& control)
         {
             if (audioEm->IsPlaying())
@@ -75,7 +75,7 @@ int main()
         };
     actionMap.Emplace("Pause", pauseAction.get());
 
-    uptr<Action> volUpSfx = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_B);
+    uptr<Action> volUpSfx = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_B);
     volUpSfx.get()->OnAction += [&](IControl& control)
         {
             float next = AudioServer::GetGroupVolume(*music) + 0.01f;
@@ -84,7 +84,7 @@ int main()
         };
     actionMap.Emplace("VolUpSfx", volUpSfx.get());
 
-    uptr<Action> volDownSfx = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_N);
+    uptr<Action> volDownSfx = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_N);
     volDownSfx.get()->OnAction += [&](IControl& control)
         {
             float next = AudioServer::GetGroupVolume(*music) - 0.01f;
@@ -93,7 +93,7 @@ int main()
         };
     actionMap.Emplace("VolDownSfx", volDownSfx.get());
 
-    uptr<Action> masterUp = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_T);
+    uptr<Action> masterUp = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_T);
     masterUp.get()->OnAction += [&](IControl& control)
         {
             float next = AudioServer::GetMasterVolume() + 0.05f;
@@ -102,7 +102,7 @@ int main()
         };
     actionMap.Emplace("MasterUp", masterUp.get());
 
-    uptr<Action> masterDown = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_Y);
+    uptr<Action> masterDown = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_Y);
     masterDown.get()->OnAction += [&](IControl& control)
         {
             float next = AudioServer::GetMasterVolume() - 0.05f;
@@ -111,21 +111,21 @@ int main()
         };
     actionMap.Emplace("MasterDown", masterDown.get());
 
-    uptr<Action> resetListener = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_W);
+    uptr<Action> resetListener = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_W);
     resetListener.get()->OnAction += [&](IControl& control)
         {
             audioListen->SetListenerPosition({ 0, 0, 0 });
         };
     actionMap.Emplace("ResetListener", resetListener.get());
 
-    uptr<Action> moveEmitter = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_X);
+    uptr<Action> moveEmitter = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_X);
     moveEmitter.get()->OnAction += [&](IControl& control)
         {
             audioEm->SetSourcePosition({ 50, 0, 0 });
         };
     actionMap.Emplace("MoveEmitter", moveEmitter.get());
 
-    uptr<Action> moveUp = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_Z);
+    uptr<Action> moveUp = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_Z);
     moveUp.get()->OnAction += [&](IControl& control)
         {
             glm::vec3 newPos = audioListen->GetListenerPosition();
@@ -134,7 +134,7 @@ int main()
         };
     actionMap.Emplace("MoveUp", moveUp.get());
 
-    uptr<Action> moveLeft = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_Q);
+    uptr<Action> moveLeft = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_Q);
     moveLeft.get()->OnAction += [&](IControl& control)
         {
             glm::vec3 newPos = audioListen->GetListenerPosition();
@@ -143,7 +143,7 @@ int main()
         };
     actionMap.Emplace("MoveLeft", moveLeft.get());
 
-    uptr<Action> moveDown = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_S);
+    uptr<Action> moveDown = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_S);
     moveDown.get()->OnAction += [&](IControl& control)
         {
             glm::vec3 newPos = audioListen->GetListenerPosition();
@@ -152,7 +152,7 @@ int main()
         };
     actionMap.Emplace("MoveDown", moveDown.get());
 
-    uptr<Action> moveRight = std::make_unique<Action>(ControlType::BUTTON, EventInput::KEY_D);
+    uptr<Action> moveRight = std::make_unique<Action>(ControlType::BUTTON, Ore::EventInput::KEY_D);
     moveRight.get()->OnAction += [&](IControl& control)
         {
             glm::vec3 newPos = audioListen->GetListenerPosition();
