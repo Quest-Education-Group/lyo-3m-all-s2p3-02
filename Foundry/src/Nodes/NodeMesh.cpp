@@ -3,6 +3,7 @@
 #include "GeometryFactory.h"
 #include "Servers/GraphicServer.h"
 #include "Serialization/SerializeObject.hpp"
+#include "Serialization/ISerializableEncaps.h"
 
 namespace
 {
@@ -75,11 +76,11 @@ void NodeMesh::Serialize(SerializedObject &datas) const
     datas.AddPublicElement("IsActive", &isActive);
 
     int const geometrySourceType = static_cast<int>(m_geometrySourceType);
-    int const primitiveType = static_cast<int>(m_primitiveType);
+    ClampedInt primitiveTypeClamped = ClampedInt(0, 3, static_cast<uint32>(m_primitiveType));
     std::string const fbxPath = m_fbxPath.string();
 
     datas.AddPublicElement("GeometrySourceType", &geometrySourceType);
-    datas.AddPublicElement("PrimitiveType", &primitiveType);
+    datas.AddPublicElement("PrimitiveType", static_cast<ISerializable*>(&primitiveTypeClamped));
     datas.AddPublicElement("FbxPath", &fbxPath);
 
     uint32 textureCount = static_cast<uint32>(m_textureMaterialTypes.size());
@@ -96,15 +97,15 @@ void NodeMesh::Deserialize(SerializedObject const &datas)
         m_pMesh = std::make_unique<Ore::Mesh>();
 
     int geometrySourceType = static_cast<int>(MeshGeometrySourceType::PRIMITIVE);
-    int primitiveType = static_cast<int>(PrimitivesType::CUBE);
+    ClampedInt primitiveTypeClamped = ClampedInt(0, 3, static_cast<uint32>(PrimitivesType::CUBE));
     std::string fbxPath;
 
     datas.GetPublicElement("GeometrySourceType", &geometrySourceType);
-    datas.GetPublicElement("PrimitiveType", &primitiveType);
+    datas.GetPublicElement("PrimitiveType", static_cast<ISerializable*>(&primitiveTypeClamped));
     datas.GetPublicElement("FbxPath", &fbxPath);
 
     m_geometrySourceType = static_cast<MeshGeometrySourceType>(geometrySourceType);
-    m_primitiveType = static_cast<PrimitivesType>(primitiveType);
+    m_primitiveType = static_cast<PrimitivesType>(primitiveTypeClamped.value);
     m_fbxPath = fbxPath;
 
     if (m_geometrySourceType == MeshGeometrySourceType::PRIMITIVE)
