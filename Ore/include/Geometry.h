@@ -42,8 +42,6 @@ private:
     uptr<Buffer<uint32>> m_pIndexBuffer;
     uptr<VertexArrayObject> m_pVao;
     uint32 m_indiceSize;
-    std::vector<glm::mat4> m_bonesTransform;
-
 };
 }
 #endif //!ORE_GEOMETRY__H_
