@@ -2,9 +2,7 @@
 #define FOUNDRY_ACTION_H__
 
 
-#include "Define.h"
 //#include "Serialization/ISerializable.h"
-#include "Ore.h"
 #include "IControl.h"
 
 
@@ -21,7 +19,6 @@ enum class ControlType : byte;
 class Action /*: public ISerializable*/
 {
 public:
-	Action() = default;
 	Action(ControlType controlType, Ore::EventInput eventInput, ActionMap* pActionMap = nullptr);
 	~Action();
 

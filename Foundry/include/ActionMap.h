@@ -2,7 +2,6 @@
 #define FOUNDRY_ACTIONMAP_H__
 
 
-#include "Action.h"
 #include "IControl.h"
 
 
@@ -10,6 +9,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+
+class Action;
 
 
 /// <summary>
