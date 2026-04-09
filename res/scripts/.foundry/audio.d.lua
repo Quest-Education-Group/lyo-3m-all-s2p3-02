@@ -65,9 +65,9 @@ function audiomixer:Shutdown() end
 ---@class nodeaudiolistener
 nodeaudiolistener = {}
 
----@param name string
+---@param name string The node name.
 ---@return nodeaudiolistener
-function nodeaudiolistener:new(name) end
+function CreateNodeAudioListener(name) end
 
 ---@return vec3
 function nodeaudiolistener:GetListenerPosition() end
@@ -86,9 +86,9 @@ function nodeaudiolistener:SetListenerDirection(position) end
 ---@class nodeaudioemitter
 nodeaudioemitter = {}
 
----@param name string
+---@param name string The node name.
 ---@return nodeaudioemitter
-function nodeaudioemitter:new(name) end
+function CreateNodeAudioEmitter(name) end
 
 ---@param filePath string
 ---@param channel AudioChannel

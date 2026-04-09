@@ -6,6 +6,8 @@ public:
 
 	Proxy(Node& node) : Node::Proxy(node), m_pNode(static_cast<NodeAudioEmitter*>(&node)) {}
 
+	static Proxy* CreateNodeAudioEmitter(std::string const& name);
+
 	bool Load(std::string const& filePath, AudioChannel* channel) { return m_pNode->Load(filePath, channel); }
 
 	void Play() { return m_pNode->Play(); }

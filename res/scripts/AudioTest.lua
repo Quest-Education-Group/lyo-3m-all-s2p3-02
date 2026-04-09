@@ -1,10 +1,10 @@
-local audioEm = nil
-local audioEm2 = nil
-local audioListen = nil
+local audioEm
+local audioEm2
+local audioListen
 
---local mixer = nil
-local music = nil
-local sfx = nil
+--local mixer
+local music
+local sfx
 
 function OnInit()
 	--- Audio Server ---
@@ -18,8 +18,10 @@ function OnInit()
 	--mixer:AddReverb(music, 0.85, 0.3);
 
 	-- Audio Emitter
-    audioEm  = nodeaudioemitter:new("nodeaudioemitter")
-    audioEm2 = nodeaudioemitter:new("nodeaudioemitter")
+    --audioEm  = nodeaudioemitter:new("nodeaudioemitter")
+	audioEm = CreateNodeAudioEmitter("nodeaudioemitter")
+	audioEm2 = CreateNodeAudioEmitter("nodeaudioemitter")
+    --audioEm2 = nodeaudioemitter:new("nodeaudioemitter")
 
 	audioEm:Load("res/freeman.mp3", music);
 	audioEm2:Load("res/applause.mp3", sfx);

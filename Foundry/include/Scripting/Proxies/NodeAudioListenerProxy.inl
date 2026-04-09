@@ -6,6 +6,8 @@ public:
 
 	Proxy(Node& node) : Node::Proxy(node), m_pNode(static_cast<NodeAudioListener*>(&node)) {}
 
+	static Proxy* CreateNodeAudioListener(std::string const& name);
+
 	void SetListenerPosition(glm::vec3 position) { return m_pNode->SetListenerPosition(position); }
 	glm::vec3 GetListenerPosition() { return m_pNode->GetListenerPosition(); }
 
