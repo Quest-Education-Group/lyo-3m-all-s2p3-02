@@ -7,8 +7,10 @@
 
 #include "Passes/GeometryPass.h"
 #include "Passes/LightPass.h"
+#include "Passes/AnimatedPass.h"
 
 class NodeMesh;
+class NodeMeshAnimated3D;
 class NodeCamera;
 
 class NodeViewport : public Node2D
@@ -25,8 +27,9 @@ public:
 	void SetBackgroundColor(Ore::Color const& color);
 
 	//Set to nullptr if no camera is used
-	void SetCamera(NodeCamera *pCamera) const;
+	void SetCamera(NodeCamera *pCamera);
 	void AddMesh(NodeMesh const &mesh) const;
+	void AddSkeletalMesh(NodeMeshAnimated3D const &mesh) const;
 
 	static ISerializable* CreateInstance();
 
@@ -43,11 +46,13 @@ protected:
 
 	uptr<Ore::GeometryPass> m_pGeometryPass;
 	uptr<Ore::LightPass> m_pLightPass;
+	uptr<Ore::AnimatedPass> m_pAnimatedPass;
 
 	Ore::Color m_clearColor { Ore::Color::SKY_BLUE};
 	//TODO REMOVE
 	std::array<Ore::Light, 5> dummyLight {};
 
+	NodeCamera* m_pCamera = nullptr;
 
 	friend class GraphicServer;
 	friend class NodeWindow;
