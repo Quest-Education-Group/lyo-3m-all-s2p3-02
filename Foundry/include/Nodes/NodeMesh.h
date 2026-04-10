@@ -30,6 +30,8 @@ public:
     MeshGeometrySourceType GetGeometrySourceType() const { return m_geometrySourceType; }
     PrimitivesType GetPrimitiveType() const { return m_primitiveType; }
     std::filesystem::path const &GetFbxPath() const { return m_fbxPath; }
+    void SetDiffuseTexturePath(std::filesystem::path const& path) { m_diffuseTexturePath = path; }
+    std::filesystem::path const& GetDiffuseTexturePath() const { return m_diffuseTexturePath; }
 
     template <typename... Args>
     void AddTextures(Args... textures);
@@ -44,6 +46,8 @@ private:
     MeshGeometrySourceType m_geometrySourceType = MeshGeometrySourceType::PRIMITIVE;
     PrimitivesType m_primitiveType = PrimitivesType::CUBE;
     std::filesystem::path m_fbxPath{};
+
+    std::filesystem::path m_diffuseTexturePath{};
 
     friend class NodeViewport;
 };

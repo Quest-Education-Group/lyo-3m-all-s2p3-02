@@ -78,18 +78,21 @@ void NodeMesh::Serialize(SerializedObject &datas) const
     int const geometrySourceType = static_cast<int>(m_geometrySourceType);
     ClampedInt primitiveTypeClamped = ClampedInt(0, 3, static_cast<uint32>(m_primitiveType));
     std::string const fbxPath = m_fbxPath.string();
+    std::string const diffusePath = m_diffuseTexturePath.string();
 
     datas.AddPublicElement("GeometrySourceType", &geometrySourceType);
     datas.AddPublicElement("PrimitiveType", static_cast<ISerializable*>(&primitiveTypeClamped));
     datas.AddPublicElement("FbxPath", &fbxPath);
+    datas.AddPublicElement("DiffuseTexturePath", &diffusePath);
 
     uint32 textureCount = static_cast<uint32>(m_textureMaterialTypes.size());
     if (textureCount == 0)
         textureCount = static_cast<uint32>(m_textures.size());
-    datas.AddPublicElement("TextureCount", &textureCount);
+
+    datas.AddPrivateElement("TextureCount", &textureCount);
 }
 
-void NodeMesh::Deserialize(SerializedObject const &datas)
+void NodeMesh::Deserialize(SerializedObject const& datas)
 {
     Node3D::Deserialize(datas);
 
@@ -99,14 +102,17 @@ void NodeMesh::Deserialize(SerializedObject const &datas)
     int geometrySourceType = static_cast<int>(MeshGeometrySourceType::PRIMITIVE);
     ClampedInt primitiveTypeClamped = ClampedInt(0, 3, static_cast<uint32>(PrimitivesType::CUBE));
     std::string fbxPath;
+    std::string diffusePath;
 
     datas.GetPublicElement("GeometrySourceType", &geometrySourceType);
     datas.GetPublicElement("PrimitiveType", static_cast<ISerializable*>(&primitiveTypeClamped));
     datas.GetPublicElement("FbxPath", &fbxPath);
+    datas.GetPublicElement("DiffuseTexturePath", &diffusePath);
 
     m_geometrySourceType = static_cast<MeshGeometrySourceType>(geometrySourceType);
     m_primitiveType = static_cast<PrimitivesType>(primitiveTypeClamped.value);
     m_fbxPath = fbxPath;
+    m_diffuseTexturePath = diffusePath;
 
     if (m_geometrySourceType == MeshGeometrySourceType::PRIMITIVE)
     {
@@ -121,31 +127,20 @@ void NodeMesh::Deserialize(SerializedObject const &datas)
     datas.GetPublicElement("IsActive", &isActive);
     m_pMesh->SetActive(isActive);
 
-    m_textures.clear();
-    m_textureMaterialTypes.clear();
-
     uint32 textureCount = 1;
-    datas.GetPublicElement("TextureCount", &textureCount);
 
-    if (textureCount == 0)
-    {
-        if (!s_IsInEditor)
-            m_textureMaterialTypes.push_back(Ore::TextureMaterialType::DIFFUSE);
-    }
-    else
-    {
-        if (!s_IsInEditor)
-            m_textureMaterialTypes.assign(textureCount, Ore::TextureMaterialType::DIFFUSE);
-    }
-
-    for (Ore::TextureMaterialType const type : m_textureMaterialTypes)
-    {
-        if (!s_IsInEditor)
-            m_textures.push_back(std::make_shared<Ore::Texture>("res/textures/Default.png", Ore::TextureType::TYPE_2D, type));
-    }
+    datas.GetPrivateElement("TextureCount", &textureCount);
 
     if (!s_IsInEditor)
+    {
+        m_textures.clear();
+        if (!m_diffuseTexturePath.empty())
+            m_textures.push_back(std::make_shared<Ore::Texture>(m_diffuseTexturePath, Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
+        else
+            m_textures.push_back(std::make_shared<Ore::Texture>("res/textures/Default.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
+
         m_pMesh->SetTextures(m_textures);
+    }
     m_pMesh->SetTransform(m_transform.GetMatrix());
 }
 
