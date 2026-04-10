@@ -259,15 +259,32 @@ void NodeBoxCollider::Serialize(SerializedObject &datas) const
 		auto he = boxShape->getHalfExtents();
 		halfExtents = {he.x, he.y, he.z};
 	}
-
-	datas.AddPublicElement("HalfExtents", &halfExtents);
+	ClampedFloat HalfExtX = ClampedFloat(0.1f, -1.0f, halfExtents.x);
+	ClampedFloat HalfExtY = ClampedFloat(0.1f, -1.0f, halfExtents.y);
+	ClampedFloat HalfExtZ = ClampedFloat(0.1f, -1.0f, halfExtents.z);
+	datas.AddPublicElement("HalfExtentsX", static_cast<ISerializable*>(&HalfExtX));
+	datas.AddPublicElement("HalfExtentsY", static_cast<ISerializable*>(&HalfExtY));
+	datas.AddPublicElement("HalfExtentsZ", static_cast<ISerializable*>(&HalfExtZ));
 }
 
 void NodeBoxCollider::Deserialize(SerializedObject const &datas)
 {
 	glm::vec3 halfExtents{0.5f, 0.5f, 0.5f};
-	datas.GetPublicElement("HalfExtents", &halfExtents);
-	SetShape(halfExtents);
+	ClampedFloat HalfExtX = ClampedFloat(0.1f, -1.0f, halfExtents.x);
+	ClampedFloat HalfExtY = ClampedFloat(0.1f, -1.0f, halfExtents.y);
+	ClampedFloat HalfExtZ = ClampedFloat(0.1f, -1.0f, halfExtents.z);
+	try {
+	datas.GetPublicElement("HalfExtentsX", static_cast<ISerializable*>(&HalfExtX));
+	datas.GetPublicElement("HalfExtentsY", static_cast<ISerializable*>(&HalfExtY));
+	datas.GetPublicElement("HalfExtentsZ", static_cast<ISerializable*>(&HalfExtZ));
+	}
+	catch (...) {
+		datas.GetPublicElement("HalfExtentsX",&HalfExtX.value);
+		datas.GetPublicElement("HalfExtentsY",&HalfExtY.value);
+		datas.GetPublicElement("HalfExtentsZ",&HalfExtZ.value);
+	}
+
+	SetShape({HalfExtX.value,HalfExtY.value,HalfExtZ.value});
 
 	NodeCollider::Deserialize(datas);
 }

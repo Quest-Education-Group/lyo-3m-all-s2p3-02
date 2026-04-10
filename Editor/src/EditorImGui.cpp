@@ -89,12 +89,12 @@ void EditorImGui::Init()
 	auto node3D = Node::CreateNode<Node>("Node3D");
 	auto rigibody = Node::CreateNode<Node>("NodeRigidBody");
 
-	auto collider = Node::CreateNode<Node>("NodeCollider");
+	auto collider = Node::CreateNode<Node>("NodeCollider - Abstract");
 	auto colliderbox = Node::CreateNode<Node>("NodeBoxCollider");
 	auto collidersphere = Node::CreateNode<Node>("NodeSphereCollider");
 	auto collidercapsule = Node::CreateNode<Node>("NodeCapsuleCollider");
 
-	auto nodeVisual = Node::CreateNode<Node>("NodeVisual");
+	auto nodeVisual = Node::CreateNode<Node>("NodeVisual - Abstract");
 	auto nodeMesh = Node::CreateNode<Node>("NodeMesh");
 
 	auto nodeCamera = Node::CreateNode<Node>("NodeCamera");
@@ -238,7 +238,6 @@ void EditorImGui::DrawMenuBar()
 		{
 			if (!m_play)
 			{
-				SaveSceneNoSpecialisation();
 				m_play = true;
 			}
 			else
@@ -248,12 +247,11 @@ void EditorImGui::DrawMenuBar()
 			}
 		}
 
-		if (m_haveFileSelected && m_scenePathBuffer.length() != 0 && m_play == true) {
-
+		if (m_play == true)
+		{
 			m_command.type = EditorCommand::Type::LUNCH_GAME;
-			m_command.stringParam1 = m_scenePathBuffer + ".json";
+			m_command.stringParam1.clear();
 			m_play = false;
-
 		}
 		ImGui::EndMainMenuBar();
 	}
@@ -910,4 +908,43 @@ bool EditorImGui::IsDescendant(Node const& potentialAncestor, Node const& node) 
 	}
 
 	return false;
+}
+
+void EditorImGui::NotifyNodeWillBeDeleted(Node* pNode)
+{
+	if (pNode == nullptr)
+	{
+		return;
+	}
+
+	Node* const fallbackViewRoot = (pNode->GetParent() != nullptr) ? pNode->GetParent() : m_pSceneRoot;
+
+	auto const isInsideDeletedSubtree = [pNode](Node* pCandidate) -> bool
+	{
+		Node* current = pCandidate;
+		while (current != nullptr)
+		{
+			if (current == pNode)
+			{
+				return true;
+			}
+			current = current->GetParent();
+		}
+		return false;
+	};
+
+	if (m_pSelectedNode != nullptr && isInsideDeletedSubtree(m_pSelectedNode))
+	{
+		m_pSelectedNode = nullptr;
+		m_pRaylibEditor->SetSelectedNode("");
+	}
+
+	if (m_pViewRoot != nullptr && isInsideDeletedSubtree(m_pViewRoot))
+	{
+		m_pViewRoot = fallbackViewRoot;
+		if (m_pViewRoot == nullptr)
+		{
+			m_pViewRoot = m_pSceneRoot;
+		}
+	}
 }
