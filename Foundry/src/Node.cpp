@@ -44,7 +44,15 @@ namespace
 Node::Node(std::string const& name) : m_name(name) , m_scriptPath("")
 {
     DEBUG("Node : " << m_name << " has been " << ANSI_GREEN << "created !" << ANSI_RESET << std::endl);
-	OnHierarchyChanged += [&]() { NotifyHierarchyChanged(); };
+	OnHierarchyChanged += [&]()
+	{
+		if (m_pOwner)
+		{
+			m_pSceneTree = m_pOwner->GetSceneTree();
+			if (m_pSceneTree) OnSceneEnter(*this);
+		}
+		NotifyHierarchyChanged();
+	};
 }
 
 Node::~Node()
@@ -88,9 +96,9 @@ void Node::AttachChildImmediate(std::unique_ptr<Node>& child)
 	m_children[childName]->m_pSceneTree = m_pSceneTree;
 	m_childrenOrder.push_back(childName);
 
-	m_children[childName]->OnSceneEnter(*m_children[childName]);
-	m_children[childName]->OnParentChange(*this);
 	NotifyHierarchyChanged();
+	m_children[childName]->OnParentChange(*this);
+	if (m_pSceneTree) m_children[childName]->OnSceneEnter(*m_children[childName]);
 
 	DEBUG("Node : " << childName << " is now a child of : " << m_name << std::endl);
 }
