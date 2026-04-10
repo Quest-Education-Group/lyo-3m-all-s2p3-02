@@ -62,14 +62,6 @@ event = {}
 action = {}
 action.Event = {}
 
----@return action
-function action:new() end
-
----@param ctControlType controltype Type of Control to trigger the callback event
----@param eiEventInput eventinput Input ID (ex. KEY_A or GAMEPAD_TRIGGER)
----@return action
-function action:new(ctControlType, eiEventInput) end
-
 ---@param ctControlType controltype
 ---@param eiEventInput eventinput
 ---@return number
@@ -144,3 +136,8 @@ function actionmap:Length() end
 ---@param sOldName string
 ---@param sNewName string
 function actionmap:Rename(sOldName, sNewName) end 
+
+---@param sName string Action name
+---@param ctControlType controltype
+---@param eiEventInput eventinput
+function actionmap:CreateAction(sName, ctControlType, eiEventInput) end
