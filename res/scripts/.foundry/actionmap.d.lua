@@ -118,11 +118,6 @@ actionmap = {}
 function actionmap:new() end
 
 ---@param sName string
----@param acAction action
----@return boolean
-function actionmap:Emplace(sName, acAction) end
-
----@param sName string
 ---@return boolean
 function actionmap:Erase(sName) end
 
