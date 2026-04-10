@@ -89,12 +89,12 @@ void EditorImGui::Init()
 	auto node3D = Node::CreateNode<Node>("Node3D");
 	auto rigibody = Node::CreateNode<Node>("NodeRigidBody");
 
-	auto collider = Node::CreateNode<Node>("NodeCollider");
+	auto collider = Node::CreateNode<Node>("NodeCollider - Abstract");
 	auto colliderbox = Node::CreateNode<Node>("NodeBoxCollider");
 	auto collidersphere = Node::CreateNode<Node>("NodeSphereCollider");
 	auto collidercapsule = Node::CreateNode<Node>("NodeCapsuleCollider");
 
-	auto nodeVisual = Node::CreateNode<Node>("NodeVisual");
+	auto nodeVisual = Node::CreateNode<Node>("NodeVisual - Abstract");
 	auto nodeMesh = Node::CreateNode<Node>("NodeMesh");
 
 	auto nodeCamera = Node::CreateNode<Node>("NodeCamera");

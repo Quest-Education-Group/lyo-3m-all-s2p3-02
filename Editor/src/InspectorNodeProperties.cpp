@@ -135,6 +135,16 @@ void InspectorNodeProperties::DrawWindow(bool windowState, Node* pNode)
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 1.0f, 1.0f));
         ImGui::Text("Node Properties");
         ImGui::PopStyleColor();
+
+        SerializedObject nodeObject;
+        pNode->Serialize(nodeObject);
+        std::string nodeType = nodeObject.GetType();
+        if (nodeType.empty())
+        {
+            nodeType = "Node";
+        }
+
+        ImGui::Text("Node Type: %s", nodeType.c_str());
         ImGui::Separator();
 
         if (pNode != m_pSelectedNode || m_pImguiEditor->m_pRaylibEditor->IsGizmoDirty() || m_isDirty)
