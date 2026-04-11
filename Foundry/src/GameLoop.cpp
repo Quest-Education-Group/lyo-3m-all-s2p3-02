@@ -6,6 +6,7 @@
 #include "Nodes/NodeWindow.h"
 #include "Servers/EngineServer.h"
 #include "Servers/GraphicServer.h"
+#include "Servers/PhysicsServer.h"
 
 void GameLoop::StartGame(SceneTree& defaultTree)
 {
@@ -66,18 +67,19 @@ void GameLoop::InitServers()
 {
     EngineServer::Initialize();
     GraphicServer::Initialize();
+    PhysicsServer::Initialize();
 }
 
 void GameLoop::UpdateServers()
 {
     EngineServer::FlushCommands();
     GraphicServer::FlushCommands();
+    PhysicsServer::FlushCommands();
 }
 
 void GameLoop::BuildTasksGraph(TaskGraph& graph)
 {
     EngineServer::BuildTasks(graph);
     GraphicServer::BuildTasks(graph);
+    PhysicsServer::BuildTasks(graph);
 }
-
-
