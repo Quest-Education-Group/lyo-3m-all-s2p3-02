@@ -6,6 +6,7 @@
 #include "Nodes/NodeWindow.h"
 #include "Servers/EngineServer.h"
 #include "Servers/GraphicServer.h"
+#include "Servers/AudioServer.h"
 
 void GameLoop::StartGame(SceneTree& defaultTree)
 {
@@ -66,6 +67,7 @@ void GameLoop::InitServers()
 {
     EngineServer::Initialize();
     GraphicServer::Initialize();
+    AudioServer::Initialize();
 }
 
 void GameLoop::UpdateServers()

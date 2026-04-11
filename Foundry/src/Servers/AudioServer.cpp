@@ -2,7 +2,7 @@
 
 #include "Servers/AudioServer.h"
 
-bool AudioServer::Init()
+bool AudioServer::Initialize()
 {
     Instance().m_soundEngineConfig = ma_engine_config_init();
     Instance().m_soundEngineConfig.listenerCount = MA_ENGINE_MAX_LISTENERS;

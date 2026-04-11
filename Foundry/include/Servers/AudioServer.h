@@ -31,7 +31,7 @@ public:
 	AudioServer() = default;
 	~AudioServer() = default;
 	
-	static bool Init();
+	static bool Initialize();
 	static void Shutdown();
 
 	static AudioChannel* GetChannel(std::string const& name);

@@ -9,31 +9,36 @@
 
 #include <Nodes/NodeWindow.h>
 
-uptr<Node> LoadScene()
+Node& LoadScene(Node& root)
 {
+    uptr<NodeViewport> v = Node::CreateNode<NodeViewport>("MainViewport");
+    Node* viewport = v.get();
+    root.AddChild(std::move(v));
+
+    //uptr<Node> scene = Node::LoadNodeFromJSON<Node>("res/scenes/default.sc.json");
     uptr<Node> scene = Node::CreateNode<Node>("Scene");
-    return scene;
+
+    uptr<LuaScriptInstance> script = std::make_unique<LuaScriptInstance>("res/scripts/AudioTest.lua");
+    Node::AttachScript(script, *scene);
+    viewport->AddChild(std::move(scene));
+    return *viewport;
 }
 
 // Test LUA
 int main(int argc, char** argv)
 {
-    AudioServer::Init();
-
     uptr<Node> root = Node::CreateNode<NodeWindow>("Root");
-    uptr<Node> scene = Node::CreateNode<Node>("Scene");
+    /*uptr<Node> scene = Node::CreateNode<Node>("Scene");
 
     uptr<LuaScriptInstance> script = std::make_unique<LuaScriptInstance>("res/scripts/AudioTest.lua");
-    Node::AttachScript(script, *scene);
-    root->AddChild(scene);
+    Node::AttachScript(script, *scene);*/
+    //root->AddChild(scene);
 
     SceneTree defaultSceneTree(root);
 
     GameLoop loop;
     loop.LoadScene = LoadScene;
     loop.StartGame(defaultSceneTree);
-
-    AudioServer::Shutdown();
 
     return 0;
 }
