@@ -18,7 +18,7 @@ void NodeCamera::OnUpdate(double delta)
 
     if (need_update)
     {
-        m_camera.SetTransform(m_transform.GetMatrix());
+        m_camera.SetTransform(m_worldTransform);
         m_camera.UpdateCamera();
     }
 }
@@ -63,8 +63,13 @@ void NodeCamera::Deserialize(SerializedObject const& datas)
     m_camera.Perspective.aspectRatio = aspectRatio;
     m_camera.Perspective.up = up;
 
-    m_camera.SetTransform(m_transform.GetMatrix());
+    m_camera.SetTransform(m_worldTransform);
     m_camera.UpdateCamera();
+}
+
+void NodeCamera::AttachScriptDeserialize(uptr<LuaScriptInstance>& script)
+{
+    AttachScript<NodeCamera>(script, *this);
 }
 
 ISerializable* NodeCamera::CreateInstance()

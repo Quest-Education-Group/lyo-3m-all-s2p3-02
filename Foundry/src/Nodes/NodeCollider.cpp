@@ -325,6 +325,11 @@ void NodeSphereCollider::Deserialize(SerializedObject const &datas)
 	NodeCollider::Deserialize(datas);
 }
 
+void NodeCollider::AttachScriptDeserialize(uptr<LuaScriptInstance>& script)
+{
+	AttachScript<NodeCollider>(script, *this);
+}
+
 ISerializable *NodeSphereCollider::CreateInstance()
 {
 	return CreateNode<NodeSphereCollider>("NodeSphereCollider").release();

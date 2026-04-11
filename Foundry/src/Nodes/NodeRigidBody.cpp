@@ -198,7 +198,12 @@ void NodeRigidBody::Deserialize(SerializedObject const& datas)
 	LockAngularAxis(lockAngularX, lockAngularY, lockAngularZ);
 	SetLinearVelocity(linearVelocity);
 	SetAngularVelocity(angularVelocity);
-	
+
+}
+
+void NodeRigidBody::AttachScriptDeserialize(uptr<LuaScriptInstance>& script)
+{
+	AttachScript<NodeRigidBody>(script, *this);
 }
 
 ISerializable* NodeRigidBody::CreateInstance()
@@ -467,6 +472,3 @@ uptr<Node> NodeRigidBody::Clone()
 
 	return clone;
 }
-
-
-
