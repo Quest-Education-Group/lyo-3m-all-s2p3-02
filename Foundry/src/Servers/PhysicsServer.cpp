@@ -755,7 +755,6 @@ void PhysicsServer::S_Detach(NodeCollider& c)
 	colliders[c.m_indexInRigidBody] = nullptr;	
 	colliders.erase(colliders.begin() + c.m_indexInRigidBody);
 
-	c.m_pNodeRigidBody->m_pRigidBodyRP3D->removeCollider(c.m_pCollider);
 	c.m_indexInRigidBody = -1;
 
 
@@ -763,6 +762,7 @@ void PhysicsServer::S_Detach(NodeCollider& c)
 	{
 		colliders[i]->m_indexInRigidBody = i;
 	}
+	c.m_pNodeRigidBody->m_pRigidBodyRP3D->removeCollider(c.m_pCollider);
 }
 
 void PhysicsServer::S_DestroyShape(NodeCollider& c)

@@ -45,9 +45,11 @@ void GameLoop::LoopGame()
         {
             m_accumulator -= PHYSICS_DT;
             root.PhysicsUpdate(PHYSICS_DT);
+            //PhysicsServer::UpdatePhysicsWorld(PHYSICS_DT); // !! si update fait ici, il semble beaucoup trop rapide !!
         }
         while (m_accumulator > PHYSICS_DT);
 
+        PhysicsServer::UpdatePhysicsWorld(dt);
         root.Update(dt);
         UpdateServers();
         BuildTasksGraph(graph);
