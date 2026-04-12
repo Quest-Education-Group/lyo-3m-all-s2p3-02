@@ -340,30 +340,30 @@ void NodeRigidBody::ApplyWorldTorque(const glm::vec3& torque)
 
 glm::vec3 const NodeRigidBody::GetLinearVelocity() const
 {
-	if (m_pOwner == nullptr) return { 0,0,0 };
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return { 0,0,0 };
 	return rp3dToGlm(m_pRigidBodyRP3D->getLinearVelocity());
 }
 glm::vec3 const NodeRigidBody::GetAngularVelocity() const
 {
-	if (m_pOwner == nullptr) return { 0,0,0 };
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return { 0,0,0 };
 	return rp3dToGlm(m_pRigidBodyRP3D->getAngularVelocity());
 }
 /// Return the linear decelerating factor
 float const NodeRigidBody::GetLinearDamping() const
 {
-	if (m_pOwner == nullptr) return 0.0f;
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return 0.0f;
 	return m_pRigidBodyRP3D->getLinearDamping();
 }
 /// Return the angular velocity damping factor
 float const NodeRigidBody::GetAngularDamping() const
 {
-	if (m_pOwner == nullptr) return 0.0f;
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return 0.0f;
 	return m_pRigidBodyRP3D->getAngularDamping();
 }
 
 glm::vec3 const NodeRigidBody::GetTotalForce() const
 {
-	if (m_pOwner == nullptr) return { 0,0,0 };
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return { 0,0,0 };
 	return rp3dToGlm(m_pRigidBodyRP3D->getForce());
 }
 
@@ -397,7 +397,7 @@ void NodeRigidBody::ResetTorque()
 
 float NodeRigidBody::GetMass() const
 {
-	if (m_pOwner == nullptr) return 0.0f;
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return 0.0f;
 	return m_pRigidBodyRP3D->getMass();
 }
 void NodeRigidBody::SetMass(float mass)
@@ -407,7 +407,7 @@ void NodeRigidBody::SetMass(float mass)
 
 RigidBodyType NodeRigidBody::GetBodyType() const
 {
-	if (m_pOwner == nullptr) return RigidBodyType::NONE;
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return RigidBodyType::NONE;
 	auto type = m_pRigidBodyRP3D->getType();
 
 	if (type == rp3d::BodyType::DYNAMIC)
@@ -433,20 +433,18 @@ void NodeRigidBody::LockAngularAxis(bool x, bool y, bool z)
 
 bool NodeRigidBody::IsAllowedToSleep() const
 {
-	if (m_pOwner == nullptr) return false;
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return false;
 	return m_pRigidBodyRP3D->isAllowedToSleep();
 }
 bool NodeRigidBody::IsSleeping() const
 {
-	if (m_pOwner == nullptr) return false;
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return false;
 	return m_pRigidBodyRP3D->isSleeping();
 }
 bool NodeRigidBody::IsGravityEnabled()
 {
-	if (m_pOwner)
-		return m_pRigidBodyRP3D->isGravityEnabled();
-
-	return false;
+	if (m_pOwner == nullptr || m_pRigidBodyRP3D == nullptr) return false;
+	return m_pRigidBodyRP3D->isGravityEnabled();
 }
 
 void NodeRigidBody::SetSleepingEnabled(bool enabled)
