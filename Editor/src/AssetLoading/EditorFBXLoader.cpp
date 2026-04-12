@@ -8,7 +8,7 @@
 
 #include <filesystem>
 #include <fstream>
-#include <functional> // <-- ajout nécessaire pour std::function
+#include <functional>
 
 glm::mat4 EditorFBXLoader::AIMatrixToGLMMatrix(aiMatrix4x4 const& matrix)
 {
@@ -17,9 +17,46 @@ glm::mat4 EditorFBXLoader::AIMatrixToGLMMatrix(aiMatrix4x4 const& matrix)
 	return glm::transpose(out);
 }
 
+namespace
+{
+	bool IsNearlyIdentity(glm::mat4 const& m, float eps = 1e-4f)
+	{
+		glm::mat4 const id(1.0f);
+		for (int c = 0; c < 4; ++c)
+		{
+			for (int r = 0; r < 4; ++r)
+			{
+				if (std::abs(m[c][r] - id[c][r]) > eps) return false;
+			}
+		}
+		return true;
+	}
+
+	glm::mat4 ExtractTopLevelConverter(aiNode const* root, auto&& toGlm)
+	{
+		glm::mat4 converter(1.0f);
+		aiNode const* n = root;
+
+		while (n)
+		{
+			bool const converterNode = (n->mNumMeshes == 0) && (n->mNumChildren == 1);
+			if (!converterNode) break;
+
+			glm::mat4 const local = toGlm(n->mTransformation);
+			if (!IsNearlyIdentity(local))
+			{
+				converter = converter * local;
+			}
+
+			n = n->mChildren[0];
+		}
+
+		return converter;
+	}
+}
+
 void EditorFBXLoader::BuildMeshes(aiScene const* pScene, std::string const& sourcePath, EditorSceneData& outScene)
 {
-	// Construit une matrice world par mesh index depuis la hiérarchie de nodes Assimp
 	std::vector<glm::mat4> meshWorldMatrices(pScene->mNumMeshes, glm::mat4(1.0f));
 	std::vector<bool> meshMatrixAssigned(pScene->mNumMeshes, false);
 
@@ -48,6 +85,19 @@ void EditorFBXLoader::BuildMeshes(aiScene const* pScene, std::string const& sour
 	};
 
 	collectNodeTransforms(pScene->mRootNode, glm::mat4(1.0f));
+
+	glm::mat4 sceneFix(1.0f);
+	if (pScene->mRootNode)
+	{
+		glm::mat4 const topConverter = ExtractTopLevelConverter(
+			pScene->mRootNode,
+			[](aiMatrix4x4 const& m) { return EditorFBXLoader::AIMatrixToGLMMatrix(m); });
+
+		if (!IsNearlyIdentity(topConverter))
+		{
+			sceneFix = glm::inverse(topConverter);
+		}
+	}
 
 	for (uint32 meshIndex = 0; meshIndex < pScene->mNumMeshes; ++meshIndex)
 	{
@@ -79,8 +129,7 @@ void EditorFBXLoader::BuildMeshes(aiScene const* pScene, std::string const& sour
 				meshData.geometry.m_indices.push_back(face.mIndices[i]);
 		}
 
-		// Au lieu de l'identité, on applique la matrice issue du node FBX
-		meshData.meshMatrix = meshWorldMatrices[meshIndex];
+		meshData.meshMatrix = sceneFix * meshWorldMatrices[meshIndex];
 
 		if (pMesh->mMaterialIndex < pScene->mNumMaterials)
 		{
@@ -135,7 +184,8 @@ sptr<EditorSceneData> EditorFBXLoader::LoadFile(std::string const& path)
 		aiProcess_CalcTangentSpace |
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices |
-		aiProcess_SortByPType;
+		aiProcess_SortByPType |
+		aiProcess_GlobalScale;
 
 	aiScene const* pScene = importer.ReadFile(path.c_str(), importFlags);
 	if (!pScene)

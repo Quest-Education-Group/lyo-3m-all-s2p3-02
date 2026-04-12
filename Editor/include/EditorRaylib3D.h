@@ -22,6 +22,7 @@ struct DrawableElement
 	MeshGeometrySourceType geometrySourceType = MeshGeometrySourceType::PRIMITIVE;
 	PrimitivesType primitiveType = PrimitivesType::CUBE;
 	std::string loadedFbxPath;
+	std::string loadedFbxDiffusePath;
 
 	Matrix worldMatrix;
 	Transform gizmoTransform;

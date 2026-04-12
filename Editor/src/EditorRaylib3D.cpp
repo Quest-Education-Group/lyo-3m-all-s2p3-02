@@ -430,6 +430,7 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 		drawable.geometrySourceType = MeshGeometrySourceType::PRIMITIVE;
 		drawable.primitiveType = pNodeMesh->GetPrimitiveType();
 		drawable.loadedFbxPath.clear();
+		drawable.loadedFbxDiffusePath.clear();
 	}
 	else
 	{
@@ -456,7 +457,14 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 
 			DrawableSubMesh subMesh;
 			subMesh.mesh = std::make_unique<Mesh>(m_mesh);
-			subMesh.localMatrix = GlmToMatrix(importedMesh.meshMatrix);
+
+			glm::vec3 const t = glm::vec3(importedMesh.meshMatrix[3]);
+			subMesh.localMatrix = MatrixTranslate(t.x, t.y, t.z);
+
+			if (drawable.loadedFbxDiffusePath.empty() && !importedMesh.textures.empty())
+			{
+				drawable.loadedFbxDiffusePath = importedMesh.textures[0].path;
+			}
 
 			drawable.meshes.push_back(std::move(subMesh));
 		}
@@ -520,7 +528,16 @@ void EditorRaylib3D::UpdateDrawableTexture(NodeMesh const& nodeMesh, DrawableEle
 {
 	std::filesystem::path wanted = nodeMesh.GetDiffuseTexturePath();
 	if (wanted.empty())
-		wanted = "res/textures/Default.png";
+	{
+		if (drawable.geometrySourceType == MeshGeometrySourceType::FBX && !drawable.loadedFbxDiffusePath.empty())
+		{
+			wanted = drawable.loadedFbxDiffusePath;
+		}
+		else
+		{
+			wanted = "res/textures/Default.png";
+		}
+	}
 
 	std::string const resolved = ResolveEditorTexturePath(wanted);
 	if (resolved == drawable.loadedDiffusePath)
@@ -559,8 +576,7 @@ void EditorRaylib3D::Render()
 		for (DrawableSubMesh const& subMesh : drawable.meshes)
 		{
 			if (!subMesh.mesh) continue;
-
-			Matrix finalMatrix = MatrixMultiply(drawable.worldMatrix, subMesh.localMatrix);
+			Matrix finalMatrix = MatrixMultiply(subMesh.localMatrix, drawable.worldMatrix);
 			DrawMesh(*subMesh.mesh.get(), drawable.material, finalMatrix);
 		}
 	}
@@ -569,7 +585,6 @@ void EditorRaylib3D::Render()
 	{
 		RayGizmo::SetGizmoSize(m_gizmoSize);
 
-		// Gizmo toujours au-dessus de la géométrie
 		rlDisableDepthTest();
 
 		if (RayGizmo::DrawGizmo3D(static_cast<int>(m_gizmoFlags), &m_loadedNode3D[m_selectedObject]->gizmoTransform))
