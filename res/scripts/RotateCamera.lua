@@ -1,58 +1,38 @@
-local iMoveSpeed = 30000.0
+local iMoveSpeed = 3000.0
 local parent
 local oCurrentEntity
+local oCamera
 
 function MoveForward(icForward) print("move forward")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, 0, -iMoveSpeed))
-    
-    -- self:SetLinearVelocity(fmath.vec3:new(0, 0, -iMoveSpeed)) // CA CEST PAREIL QUE ApplyWorldForce...()
-
-    print(parent:GetPosition().x, parent:GetPosition().y, parent:GetPosition().z)
-    print("\n\n")
 end
 
 function MoveBackward(icBackward) print("move backward")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, 0, iMoveSpeed))
-    -- self:SetLinearVelocity(fmath.vec3:new(0, 0, iMoveSpeed))
-
-    print(parent:GetPosition().x, parent:GetPosition().y, parent:GetPosition().z)
-    print("\n\n")
 end
 
 function MoveLeft(icLeft) print("move left")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(-iMoveSpeed, 0, 0))
-    -- self:SetLinearVelocity(fmath.vec3:new(-iMoveSpeed, 0, 0))
-
-    print(parent:GetPosition().x, parent:GetPosition().y, parent:GetPosition().z)
-    print("\n\n")
 end
 
 function MoveRight(icRight) print("move right")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(iMoveSpeed, 0, 0))
-    -- self:SetLinearVelocity(fmath.vec3:new(iMoveSpeed, 0, 0))
-
-    print(parent:GetPosition().x, parent:GetPosition().y, parent:GetPosition().z)
-    print("\n\n")
 end
 
-function MoveDown(icDown)
+function MoveDown(icDown) print("move down")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, -iMoveSpeed, 0))
-    -- self:SetLinearVelocity(fmath.vec3:new(0, -iMoveSpeed, 0))
 end
 
-function MoveUp(icUp)
+function MoveUp(icUp) print("move up")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, iMoveSpeed, 0))
-    -- self:SetLinearVelocity(fmath.vec3:new(0, iMoveSpeed*2, 0))
 end
 
-function RotateRight(icRight)
-    self:ApplyWorldTorque(fmath.vec3:new(0, iMoveSpeed*3, 0))
+function RotateRight(icRight) print("Rotate right")
+    self:ApplyWorldTorque(fmath.vec3:new(0, iMoveSpeed, 0))
 end
 
-function RotateLeft(icLeft)
-    print("rota")
-    self:ApplyWorldTorque(fmath.vec3:new(0, -iMoveSpeed*3, 0))
-
+function RotateLeft(icLeft) print("move left")
+    self:ApplyWorldTorque(fmath.vec3:new(0, -iMoveSpeed, 0))
 end
 
 function SetCurrentEntity(ndHit)
@@ -64,15 +44,16 @@ function SetCurrentEntity(ndHit)
 end
 
 function CheckInteraction()
-    local hit = physics.Raycast(self:GetPosition(), self:GetLocalForward())
+    print("Checking what is forward")
+    local hit = physics.Raycast(parent:GetPosition(), parent:GetLocalForward(), 100)
 
     if not hit then
-        print("hit doesn't found")
+        print("there is nothing there, clement")
         return
     end
 
     if not hit.node then
-        print("Node doesn't found in the hit")
+        print("Node not found in the hit")
         return
     end
 
@@ -85,6 +66,7 @@ function CheckInteraction()
     end
 
     if child:CanInteract() then
+        print("element touche: "..hitNode:GetName())
         child:GetPrompt()
         SetCurrentEntity(child)
     else
@@ -96,25 +78,18 @@ function TryInteract()
     oCurrentEntity:Interact()
 end
 
-function OnInit() 
+local function InitActionMap()
     local actionmap = actionmap:new("DEFAULT_ACTION_MAP")
-    
-    print("Begin RB INIT ")
-    self:SetBodyType(2)
-    self:SetMass(10)
-    self:SetIsGravityEnabled(true)
-    self:LockAngularAxis(true,false,true)
-    self:SetLinearDamping(1)
-    self:SetAngularDamping(0.5)
-    parent = self:GetNode3DParent()
-    
-    
+
     actionmap:CreateAction("MOVE_FORWARD", 1, 90)
     actionmap:CreateAction("MOVE_BACKWARD", 1, 83)
     actionmap:CreateAction("MOVE_LEFT", 1, 81)
     actionmap:CreateAction("MOVE_RIGHT", 1, 68)
     actionmap:CreateAction("MOVE_DOWN", 1, 65)
     actionmap:CreateAction("MOVE_UP", 1, 69)
+
+    actionmap:CreateAction("ROTATE_RIGHT", 1, 87)
+    actionmap:CreateAction("ROTATE_LEFT", 1, 88)
 
     actionmap:CreateAction("INTERACT", 1, 70)
 
@@ -129,6 +104,22 @@ function OnInit()
     actionmap:GetAction("ROTATE_LEFT").Event = RotateLeft
 
     actionmap:GetAction("INTERACT").Event = TryInteract
+end
+
+function InitRB()
+    self:SetBodyType(2)
+    self:SetMass(10)
+    self:SetIsGravityEnabled(true)
+    self:LockAngularAxis(true,false,true)
+    self:SetLinearDamping(1)
+    self:SetAngularDamping(0.5)
+    parent = self:GetNode3DParent()
+end
+
+function OnInit() 
+    InitActionMap()
+    InitRB()
+    --oCamera = self:
 
     timer.Create("RaycastDelay", 1, 100000, CheckInteraction)
 end
