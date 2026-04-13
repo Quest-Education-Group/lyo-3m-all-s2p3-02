@@ -6,7 +6,7 @@ using namespace Ore;
 
 void EventManagerProxyBinding::Bind(Binder& binder)
 {
-    binder.BindEnum<GamepadId>("gamepadid",
+    binder.BindEnum<GamepadId>("GamepadID",
         "Gamepad_1", GamepadId::GAMEPAD_1,
         "Gamepad_2", GamepadId::GAMEPAD_2,
         "Gamepad_3", GamepadId::GAMEPAD_3,
@@ -26,7 +26,7 @@ void EventManagerProxyBinding::Bind(Binder& binder)
         "Gamepad_MAX", GamepadId::GAMEPAD_MAX
     );
 
-    binder.BindEnum<EventInput>("eventinput",
+    binder.BindEnum<EventInput>("EventInput",
         "Key_A", EventInput::KEY_A,
         "Key_M", EventInput::KEY_M,
         "Key_Semicolon", EventInput::KEY_SEMICOLON,
@@ -173,7 +173,7 @@ void EventManagerProxyBinding::Bind(Binder& binder)
         "Gamepad_Right_Y", EventInput::GAMEPAD_RIGHT_Y
     );
 
-    binder.BindEnum<EventAction>("eventaction",
+    binder.BindEnum<EventAction>("EventAction",
         "Press", EventAction::PRESS,
         "Release", EventAction::RELEASE,
         "Hold", EventAction::HOLD,
