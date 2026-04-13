@@ -457,9 +457,7 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 
 			DrawableSubMesh subMesh;
 			subMesh.mesh = std::make_unique<Mesh>(m_mesh);
-
-			glm::vec3 const t = glm::vec3(importedMesh.meshMatrix[3]);
-			subMesh.localMatrix = MatrixTranslate(t.x, t.y, t.z);
+			subMesh.localMatrix = GlmToMatrix(importedMesh.meshMatrix);
 
 			if (drawable.loadedFbxDiffusePath.empty() && !importedMesh.textures.empty())
 			{
@@ -576,7 +574,7 @@ void EditorRaylib3D::Render()
 		for (DrawableSubMesh const& subMesh : drawable.meshes)
 		{
 			if (!subMesh.mesh) continue;
-			Matrix finalMatrix = MatrixMultiply(subMesh.localMatrix, drawable.worldMatrix);
+			Matrix finalMatrix = MatrixMultiply( subMesh.localMatrix, drawable.worldMatrix);
 			DrawMesh(*subMesh.mesh.get(), drawable.material, finalMatrix);
 		}
 	}

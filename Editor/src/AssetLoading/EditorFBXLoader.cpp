@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -61,6 +62,16 @@ void EditorFBXLoader::BuildMeshes(aiScene const* pScene, std::string const& sour
 	std::vector<bool> meshMatrixAssigned(pScene->mNumMeshes, false);
 
 	std::function<void(aiNode const*, glm::mat4 const&)> collectNodeTransforms;
+
+	//float unitScale = 1.0f;
+
+	//if (pScene->mMetaData && pScene->mMetaData->HasKey(AI_METADATA_GLOBAL_UNIT_SCALE))
+	//{
+	//	double scale = 1.0;
+	//	pScene->mMetaData->Get(AI_METADATA_GLOBAL_UNIT_SCALE, scale);
+	//	unitScale = static_cast<float>(scale);
+	//}
+
 	collectNodeTransforms = [&](aiNode const* pNode, glm::mat4 const& parentWorld)
 	{
 		if (!pNode) return;
@@ -128,9 +139,7 @@ void EditorFBXLoader::BuildMeshes(aiScene const* pScene, std::string const& sour
 			for (uint32 i = 0; i < face.mNumIndices; ++i)
 				meshData.geometry.m_indices.push_back(face.mIndices[i]);
 		}
-
 		meshData.meshMatrix = sceneFix * meshWorldMatrices[meshIndex];
-
 		if (pMesh->mMaterialIndex < pScene->mNumMaterials)
 		{
 			aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
