@@ -93,9 +93,10 @@ uint32 Proxy::GetChildCount()
 
 Proxy* Proxy::GetNode(std::string const& path)
 {
-	//TODO MAKE WORK FALL ALL NODE TYPE
-	//ALSO ERROR HANDLING ?
-	return m_pNode->GetNode<Node>(path).m_pProxy.get();
+	if (auto const node = m_pNode->GetNode<Node>(path))
+		return node->get().m_pProxy.get();
+
+	return nullptr;
 }
 
 void Proxy::Destroy()
