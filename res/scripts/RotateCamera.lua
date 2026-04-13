@@ -45,7 +45,7 @@ end
 
 function CheckInteraction()
     print("Checking what is forward")
-    local hit = physics.Raycast(parent:GetPosition(), parent:GetLocalForward(), 100)
+    local hit = physics.Raycast(parent:GetPosition(), parent:GetLocalForward()*-1, 10)
 
     if not hit then
         print("there is nothing there, clement")
@@ -57,21 +57,21 @@ function CheckInteraction()
         return
     end
 
-    local hitNode = hit.node
-    local child = hitNode:FindChild("InteractReciever")
+    -- local hitNode = hit.node
+    -- local child = hitNode:FindChild("InteractReciever")
 
-    if not child then
-        print("element touche: "..hitNode:GetName())
-        return
-    end
+    -- if not child then
+    --     print("element touche: "..hitNode:GetName())
+    --     return
+    -- end
 
-    if child:CanInteract() then
-        print("element touche: "..hitNode:GetName())
-        child:GetPrompt()
-        SetCurrentEntity(child)
-    else
-        print("Cannot be interacted")
-    end
+    -- if child:CanInteract() then
+    --     print("element touche: "..hitNode:GetName())
+    --     child:GetPrompt()
+    --     SetCurrentEntity(child)
+    -- else
+    --     print("Cannot be interacted")
+    -- end
 end
 
 function TryInteract()
@@ -103,7 +103,7 @@ local function InitActionMap()
     actionmap:GetAction("ROTATE_RIGHT").Event = RotateRight
     actionmap:GetAction("ROTATE_LEFT").Event = RotateLeft
 
-    actionmap:GetAction("INTERACT").Event = TryInteract
+    actionmap:GetAction("INTERACT").Event = CheckInteraction
 end
 
 function InitRB()
@@ -117,11 +117,11 @@ function InitRB()
 end
 
 function OnInit() 
-    InitActionMap()
     InitRB()
+    InitActionMap()
     --oCamera = self:
 
-    timer.Create("RaycastDelay", 1, 100000, CheckInteraction)
+    --timer.Create("RaycastDelay", 1, 100000, CheckInteraction)
 end
 
 function OnUpdate(dt)
