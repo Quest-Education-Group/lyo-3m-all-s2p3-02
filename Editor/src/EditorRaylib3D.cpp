@@ -464,12 +464,13 @@ void EditorRaylib3D::UpdateDrawableTexture(NodeMesh const& nodeMesh, DrawableEle
 void EditorRaylib3D::Render()
 {
 	BeginMode3D(m_camera);
-	DrawViewPort();
 
 	for (std::map<std::string, uptr<DrawableElement>>::iterator it = m_loadedMeshes.begin(); it != m_loadedMeshes.end(); it++)
 	{
 		DrawMesh(*it->second->mesh.get(), it->second->material, it->second->worldMatrix);
 	}
+
+	DrawViewPort();
 
 	if (m_loadedNode3D.contains(m_selectedObject))
 	{
@@ -491,7 +492,12 @@ void EditorRaylib3D::Render()
 
 void EditorRaylib3D::DrawViewPort()
 {
-	DrawGrid(20, 1.0f);
+	// Grille plus grande + léger offset en Y pour éviter le z-fighting
+	rlPushMatrix();
+	rlTranslatef(0.0f, -0.01f, 0.0f);
+	DrawGrid(200, 1.0f);
+	rlPopMatrix();
+
 	DrawLine3D({ 0, 0, 0 }, { 500, 0, 0 }, RED);
 	DrawLine3D({ 0, 0, 0 }, { 0, 500, 0 }, GREEN);
 	DrawLine3D({ 0, 0, 0 }, { 0, 0, 500 }, BLUE);
