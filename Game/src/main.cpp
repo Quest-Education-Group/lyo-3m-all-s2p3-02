@@ -12,7 +12,7 @@ Node& LoadScene(Node& root)
     Node* viewport = v.get();
     root.AddChild(std::move(v));
 
-    uptr<Node> scene = Node::LoadNodeFromJSON<Node>("res/scenes/Test1.sc.json");
+    uptr<Node> scene = Node::LoadNodeFromJSON<Node>("res/scenes/default.sc.json");
     viewport->AddChild(std::move(scene));
     return *viewport;
 }
