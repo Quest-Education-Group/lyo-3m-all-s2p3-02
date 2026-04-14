@@ -170,20 +170,3 @@ EventInput = {
     GAMEPAD_RIGHT_X           = 4,
     GAMEPAD_RIGHT_Y           = 5
 }
-
----@enum EventAction
-EventAction = {
-    PRESS = 1,
-    RELEASE = 0,
-    HOLD = 1,
-    DOUBLE_CLICK = 2,
-    WHEEL_UP = 3,
-    WHEEL_DOWN = 4,
-    MOVE = 5,
-    DRAG = 6,
-    FOCUS = 7,
-    BLUR = 8,
-    CHANGE = 9,
-
-    UNKNOWN = 10
-}

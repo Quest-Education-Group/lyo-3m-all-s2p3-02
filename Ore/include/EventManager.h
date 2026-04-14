@@ -182,9 +182,9 @@ namespace Ore
 
 	enum class EventAction
 	{
-		PRESS = GLFW_PRESS,
 		RELEASE = GLFW_RELEASE,
-		HOLD,
+		PRESS = GLFW_PRESS,
+		HOLD = 2,
 		DOUBLE_CLICK,
 		WHEEL_UP,
 		WHEEL_DOWN,

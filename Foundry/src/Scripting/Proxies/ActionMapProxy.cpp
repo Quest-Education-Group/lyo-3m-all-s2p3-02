@@ -12,8 +12,9 @@
 void ActionMapProxyBinding::Bind(Binder& binder)
 {
 	binder.BindEnum<ButtonState>("ButtonState",
-		"UP", ButtonState::UP,
-		"DOWN", ButtonState::DOWN
+		"PRESSED", ButtonState::PRESSED,
+		"HOLD", ButtonState::HOLD,
+		"RELEASED", ButtonState::RELEASED
 	);
 
 	binder.BindEnum<ControlType>("ControlType",
@@ -22,9 +23,11 @@ void ActionMapProxyBinding::Bind(Binder& binder)
 		"STICK", ControlType::STICK
 	);
 
-
 	binder.BindClass<IControl>("icontrol",
 		sol::constructors<IControl(), IControl(ControlType const&, Ore::EventInput const&, Action*)>(),
+		"IsPressed", &IControl::IsPressed,
+		"IsReleased", &IControl::IsReleased,
+		"IsHold", &IControl::IsHold,
 		"GetControlType", &IControl::GetControlType,
 		"GetEventInput", &IControl::GetEventInput,
 		"ReadAsBool", &IControl::Read<bool>,
@@ -50,14 +53,11 @@ void ActionMapProxyBinding::Bind(Binder& binder)
 		"GetPos", &StickControl::GetPos
 	);
 
-
-
 	binder.BindClass<Action>("action",
 		"Event", &Action::Event,
 		"AddControl", &Action::AddControl,
 		"GetControl", &Action::GetControl
 	);
-
 
 	binder.BindClass<ActionMap>("actionmap",
 		sol::constructors<ActionMap(std::string const&)>(),

@@ -52,8 +52,31 @@ void IControl::SetAction(Action* pAction)
 	m_pAction = pAction;
 }
 
+bool IControl::IsPressed()
+{
+	if (m_type != ControlType::BUTTON) return false;
 
-ButtonControl::ButtonControl(Ore::EventInput const& eventInput, Action* pAction) : IControl(ControlType::BUTTON, eventInput, pAction), m_state(ButtonState::UP) {}
+	ButtonControl* btn = static_cast<ButtonControl*>(this);
+	return btn->GetState() == ButtonState::PRESSED;
+}
+
+bool IControl::IsReleased()
+{
+	if (m_type != ControlType::BUTTON) return false;
+
+	ButtonControl* btn = static_cast<ButtonControl*>(this);
+	return btn->GetState() == ButtonState::RELEASED;
+}
+
+bool IControl::IsHold()
+{
+	if (m_type != ControlType::BUTTON) return false;
+
+	ButtonControl* btn = static_cast<ButtonControl*>(this);
+	return btn->GetState() == ButtonState::HOLD;
+}
+
+ButtonControl::ButtonControl(Ore::EventInput const& eventInput, Action* pAction) : IControl(ControlType::BUTTON, eventInput, pAction), m_state(ButtonState::NONE) {}
 
 ButtonState ButtonControl::GetState() const
 {

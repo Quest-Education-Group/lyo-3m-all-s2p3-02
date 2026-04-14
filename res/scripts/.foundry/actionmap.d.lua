@@ -4,8 +4,9 @@
 -- ButtonState
 ---@enum ButtonState
 ButtonState = {
-    UP = false,
-    DOWN = true
+    PRESSED = 0,
+    RELEASED = 1,
+    HOLD = 1
 }
 
 --------------------------------------------------------------------------------------------
@@ -80,7 +81,7 @@ stickcontrol = {}
 ---@return stickcontrol
 function stickcontrol:new(eiEventInput, acAction) end
 
----@return vec2 
+---@return vec2
 function stickcontrol:GetPos() end
 
 --------------------------------------------------------------------------------------------
@@ -103,7 +104,7 @@ function actionmap:CreateAction(sName, ctControlType, eiEventInput) end
 function actionmap:Erase(sName) end
 
 ---@param sName string
----@return boolean
+---@return action
 function actionmap:GetAction(sName) end
 
 ---@return number
@@ -111,7 +112,7 @@ function actionmap:Length() end
 
 ---@param sOldName string
 ---@param sNewName string
-function actionmap:Rename(sOldName, sNewName) end 
+function actionmap:Rename(sOldName, sNewName) end
 
 ---@param sName string action name
 ---@param ctControlType ControlType controltype

@@ -71,22 +71,26 @@ void ActionMap::PollInputs(ActionMap* actionMap)
 	if (actionMap != GameLoop::CurrentActionMap)
 		return;
 
-	if (actionMap == nullptr || actionMap->m_actions["TestAction"] == nullptr)
-		return;
-
-  	//std::invoke(actionMap->m_actions["TestAction"]->Event, *actionMap->m_actions["TestAction"]->m_controls[0]);
-	for (auto it = actionMap->m_actions.begin(); it != actionMap->m_actions.end(); it++)
+	for (auto it = actionMap->m_actions.begin(); it != actionMap->m_actions.end(); ++it)
 	{
-		for (int i = 0; i < it->second->m_controls.size(); i++)
+		auto& controls = it->second->m_controls;
+		for (int i = 0; i < controls.size(); i++)
 		{
-			if (it->second == nullptr || it->second->m_controls[i] == nullptr)
+			if (controls[i]->GetControlType() != ControlType::BUTTON)
 				continue;
-			if (it->second->m_controls[i]->GetControlType() != ControlType::BUTTON)
+
+			ButtonControl& button = static_cast<ButtonControl&>(*controls[i]);
+
+			if (button.GetState() == ButtonState::NONE)
 				continue;
-			
-			ButtonControl& button = static_cast<ButtonControl&>(*it->second->m_controls[i]);
-			if (button.GetState() == ButtonState::DOWN)
-  				std::invoke(it->second->Event, *it->second->m_controls[i]);
+
+			std::invoke(it->second->Event, *controls[i]);
+
+			if (button.GetState() == ButtonState::RELEASED)
+				button.SetState(ButtonState::NONE);
+
+			if (button.GetState() == ButtonState::PRESSED || button.GetState() == ButtonState::HOLD)
+				button.SetState(ButtonState::HOLD);
 		}
 	}
 }

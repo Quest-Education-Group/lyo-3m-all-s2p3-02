@@ -29,7 +29,6 @@ public:
 	ActionMap(ActionMap&& other) = delete;
 	void operator=(ActionMap&& other) = delete;
 
-
 	Action*	CreateAction(std::string_view const& name, ControlType type, Ore::EventInput eventInput);
 	bool	Erase(std::string_view const& name);
 
