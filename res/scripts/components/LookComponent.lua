@@ -10,11 +10,11 @@ local oRB
 local oCameraRoot
 local oCamera
 
-function self:OnMouseMoveCallback(oContext)
-    local vecMouse = icontrol.ReadAsVec2(oContext) -- TODO: Waiting for Antoine's fix to continue this script
-    print(vecMouse.x, vecMouse.y)
+function self:OnMouseMoveCallback(icMouse) -- TODO: Waiting for Antoine's fix to continue this script
+    -- local vecMouse = icontrol.ReadAsVec2(icMouse)
+    -- print(vecMouse.x, vecMouse.y)
 
-    if not oRB or not oCameraRoot then return end
+    -- if not oRB or not oCameraRoot then return end
 
     -- local vecPlayerUp = oRB:GetLocalUp()
 
@@ -30,10 +30,11 @@ function self:Setup(oNewRigidBody, oNewCameraRoot, oNewCamera)
     oRB = oNewRigidBody
     oCameraRoot = oNewCameraRoot
     oCamera = oNewCamera
+
+    print("LookComponent Initialized")
 end
 
 function OnInit()
-    print("LookComponent Initializing")
 end
 
 function OnUpdate(iDelta)

@@ -26,10 +26,10 @@ local function InitializeActionMap()
     acmPlayer:CreateAction("MOVE_BACKWARD", 1, 83)
     acmPlayer:CreateAction("MOVE_LEFT", 1, 81)
     acmPlayer:CreateAction("MOVE_RIGHT", 1, 68)
-    acmPlayer:CreateAction("LOOK", 3, 4080)
+    -- acmPlayer:CreateAction("LOOK", 3, 4080)
 end
 
-local function BindActions(oMovementComponent)
+local function BindActions(oMovementComponent, oLookComponent)
     if oMovementComponent then
         acmPlayer:GetAction("MOVE_FORWARD").Event = oMovementComponent.MoveForward or function() print("PlayerBase: Move forward callback missing") end
         acmPlayer:GetAction("MOVE_BACKWARD").Event = oMovementComponent.MoveBackward or function() print("PlayerBase: Move backward callback missing") end
@@ -55,20 +55,19 @@ function OnInit()
     oCamera = self:GetNode("CameraRoot/Camera")
     oMovementComponent = self:GetNode("components/MovementComponent")
 
-    if oMovementComponent then
+    if oMovementComponent ~= nil then
         oMovementComponent:Setup(self)
     end
 
     oLookComponent = self:GetNode("components/LookComponent")
 
-    if oLookComponent then
+    if oLookComponent ~= nil then
         oLookComponent:Setup(self, oCameraRoot, oCamera)
     end
 
     InitializeActionMap()
-    BindActions(oMovementComponent)
+    BindActions(oMovementComponent, _)
 end
 
 function OnUpdate(iDelta)
-
 end

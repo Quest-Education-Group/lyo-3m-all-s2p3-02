@@ -58,10 +58,7 @@ function self:Setup(oNewRigidBody, iNewMoveSpeed)
     print("MovementComponent Initialized")
 end
 
-
-
 function OnInit()
-    print("MovementComponent Initializing")
 end
 
 function OnUpdate(iDelta)
