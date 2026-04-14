@@ -1,4 +1,3 @@
-
 local acmPlayer
 local oCameraRoot
 local oCamera
@@ -47,12 +46,11 @@ local function BindActions(oMovementComponent, oLookComponent)
 end
 
 function OnInit()
-    print("PlayerBase Initializing")
-
     InitializeRigidbody()
 
     oCameraRoot = self:GetNode("CameraRoot")
     oCamera = self:GetNode("CameraRoot/Camera")
+
     oMovementComponent = self:GetNode("components/MovementComponent")
 
     if oMovementComponent ~= nil then
@@ -67,6 +65,8 @@ function OnInit()
 
     InitializeActionMap()
     BindActions(oMovementComponent, _)
+
+    print("PlayerBase Initialized")
 end
 
 function OnUpdate(iDelta)
