@@ -1,15 +1,16 @@
 #include "Action.h"
 #include "EventManager.h"
 #include "ActionMap.h"
+#include "GameLoop.h"
 
 Action::Action(ControlType controlType, Ore::EventInput eventInput, ActionMap* pActionMap) :
 	m_controls(std::vector<IControl*>()), Event(), m_pOwner(pActionMap)
 {
 	AddControl(controlType, eventInput);
 
-	Ore::EventManager::getCursorPos += [&](int32 x, int32 y)
+	Ore::EventManager::getCursorPos += [&](float x, float y)
 		{
-			if (m_pOwner == nullptr || m_pOwner->Active == false)
+			if (m_pOwner == nullptr || (GameLoop::CurrentActionMap != m_pOwner))
 				return;
 
 			for (int i = 0; i < m_controls.size(); i++)
@@ -26,7 +27,7 @@ Action::Action(ControlType controlType, Ore::EventInput eventInput, ActionMap* p
 	
 	Ore::EventManager::getKey += [&](Ore::EventInput in, Ore::EventAction ac)
 		{
-			if (m_pOwner == nullptr || m_pOwner->Active == false)
+			if (m_pOwner == nullptr || (GameLoop::CurrentActionMap != m_pOwner))
 				return;
 			
 			for (int i = 0; i  < m_controls.size(); i++)

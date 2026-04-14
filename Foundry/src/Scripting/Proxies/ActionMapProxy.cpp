@@ -11,15 +11,15 @@
 
 void ActionMapProxyBinding::Bind(Binder& binder)
 {
-	binder.BindEnum<ButtonState>("buttonstate",
-		"Up", ButtonState::UP,
-		"Down", ButtonState::DOWN
+	binder.BindEnum<ButtonState>("ButtonState",
+		"UP", ButtonState::UP,
+		"DOWN", ButtonState::DOWN
 	);
 
-	binder.BindEnum<ControlType>("controltype",
-		"Button", ControlType::BUTTON,
-		"Slider", ControlType::SLIDER,
-		"Stick", ControlType::STICK
+	binder.BindEnum<ControlType>("ControlType",
+		"BUTTON", ControlType::BUTTON,
+		"SLIDER", ControlType::SLIDER,
+		"STICK", ControlType::STICK
 	);
 
 
@@ -67,6 +67,6 @@ void ActionMapProxyBinding::Bind(Binder& binder)
 		"GetAction", &ActionMap::GetAction,
 		"Length", &ActionMap::Length,
 		"Rename", &ActionMap::Rename,
-		"Active", &ActionMap::Active
+		"SetCurrentActionMap", &ActionMap::SetCurrentActionMap
 	);
 }

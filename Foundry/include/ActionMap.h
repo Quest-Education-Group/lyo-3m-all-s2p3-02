@@ -40,7 +40,8 @@ public:
 	void	Rename(std::string_view const& old, std::string_view const& name);
 
 
-	bool	Active = true;
+	static void PollInputs(ActionMap* actionMap);
+	static void SetCurrentActionMap(ActionMap* actionMap);
 
 protected:
 	std::string_view m_name;

@@ -2,18 +2,17 @@
 
 --------------------------------------------------------------------------------------------
 -- ButtonState
----@enum buttonstate
-buttonstate = {
+---@enum ButtonState
+ButtonState = {
     UP = false,
     DOWN = true
 }
 
 --------------------------------------------------------------------------------------------
 -- ControlType
----@enum controltype
-controltype = {
+---@enum ControlType
+ControlType = {
     BUTTON = 1,
-    SLIDER = 2,
     STICK = 3,
 
     UNDEFINED = 0
@@ -24,11 +23,6 @@ controltype = {
 ---@class icontrol
 icontrol = {}
 
----@param ctType controltype
----@param eiEventInput eventinput
----@return icontrol
-function icontrol:new(ctType, eiEventInput) end
-
 ---@return controltype
 function icontrol:GetControlType() end
 
@@ -37,23 +31,15 @@ function icontrol:GetEventInput() end
 
 ---@param icIControl icontrol
 ---@return boolean
-function icontrol:Read(icIControl) end
+function icontrol:ReadAsBool(icIControl) end
 
 ---@param icIControl icontrol
 ---@return number
-function icontrol:Read(icIControl) end
+function icontrol:ReadAsFloat(icIControl) end
 
 ---@param icIControl icontrol
 ---@return vec2
-function icontrol:Read(icIControl) end
-
----@param acAction action
-function icontrol:SetAction(acAction) end
-
---------------------------------------------------------------------------------------------
--- Event
----@class event
-event = {}
+function icontrol:ReadAsVec2(icIControl) end
 
 --------------------------------------------------------------------------------------------
 -- Action
@@ -85,19 +71,6 @@ function buttoncontrol:new(eiEventInput, acAction) end
 function buttoncontrol:GetState() end
 
 --------------------------------------------------------------------------------------------
--- SliderControl
----@class slidercontrol
-slidercontrol = {}
-
----@param eiEventInput eventinput
----@param acAction action
----@return slidercontrol
-function slidercontrol:new(eiEventInput, acAction) end
-
----@return number
-function slidercontrol:GetPos() end
-
---------------------------------------------------------------------------------------------
 -- StickControl
 ---@class stickcontrol
 stickcontrol = {}
@@ -120,8 +93,8 @@ actionmap = {}
 function actionmap:new(sName) end
 
 ---@param sName string Action name
----@param ctControlType controltype
----@param eiEventInput eventinput
+---@param ctControlType ControlType
+---@param eiEventInput EventInput
 ---@return action returns instanciated Action
 function actionmap:CreateAction(sName, ctControlType, eiEventInput) end
 
@@ -141,6 +114,6 @@ function actionmap:Length() end
 function actionmap:Rename(sOldName, sNewName) end 
 
 ---@param sName string action name
----@param ctControlType controltype controltype
----@param eiEventInput eventinput input ID
+---@param ctControlType ControlType controltype
+---@param eiEventInput EventInput input ID
 function actionmap:CreateAction(sName, ctControlType, eiEventInput) end

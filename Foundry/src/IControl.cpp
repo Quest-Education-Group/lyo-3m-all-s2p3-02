@@ -75,7 +75,6 @@ float SliderControl::GetPos() const
 
 void SliderControl::SetPos(float pos)
 {
-	// Normalize ici
 	m_pos = pos;
 }
 
@@ -89,6 +88,6 @@ glm::vec2 StickControl::GetPos() const
 
 void StickControl::SetPos(glm::vec2 pos)
 {
-	// Normalize ici
+
 	m_pos = pos;
 }
