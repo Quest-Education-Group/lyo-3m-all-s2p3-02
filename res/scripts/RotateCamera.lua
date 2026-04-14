@@ -1,41 +1,40 @@
-local iMoveSpeed = 3000.0
+local iMoveSpeed = 2000.0
 local parent
 local oCurrentEntity
-local oCamera
 
-function MoveForward(icForward) print("move forward")
+local function MoveForward(icForward) print("move forward")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, 0, -iMoveSpeed))
 end
 
-function MoveBackward(icBackward) print("move backward")
+local function MoveBackward(icBackward) print("move backward")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, 0, iMoveSpeed))
 end
 
-function MoveLeft(icLeft) print("move left")
+local function MoveLeft(icLeft) print("move left")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(-iMoveSpeed, 0, 0))
 end
 
-function MoveRight(icRight) print("move right")
+local function MoveRight(icRight) print("move right")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(iMoveSpeed, 0, 0))
 end
 
-function MoveDown(icDown) print("move down")
+local function MoveDown(icDown) print("move down")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, -iMoveSpeed, 0))
 end
 
-function MoveUp(icUp) print("move up")
+local function MoveUp(icUp) print("move up")
     self:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, iMoveSpeed, 0))
 end
 
-function RotateRight(icRight) print("Rotate right")
+local function RotateRight(icRight) print("Rotate right")
     self:ApplyWorldTorque(fmath.vec3:new(0, iMoveSpeed, 0))
 end
 
-function RotateLeft(icLeft) print("move left")
+local function RotateLeft(icLeft) print("move left")
     self:ApplyWorldTorque(fmath.vec3:new(0, -iMoveSpeed, 0))
 end
 
-function SetCurrentEntity(ndHit)
+local function SetCurrentEntity(ndHit)
     if oCurrentEntity == ndHit then
         return
     end
@@ -43,39 +42,51 @@ function SetCurrentEntity(ndHit)
     oCurrentEntity = ndHit
 end
 
-function CheckInteraction()
-    print("Checking what is forward")
-    local hit = physics.Raycast(parent:GetPosition(), parent:GetLocalForward()*-1, 10)
+local function CheckInteraction()
+    local hit = physics.Raycast(parent:GetPosition(), parent:GetLocalForward()*-1, 1)
 
     if not hit then
         print("there is nothing there, clement")
+        SetCurrentEntity(nil)
         return
     end
 
     if not hit.node then
         print("Node not found in the hit")
+        SetCurrentEntity(nil)
         return
     end
 
-    -- local hitNode = hit.node
-    -- local child = hitNode:FindChild("InteractReciever")
+    local ircomp = hit.node:FindChild("InteractRecieverComponent")
 
-    -- if not child then
-    --     print("element touche: "..hitNode:GetName())
-    --     return
-    -- end
+    if not ircomp then
+        print("This node doesn't have interact reciever component")
+        SetCurrentEntity(hit.node)
+        return
+    end
 
-    -- if child:CanInteract() then
-    --     print("element touche: "..hitNode:GetName())
-    --     child:GetPrompt()
-    --     SetCurrentEntity(child)
-    -- else
-    --     print("Cannot be interacted")
-    -- end
+    if ircomp:CanInteract() then
+        print(ircomp:GetPrompt())
+    end
+
+    SetCurrentEntity(hit.node)
 end
 
-function TryInteract()
-    oCurrentEntity:Interact()
+local function TryInteract()
+    if not oCurrentEntity then return end
+
+    local ircomp = oCurrentEntity:FindChild("InteractRecieverComponent")
+
+    if not ircomp then
+        print("Cannot interact with"..oCurrentEntity:GetName())
+        return
+    end
+
+    if ircomp:CanInteract() then
+        ircomp:Interact()
+    else
+        print("Interactable, but not now because I decided so")
+    end
 end
 
 local function InitActionMap()
@@ -103,7 +114,7 @@ local function InitActionMap()
     actionmap:GetAction("ROTATE_RIGHT").Event = RotateRight
     actionmap:GetAction("ROTATE_LEFT").Event = RotateLeft
 
-    actionmap:GetAction("INTERACT").Event = CheckInteraction
+    actionmap:GetAction("INTERACT").Event = TryInteract
 end
 
 function InitRB()
@@ -119,9 +130,8 @@ end
 function OnInit() 
     InitRB()
     InitActionMap()
-    --oCamera = self:
 
-    --timer.Create("RaycastDelay", 1, 100000, CheckInteraction)
+    timer.Create("RaycastDelay", 3, 100000, CheckInteraction)
 end
 
 function OnUpdate(dt)
