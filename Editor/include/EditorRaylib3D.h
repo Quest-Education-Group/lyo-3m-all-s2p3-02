@@ -63,13 +63,13 @@ public:
 	void UpdateDisplay(Node* pNode);
 	void Shutdown();
 
-	void AddDrawableObject(std::string const& name, Node* pNode);
+	void AddDrawableObject(Node* pNode);
 	void UpdateDrawableElement(Node* pNode);
 	void UpdateDrawableTexture(NodeMesh const& nodeMesh, DrawableElement& drawable);
 	std::string ResolveEditorTexturePath(std::filesystem::path const& logicalPath);
 
 	void UpdateElementName(std::string const& oldName, Node* pNode);
-	void RemoveDrawableElement(std::string const& elementName);
+	void RemoveDrawableElement(Node* pNode);
 	void ClearWindow();
 
 	void SetTranslateGizmo(bool state);
@@ -90,7 +90,7 @@ public:
 	bool IsGizmoScale() { return Any(m_gizmoFlags & GizmoFlags::SCALE); }
 	bool IsGizmoRotate() { return Any(m_gizmoFlags & GizmoFlags::ROTATE); }
 
-	void SetSelectedNode(std::string const& name) { m_selectedObject = name; }
+	void SetSelectedNode(Node* pNode) { m_pSelectedObject = pNode; }
 
 	void UpdateDirtyGizmo() { m_gizmoDirty = false; }
 	bool IsGizmoDirty() {return m_gizmoDirty;}
@@ -99,7 +99,7 @@ public:
 private:
 	void DrawViewPort();
 	
-	void Instanciate3DMesh(std::string const& name, Node* nodeMesh3D);
+	void Instanciate3DMesh(Node* nodeMesh3D);
 	void InstanciateCollider3D();
 	void InstanciateLight();
 	Node* FindNode3DWorldMatrix(Node* pNode, Matrix& outMatrix);
@@ -114,10 +114,9 @@ private:
 
 	Material m_defaultMaterial;
 
-	std::map<std::string, uptr<DrawableElement>> m_loadedMeshes;
-	std::map<std::string, uptr<Node3DElement>> m_loadedNode3D;
-
-	std::string m_selectedObject;
+	std::unordered_map<Node*, uptr<DrawableElement>> m_loadedMeshes;
+	std::unordered_map<Node*, uptr<Node3DElement>> m_loadedNode3D;
+	Node* m_pSelectedObject = nullptr;
 
 	GizmoFlags m_gizmoFlags;
 	bool m_gizmoDirty = false;

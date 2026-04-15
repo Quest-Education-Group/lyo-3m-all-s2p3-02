@@ -169,40 +169,6 @@ void EditorRaylib3D::UpdateDisplay(Node* pNode)
 		UpdateDisplay(&pNode->GetChild(i));
 	}
 }
-
-void EditorRaylib3D::AddDrawableObject(std::string const& name, Node* pNode)
-{
-	Node3D* pNode3D = dynamic_cast<Node3D*>(pNode);
-	if (pNode3D != nullptr && !m_loadedNode3D.contains(name))
-	{
-		m_loadedNode3D[name] = std::make_unique<Node3DElement>();
-
-		m_loadedNode3D[name]->gizmoTransform = RayGizmo::GizmoIdentity();
-		m_loadedNode3D[name]->gizmoTransform.translation = {
-			pNode3D->GetWorldPosition().x,
-			pNode3D->GetWorldPosition().y,
-			pNode3D->GetWorldPosition().z
-		};
-		m_loadedNode3D[name]->gizmoTransform.scale = {
-			pNode3D->GetWorldScale().x,
-			pNode3D->GetWorldScale().y,
-			pNode3D->GetWorldScale().z
-		};
-		m_loadedNode3D[name]->gizmoTransform.rotation = {
-			pNode3D->GetWorldRotationQuaternion().x,
-			pNode3D->GetWorldRotationQuaternion().y,
-			pNode3D->GetWorldRotationQuaternion().z,
-			pNode3D->GetWorldRotationQuaternion().w
-		};
-		m_loadedNode3D[name]->worldMatrix = RayGizmo::GizmoToMatrix(m_loadedNode3D[name]->gizmoTransform);
-	}
-
-	NodeMesh* pNodeMesh = dynamic_cast<NodeMesh*>(pNode);
-	if (pNodeMesh == nullptr) return;
-
-	Instanciate3DMesh(name, pNode);
-}
-
 Node* EditorRaylib3D::FindNode3DWorldMatrix(Node* pNode, Matrix& outMatrix)
 {
 	Node3D* pNode3D = nullptr;
@@ -226,21 +192,52 @@ Node* EditorRaylib3D::FindNode3DWorldMatrix(Node* pNode, Matrix& outMatrix)
 	return pNode3D;
 }
 
+void EditorRaylib3D::AddDrawableObject(Node* pNode)
+{
+	Node3D* pNode3D = dynamic_cast<Node3D*>(pNode);
+	if (pNode3D != nullptr && !m_loadedNode3D.contains(pNode))
+	{
+		m_loadedNode3D[pNode] = std::make_unique<Node3DElement>();
+
+		m_loadedNode3D[pNode]->gizmoTransform = RayGizmo::GizmoIdentity();
+		m_loadedNode3D[pNode]->gizmoTransform.translation = {
+			pNode3D->GetWorldPosition().x,
+			pNode3D->GetWorldPosition().y,
+			pNode3D->GetWorldPosition().z
+		};
+		m_loadedNode3D[pNode]->gizmoTransform.scale = {
+			pNode3D->GetWorldScale().x,
+			pNode3D->GetWorldScale().y,
+			pNode3D->GetWorldScale().z
+		};
+		m_loadedNode3D[pNode]->gizmoTransform.rotation = {
+			pNode3D->GetWorldRotationQuaternion().x,
+			pNode3D->GetWorldRotationQuaternion().y,
+			pNode3D->GetWorldRotationQuaternion().z,
+			pNode3D->GetWorldRotationQuaternion().w
+		};
+		m_loadedNode3D[pNode]->worldMatrix = RayGizmo::GizmoToMatrix(m_loadedNode3D[pNode]->gizmoTransform);
+	}
+
+	NodeMesh* pNodeMesh = dynamic_cast<NodeMesh*>(pNode);
+	if (pNodeMesh == nullptr) return;
+
+	Instanciate3DMesh(pNode);
+}
+
 void EditorRaylib3D::UpdateDrawableElement(Node* pNode)
 {
-	std::string const name = pNode->GetName();
-
 	Node3D* pNode3D = dynamic_cast<Node3D*>(pNode);
 	if (pNode3D != nullptr)
 	{
-		if (!m_loadedNode3D.contains(name))
+		if (!m_loadedNode3D.contains(pNode))
 		{
-			m_loadedNode3D[name] = std::make_unique<Node3DElement>();
-			m_loadedNode3D[name]->gizmoTransform = RayGizmo::GizmoIdentity();
-			m_loadedNode3D[name]->worldMatrix = RayGizmo::GizmoToMatrix(m_loadedNode3D[name]->gizmoTransform);
+			m_loadedNode3D[pNode] = std::make_unique<Node3DElement>();
+			m_loadedNode3D[pNode]->gizmoTransform = RayGizmo::GizmoIdentity();
+			m_loadedNode3D[pNode]->worldMatrix = RayGizmo::GizmoToMatrix(m_loadedNode3D[pNode]->gizmoTransform);
 		}
 
-		Node3DElement& node3D = *m_loadedNode3D[name].get();
+		Node3DElement& node3D = *m_loadedNode3D[pNode].get();
 
 		if (node3D.gizmoUpdated)
 		{
@@ -288,14 +285,14 @@ void EditorRaylib3D::UpdateDrawableElement(Node* pNode)
 	NodeMesh* pNodeMesh = dynamic_cast<NodeMesh*>(pNode);
 	if (pNodeMesh == nullptr) return;
 
-	if (!m_loadedMeshes.contains(name))
+	if (!m_loadedMeshes.contains(pNode))
 	{
-		Instanciate3DMesh(name, pNode);
-		if (!m_loadedMeshes.contains(name)) return;
+		Instanciate3DMesh(pNode);
+		if (!m_loadedMeshes.contains(pNode)) return;
 	}
 
 	bool needRecreate = false;
-	DrawableElement& drawable = *m_loadedMeshes[name].get();
+	DrawableElement& drawable = *m_loadedMeshes[pNode].get();
 
 	if (pNodeMesh->GetGeometrySourceType() == MeshGeometrySourceType::PRIMITIVE)
 	{
@@ -308,7 +305,7 @@ void EditorRaylib3D::UpdateDrawableElement(Node* pNode)
 		std::filesystem::path const resolvedPath = ResolveEditorFbxPath(pNodeMesh->GetFbxPath());
 		if (resolvedPath.empty())
 		{
-			RemoveDrawableElement(name);
+			RemoveDrawableElement(pNode);
 			return;
 		}
 
@@ -319,17 +316,17 @@ void EditorRaylib3D::UpdateDrawableElement(Node* pNode)
 
 	if (needRecreate)
 	{
-		RemoveDrawableElement(name);
-		Instanciate3DMesh(name, pNode);
-		if (!m_loadedMeshes.contains(name)) return;
+		RemoveDrawableElement(pNode);
+		Instanciate3DMesh(pNode);
+		if (!m_loadedMeshes.contains(pNode)) return;
 	}
 
-	DrawableElement& updatedDrawable = *m_loadedMeshes[name].get();
+	DrawableElement& updatedDrawable = *m_loadedMeshes[pNode].get();
 	UpdateDrawableTexture(*pNodeMesh, updatedDrawable);
 
-	if (m_loadedNode3D.contains(name))
+	if (m_loadedNode3D.contains(pNode))
 	{
-		updatedDrawable.worldMatrix = m_loadedNode3D[name]->worldMatrix;
+		updatedDrawable.worldMatrix = m_loadedNode3D[pNode]->worldMatrix;
 	}
 	else if (pNode3D != nullptr)
 	{
@@ -337,31 +334,20 @@ void EditorRaylib3D::UpdateDrawableElement(Node* pNode)
 	}
 }
 
-
 void EditorRaylib3D::UpdateElementName(std::string const& oldName, Node* pNode)
 {
-	std::string const& newName = pNode->GetName();
-
-	if (m_loadedMeshes.contains(oldName))
-	{
-		m_loadedMeshes[newName] = std::move(m_loadedMeshes[oldName]);
-		m_loadedMeshes.erase(oldName);
-	}
-
-	if (m_loadedNode3D.contains(oldName))
-	{
-		m_loadedNode3D[newName] = std::move(m_loadedNode3D[oldName]);
-		m_loadedNode3D.erase(oldName);
-	}
-
-	m_selectedObject = newName;
+	(void)oldName;
+	(void)pNode;
+	// No-op: les maps sont indexées par Node*, pas par nom.
 }
 
-void EditorRaylib3D::RemoveDrawableElement(std::string const& elementName)
+void EditorRaylib3D::RemoveDrawableElement(Node* pNode)
 {
-	if (m_loadedMeshes.contains(elementName))
+	if (pNode == nullptr) return;
+
+	if (m_loadedMeshes.contains(pNode))
 	{
-		auto& drawable = m_loadedMeshes[elementName];
+		auto& drawable = m_loadedMeshes[pNode];
 		if (drawable->hasTexture)
 		{
 			UnloadTexture(drawable->diffuseTexture);
@@ -376,19 +362,25 @@ void EditorRaylib3D::RemoveDrawableElement(std::string const& elementName)
 			}
 		}
 
-		m_loadedMeshes.erase(elementName);
+		m_loadedMeshes.erase(pNode);
 	}
 
-	if (m_loadedNode3D.contains(elementName))
+	if (m_loadedNode3D.contains(pNode))
 	{
-		m_loadedNode3D.erase(elementName);
+		m_loadedNode3D.erase(pNode);
+	}
+
+	if (m_pSelectedObject == pNode)
+	{
+		m_pSelectedObject = nullptr;
 	}
 }
 
 void EditorRaylib3D::ClearWindow()
 {
-	for (auto& [name, drawable] : m_loadedMeshes)
+	for (auto& [node, drawable] : m_loadedMeshes)
 	{
+		(void)node;
 		if (drawable)
 		{
 			for (DrawableSubMesh& subMesh : drawable->meshes)
@@ -397,24 +389,26 @@ void EditorRaylib3D::ClearWindow()
 				{
 					UnloadMesh(*subMesh.mesh.get());
 				}
-			}	
+			}
 		}
 	}
 	m_loadedMeshes.clear();
+	m_loadedNode3D.clear();
+	m_pSelectedObject = nullptr;
 }
 
-void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3D)
+void EditorRaylib3D::Instanciate3DMesh(Node* pNodeMesh3D)
 {
 	NodeMesh* pNodeMesh = dynamic_cast<NodeMesh*>(pNodeMesh3D);
 	if (pNodeMesh == nullptr) return;
 
-	if (m_loadedMeshes.find(name) != m_loadedMeshes.end())
+	if (m_loadedMeshes.find(pNodeMesh3D) != m_loadedMeshes.end())
 	{
 		return;
 	}
 
-	m_loadedMeshes[name] = std::make_unique<DrawableElement>();
-	DrawableElement& drawable = *m_loadedMeshes[name].get();
+	m_loadedMeshes[pNodeMesh3D] = std::make_unique<DrawableElement>();
+	DrawableElement& drawable = *m_loadedMeshes[pNodeMesh3D].get();
 	drawable.worldMatrix = MatrixIdentity();
 	drawable.material = LoadMaterialDefault();
 
@@ -438,14 +432,14 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 		std::filesystem::path const resolvedPath = ResolveEditorFbxPath(pNodeMesh->GetFbxPath());
 		if (resolvedPath.empty())
 		{
-			m_loadedMeshes.erase(name);
+			m_loadedMeshes.erase(pNodeMesh3D);
 			return;
 		}
 
 		sptr<EditorSceneData> scene = EditorAssetLoader::LoadSceneFromFile(resolvedPath.string(), EditorAssetLoader::FBX);
 		if (!scene || scene->meshes.empty())
 		{
-			m_loadedMeshes.erase(name);
+			m_loadedMeshes.erase(pNodeMesh3D);
 			return;
 		}
 
@@ -458,9 +452,7 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 
 			DrawableSubMesh subMesh;
 			subMesh.mesh = std::make_unique<Mesh>(m_mesh);
-
 			subMesh.localMatrix = GlmToMatrix(importedMesh.meshMatrix);
-	
 
 			if (drawable.loadedFbxDiffusePath.empty() && !importedMesh.textures.empty())
 			{
@@ -472,7 +464,7 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 
 		if (drawable.meshes.empty())
 		{
-			m_loadedMeshes.erase(name);
+			m_loadedMeshes.erase(pNodeMesh3D);
 			return;
 		}
 
@@ -482,9 +474,9 @@ void EditorRaylib3D::Instanciate3DMesh(std::string const& name, Node* pNodeMesh3
 
 	UpdateDrawableTexture(*pNodeMesh, drawable);
 
-	if (m_loadedNode3D.contains(name))
+	if (m_loadedNode3D.contains(pNodeMesh3D))
 	{
-		drawable.worldMatrix = m_loadedNode3D[name]->worldMatrix;
+		drawable.worldMatrix = m_loadedNode3D[pNodeMesh3D]->worldMatrix;
 	}
 	else
 	{
@@ -584,15 +576,15 @@ void EditorRaylib3D::Render()
 
 	DrawViewPort();
 
-	if (m_loadedNode3D.contains(m_selectedObject))
+	if (m_pSelectedObject != nullptr && m_loadedNode3D.contains(m_pSelectedObject))
 	{
 		RayGizmo::SetGizmoSize(m_gizmoSize);
 
 		rlDisableDepthTest();
 
-		if (RayGizmo::DrawGizmo3D(static_cast<int>(m_gizmoFlags), &m_loadedNode3D[m_selectedObject]->gizmoTransform))
+		if (RayGizmo::DrawGizmo3D(static_cast<int>(m_gizmoFlags), &m_loadedNode3D[m_pSelectedObject]->gizmoTransform))
 		{
-			m_loadedNode3D[m_selectedObject]->gizmoUpdated = true;
+			m_loadedNode3D[m_pSelectedObject]->gizmoUpdated = true;
 		}
 
 		rlEnableDepthTest();
