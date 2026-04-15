@@ -611,6 +611,10 @@ void EditorRaylib3D::UpdateDrawableTexture(NodeMesh const &nodeMesh, DrawableEle
 	}
 }
 
+
+/*
+TODO : Getter nodecamera getcamera and use the getcamera().getviewproj
+*/
 void EditorRaylib3D::DrawCameraFrustumWire(NodeCamera const &cameraNode)
 {
 	SerializedObject so;
