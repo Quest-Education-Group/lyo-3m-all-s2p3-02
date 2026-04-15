@@ -6,7 +6,7 @@ noderigidbody = {}
 ---@param name string 
 function CreateNodeRigidBody(name) end
 
----@overload fun(forceX:fmath.vec3)
+---@overload fun(force:fmath.vec3)
 ---@overload fun(forceX:number, forceY:number, forceZ:number)
 function noderigidbody:ApplyLocalForceAtCenterOfMass(forceX, forceY, forceZ) end
 
@@ -19,7 +19,7 @@ function noderigidbody:ApplyLocalForceAtLocalPosition(force, point) end
 function noderigidbody:ApplyLocalForceAtWorldPosition(force, point) end
 
 
----@overload fun(forceX:fmath.vec3)
+---@overload fun(force:fmath.vec3)
 ---@overload fun(forceX:number, forceY:number, forceZ:number)
 function noderigidbody:ApplyWorldForceAtCenterOfMass(forceX, forceY, forceZ) end
 
@@ -32,11 +32,11 @@ function noderigidbody:ApplyWorldForceAtLocalPosition(force, point) end
 function noderigidbody:ApplyWorldForceAtWorldPosition(force, point) end
 
 
----@overload fun(torqueX:fmath.vec3)
+---@overload fun(torque:fmath.vec3)
 ---@overload fun(torqueX:number, torqueY:number, torqueZ:number)
 function noderigidbody:ApplyLocalTorque(torqueX,torqueY,torqueZ) end
 
----@overload fun(torqueX:fmath.vec3)
+---@overload fun(torque:fmath.vec3)
 ---@overload fun(torqueX:number, torqueY:number, torqueZ:number)
 function noderigidbody:ApplyWorldTorque(torqueX,torqueY,torqueZ) end
 
@@ -55,11 +55,11 @@ function noderigidbody:GetAngularDamping() end
 function noderigidbody:GetTotalForce() end
 
 
----@overload fun(velocityX:fmath.vec3)
+---@overload fun(velocity:fmath.vec3)
 ---@overload fun(velocityX:number, velocityY:number, velocityZ:number)
 function noderigidbody:SetLinearVelocity(velocityX,velocityY,velocityZ) end
 
----@overload fun(velocityX:fmath.vec3)
+---@overload fun(velocity:fmath.vec3)
 ---@overload fun(velocityX:number, velocityY:number, velocityZ:number)
 function noderigidbody:SetAngularVelocity(velocityX,velocityY,velocityZ) end
 
