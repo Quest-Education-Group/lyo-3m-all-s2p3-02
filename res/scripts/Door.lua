@@ -259,7 +259,7 @@ local function _lerp(iFrom, iTo, iProgress)
     return iFrom + (iTo - iFrom) * iProgress
 end
 
--- CoPies a numeric array
+-- Copies a numeric array
 local function _deepCopy(tValue)
     local tCopy = {}
 
@@ -288,14 +288,15 @@ local function _ease(fcEase, iProgress)
 end
 
 -- Creates a named tween
-function tween.Create(sTweenId, tFrom, tTo, iDuration, fcEase, fcCallback)
+function tween.Create(sTweenId, tFrom, tTo, iDuration, fcEase, fcUpdateCallback, fcFinishCallback)
     assert(type(sTweenId) == "string", "tween.Create: id must be a string")
     assert(type(tFrom) == "table", "tween.Create: from must be a table")
     assert(type(tTo) == "table", "tween.Create: to must be a table")
     assert(#tFrom == #tTo, "tween.Create: from and to must have the same size")
     assert(type(iDuration) == "number" and iDuration >= 0, "tween.Create: duration must be a positive number")
-    assert(type(fcCallback) == "function", "tween.Create: valid function expected")
-    
+    assert(type(fcUpdateCallback) == "function", "tween.Create: valid update function expected")
+    assert(type(fcFinishCallback) == "function", "tween.Create: valid finish function expected")
+
     tween._tweens[sTweenId] = {
         sId = sTweenId,
         tFrom = _deepCopy(tFrom),
@@ -303,20 +304,22 @@ function tween.Create(sTweenId, tFrom, tTo, iDuration, fcEase, fcCallback)
         iDuration = iDuration,
         iElapsed = 0,
         fcEase = fcEase,
-        fcCallback = fcCallback,
+        fcUpdateCallback = fcUpdateCallback,
+        fcFinishCallback = fcFinishCallback,
         bPaused = false
     }
 
     if iDuration == 0 then
-        fcCallback(_deepCopy(tTo))
+        fcUpdateCallback(_deepCopy(tTo))
+        fcFinishCallback()
         tween._tweens[sTweenId] = nil
     end
 end
 
 -- Craetes an anonymous tween and returns its id
-function tween.Simple(tFrom, tTo, iDuration, fcEase, fcCallback)
+function tween.Simple(tFrom, tTo, iDuration, fcEase, fcUpdateCallback, fcFinishCallback)
     local sTweenId = _newId()
-    tween.Create(sTweenId, tFrom, tTo, iDuration, fcEase, fcCallback)
+    tween.Create(sTweenId, tFrom, tTo, iDuration, fcEase, fcUpdateCallback, fcFinishCallback)
 
     return sTweenId
 end
@@ -377,7 +380,7 @@ function tween.Progress(sTweenId)
 
     if tTween.iDuration == 0 then return 1 end
 
-    return fmath.min(tTween.iElapsed / tTween.iDuration, 1)
+    return math.min(tTween.iElapsed / tTween.iDuration, 1)
 end
 
 -- Gets time left before completion
@@ -387,7 +390,7 @@ function tween.TimeLeft(sTweenId)
     local tTween = _getTween(sTweenId)
     if not tTween then return end
 
-    return fmath.max(0, tTween.iDuration - tTween.iElapsed)
+    return math.max(0, tTween.iDuration - tTween.iElapsed)
 end
 
 -- Ticks tweens using delta time
@@ -413,9 +416,10 @@ function tween.Tick(iDt)
                 iEasedProgress
             )
 
-            tTween.fcCallback(tValue)
+            tTween.fcUpdateCallback(tValue)
 
             if iProgress >= 1 then
+                tTween.fcFinishCallback()
                 tween._tweens[sTweenId] = nil
             end
         end
@@ -438,21 +442,23 @@ local tTargetPos
 --Callback to set the interaction to true when the tween has finish
 local function ResetInteract()
     oReceiver:SetInteract(true)
-    print("AAAAAAAAAAAAAAH")
+end
 
+local function UpdateTranslation()
+    --print("I'm working")
 end
 
 --Interaction behaviour
 function self:Interaction()
 
     oReceiver:SetInteract(false)
-    print("J'interact")
+
     if bIsOpen == true then
-        print("Je ferme la porte")
-        tween.Create("Tween:Door:translation", tTargetPos, tOriginPos, 3, ease.In.Back, ResetInteract)
+        bIsOpen = false
+        tween.Create("Tween:Door:translation", tTargetPos, tOriginPos, 3, ease.In.Back, UpdateTranslation, ResetInteract)
     else
-        print("j'ouvre la porte")
-        tween.Create("Tween:Door:translation", tOriginPos, tTargetPos, 3, ease.In.Back, ResetInteract)
+        bIsOpen = true
+        tween.Create("Tween:Door:translation", tOriginPos, tTargetPos, 3, ease.In.Back, UpdateTranslation, ResetInteract)
     end
 end
 
@@ -463,12 +469,12 @@ function OnInit()
     local compContainer = self:FindChild("components")
     oReceiver = compContainer:FindChild("InteractReceiverComponent")
 
-    local vecFromPos = self:GetPosition()
+    local vecOriginPos = self:GetPosition()
     tOriginPos =
     {
-        x = vecFromPos.x,
-        y = vecFromPos.y,
-        z = vecFromPos.z
+        x = vecOriginPos.x,
+        y = vecOriginPos.y,
+        z = vecOriginPos.z
     }
 
     local vecTargetPos = oTarget:GetWorldPosition()
