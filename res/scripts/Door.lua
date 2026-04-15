@@ -444,24 +444,26 @@ local function ResetInteract()
     oReceiver:SetInteract(true)
 end
 
-local function UpdateTranslation()
-    --print("I'm working")
+local function UpdateTranslation(tValue)
+    print(#tValue)
+    print(tTargetPos.x, tTargetPos.y)
+
+    --local vecNewPos = fmath.vec3:new(tValue[1], tValue[2], tValue[3])
 end
 
 --Interaction behaviour
 function self:Interaction()
 
     oReceiver:SetInteract(false)
-
     if bIsOpen == true then
         bIsOpen = false
-        tween.Create("Tween:Door:translation", tTargetPos, tOriginPos, 3, ease.In.Back, UpdateTranslation, ResetInteract)
+        tween.Create("Tween:Door:translation", tTargetPos, tOriginPos, 2, nil, UpdateTranslation, ResetInteract)
     else
         bIsOpen = true
-        tween.Create("Tween:Door:translation", tOriginPos, tTargetPos, 3, ease.In.Back, UpdateTranslation, ResetInteract)
+        tween.Create("Tween:Door:translation", tOriginPos, tTargetPos, 2, nil , UpdateTranslation, ResetInteract)
     end
 end
-
+--ease.In.Back
 function OnInit()
 
     oTarget = self:FindChild("N3D_Target"):As(NodeTypes.NODE3D)
