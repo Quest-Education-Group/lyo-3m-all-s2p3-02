@@ -51,3 +51,16 @@ uptr<Node> NodeTrigger::Clone()
 
     return clone;
 }
+
+void NodeTrigger::OnUpdate(double delta)
+{
+    bool need_update = IsTransformDirty();
+    Node3D::OnUpdate(delta);
+
+    if (need_update)
+    {
+        rp3d::Transform reactTr;
+        reactTr.setFromOpenGL(&m_worldTransform[0][0]);
+        m_pRigidBody->setTransform(reactTr);
+    }
+}

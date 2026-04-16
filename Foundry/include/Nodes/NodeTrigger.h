@@ -11,7 +11,7 @@ class NodeRigidBody;
 class NodeTrigger : public Node3D
 {
 public:
-    //class Proxy;
+    class Proxy;
 
     NodeTrigger(std::string const& name);
 
@@ -19,6 +19,8 @@ public:
     void Deserialize(SerializedObject const &datas) override;
     void AttachScriptDeserialize(uptr<LuaScriptInstance>& script) override;
     uptr<Node> Clone() override;
+
+    void OnUpdate(double delta) override;
 
     static ISerializable* CreateInstance();
 
@@ -35,5 +37,7 @@ private:
 };
 
 REGISTER_ISERIALIZABLE(NodeTrigger, NodeTrigger::CreateInstance);
+
+#include "Scripting/Proxies/NodeTriggerProxy.inl"
 
 #endif

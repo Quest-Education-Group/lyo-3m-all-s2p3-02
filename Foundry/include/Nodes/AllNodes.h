@@ -11,6 +11,7 @@
 #include "NodeWindow.h"
 #include "NodeVisual.h"
 #include "NodeMesh.h"
+#include "NodeTrigger.h"
 
 
 #endif // !_ALL_NODES__H_

@@ -14,6 +14,7 @@
 #include "Nodes/NodeWindow.h"
 #include "Nodes/NodeCollider.h"
 #include "Nodes/NodeRigidBody.h"
+#include "Nodes/NodeTrigger.h"
 
 #include "Registries/AutomaticRegisterProxy.hpp"
 
@@ -36,6 +37,7 @@ static void RegisterProxies(ScriptEngine& engine)
 	AutomaticRegisterProxy::Register<NodeSphereCollider::Proxy::ProxyBinding>(engine);
 	AutomaticRegisterProxy::Register<NodeCapsuleCollider::Proxy::ProxyBinding>(engine);
 	AutomaticRegisterProxy::Register<NodeRigidBody::Proxy::ProxyBinding>(engine);
+	AutomaticRegisterProxy::Register<NodeTrigger::Proxy::ProxyBinding>(engine);
 };
 
 

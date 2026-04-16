@@ -19,4 +19,3 @@ BindProxy(NodeCamera::Proxy,
         "SetFOV", BIND(SetFOV)
     );
 )
-

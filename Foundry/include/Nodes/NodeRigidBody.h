@@ -122,10 +122,9 @@ public:
 	void SetSleepingState(bool isSleeping);
 	void SetIsGravityEnabled(bool enabled);
 
-	CollisionData const& AsCollisionData() const { return m_collisionData; }
+	CollisionData& AsCollisionData() { return m_collisionData; }
 
 	// =========== RP3D Events ===========
-
 	Event<void(NodeRigidBody&)> OnContact;
 	Event<void(NodeRigidBody&)> OnTrigger;
 
