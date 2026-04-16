@@ -3,6 +3,7 @@
 
 #include "Node.h"
 #include "Nodes/Node3D.h"
+#include "CollisionData.h"
 
 #include <reactphysics3d/reactphysics3d.h>
 
@@ -121,6 +122,13 @@ public:
 	void SetSleepingState(bool isSleeping);
 	void SetIsGravityEnabled(bool enabled);
 
+	CollisionData const& AsCollisionData() const { return m_collisionData; }
+
+	// =========== RP3D Events ===========
+
+	Event<void(NodeRigidBody&)> OnContact;
+	Event<void(NodeRigidBody&)> OnTrigger;
+
 	Node3D* GetNode3DParent()
 	{
 		return m_pNode3DParent;
@@ -140,6 +148,7 @@ protected:
 private:
 	Node3D* m_pNode3DParent = this;
 	rp3d::RigidBody *m_pRigidBodyRP3D = nullptr;
+	CollisionData m_collisionData {this, CollisionData::RIGIDBODY};
 
 	std::vector<NodeCollider *> m_colliders;
 	bool m_rigidBodyCreated = false;

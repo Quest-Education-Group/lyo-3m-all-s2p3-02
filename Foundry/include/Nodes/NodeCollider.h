@@ -60,14 +60,6 @@ public:
 	void SetCollideWithMaskBits(uint16_t mask);
 	uint16_t GetCollisionBitsMask() const;
 
-	// =========== RP3D Events ===========
-
-	void ContactEvent(NodeCollider& other);
-	void TriggerEvent(NodeCollider& other);
-
-	Event<void(NodeCollider&, const NodeRigidBody& data)> OnContact;
-	Event<void(NodeCollider&, const NodeRigidBody& data)> OnTrigger;
-
 protected:
 	virtual void DestroyShape() = 0;
 	void AttachScriptDeserialize(uptr<LuaScriptInstance>& script) override;

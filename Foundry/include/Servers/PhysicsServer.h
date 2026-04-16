@@ -4,8 +4,6 @@
 #include "Server.hpp"
 #include "Nodes/NodeRigidBody.h"
 
-#include <iostream>
-#include <memory>
 #include <reactphysics3d/reactphysics3d.h>
 #include <glm/ext/vector_float3.hpp>
 
@@ -148,12 +146,16 @@ enum class EventType
 class PhysicsEvents : public rp3d::EventListener
 {
 public:
+	using PhysicEventType = reactphysics3d::OverlapCallback::OverlapPair::EventType;
+
 	PhysicsEvents() = default;
-	~PhysicsEvents() = default;
+	~PhysicsEvents() override = default;
 
-	virtual void onContact(const rp3d::CollisionCallback::CallbackData& data) override;
+	void onContact(const rp3d::CollisionCallback::CallbackData& data) override;
+	void onTrigger(const rp3d::OverlapCallback::CallbackData& data) override;
 
-	virtual void onTrigger(const rp3d::OverlapCallback::CallbackData& data) override;
+	bool CheckTriggerEvent(CollisionData const* pCd1, CollisionData const* pCd2, PhysicEventType eventType);
+	bool CheckRBTriggerEvent(CollisionData const* pCd1, CollisionData const* pCd2);
 };
 
 
@@ -245,7 +247,6 @@ private:
 	void BuildTasksImpl(TaskGraph& graph) override {};
 	void OnInitialize() override;
 	void OnUnInitialize() override;
-
 
 	// =========== Rigid Body functions ===========
 

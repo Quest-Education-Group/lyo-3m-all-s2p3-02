@@ -1,5 +1,7 @@
 #include "Servers/PhysicsServer.h"
+#include "CollisionData.h"
 #include "Nodes/NodeCollider.h"
+#include "Nodes/NodeTrigger.h"
 #include "Debug.h"
 
 void PhysicsEvents::onContact(const rp3d::CollisionCallback::CallbackData& data)
@@ -8,10 +10,13 @@ void PhysicsEvents::onContact(const rp3d::CollisionCallback::CallbackData& data)
 	for (int i = 0; i < nbPairs; i++)
 	{
 		ContactPair pair = data.getContactPair(i);
-		auto b1 = static_cast<NodeCollider*>(pair.getBody1()->getUserData());
-		auto b2 = static_cast<NodeCollider*>(pair.getBody2()->getUserData());
-		b1->ContactEvent(*b2);
-		b2->ContactEvent(*b1);
+		auto const cd1 = static_cast<CollisionData*>(pair.getBody1()->getUserData());
+		auto const cd2 = static_cast<CollisionData*>(pair.getBody2()->getUserData());
+
+		auto const rb1 = static_cast<NodeRigidBody*>(cd1->pNode);
+		auto const rb2 = static_cast<NodeRigidBody*>(cd2->pNode);
+		rb1->OnContact(*rb2);
+		rb2->OnContact(*rb1);
 
 		//auto eventType = pair.getEventType();
 		//if (eventType == ContactPair::EventType::ContactStart)
@@ -29,12 +34,45 @@ void PhysicsEvents::onTrigger(const rp3d::OverlapCallback::CallbackData& data)
 	uint32 nbPairs = data.getNbOverlappingPairs();
 	for (int i = 0; i < nbPairs; i++)
 	{
-		rp3d::OverlapCallback::OverlapPair pair = data.getOverlappingPair(i);
-		auto b1 = static_cast<NodeCollider*>(pair.getBody1()->getUserData());
-		auto b2 = static_cast<NodeCollider*>(pair.getBody2()->getUserData());
-		b1->TriggerEvent(*b2);
-		b2->TriggerEvent(*b1);
+		auto pair = data.getOverlappingPair(i);
+		CollisionData const* b1 = static_cast<CollisionData*>(pair.getBody1()->getUserData());
+		CollisionData const* b2 = static_cast<CollisionData*>(pair.getBody2()->getUserData());
+
+		if (CheckTriggerEvent(b1, b2, pair.getEventType())) return;
+		CheckRBTriggerEvent(b1, b2);
 	}
+}
+
+bool PhysicsEvents::CheckTriggerEvent(CollisionData const* pCd1, CollisionData const* pCd2, PhysicEventType eventType)
+{
+	if (pCd1->type == CollisionData::TRIGGER || pCd2->type == CollisionData::TRIGGER)
+	{
+		NodeTrigger* nt = static_cast<NodeTrigger*>(pCd1->type == CollisionData::TRIGGER ? pCd1->pNode : pCd2->pNode);
+		NodeRigidBody* nb = static_cast<NodeRigidBody*>(pCd1->type == CollisionData::TRIGGER ? pCd2->pNode : pCd1->pNode);
+
+		switch (eventType)
+		{
+		case PhysicEventType::OverlapStart:
+			nt->OnTriggerEnter(*nb);
+			return true;
+		case PhysicEventType::OverlapStay:
+			nt->OnTriggerStay(*nb);
+			return true;
+		case PhysicEventType::OverlapExit:
+			nt->OnTriggerLeave(*nb);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool PhysicsEvents::CheckRBTriggerEvent(CollisionData const* pCd1, CollisionData const* pCd2)
+{
+	auto const rb1 = static_cast<NodeRigidBody*>(pCd1->pNode);
+	auto const rb2 = static_cast<NodeRigidBody*>(pCd2->pNode);
+	rb1->OnTrigger(*rb2);
+	rb2->OnTrigger(*rb1);
+	return true;
 }
 
 PhysicsServer::PhysicsServer() : Server()
@@ -97,7 +135,7 @@ void PhysicsServer::S_CreateRigidBody(NodeRigidBody& rigidBody)
 	rigidBody.m_pRigidBodyRP3D->setAngularDamping(0.5f);
 	rigidBody.m_pRigidBodyRP3D->setMass(1.0f);
 	rigidBody.m_pRigidBodyRP3D->setIsAllowedToSleep(true);
-	rigidBody.m_pRigidBodyRP3D->setUserData(rigidBody.m_pProxy.get());
+	rigidBody.m_pRigidBodyRP3D->setUserData(&rigidBody);
 	rigidBody.m_rigidBodyCreated = true;
 }
 void PhysicsServer::S_DestroyRigidBody(NodeRigidBody& rigidBody)
