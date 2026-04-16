@@ -147,6 +147,10 @@ void Editor::Update(float deltaTime)
 		}
 	}
 
+	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_O)) {
+		m_editorImgui.ShowLoadPopup();
+
+	}
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_N))
 	{
 		CreateNewScene();
@@ -300,6 +304,7 @@ void Editor::LoadScene(std::string const& path)
 	{
 		LoadReturn tmp = EditorSerializer::LoadFromJson(path);
 		if (tmp.IsRoot) {
+			CreateNewScene();
 			m_sceneRoot = std::move(tmp.uptrNode);
 			m_editorImgui.SetSceneRoot(m_sceneRoot.get());
 			m_editorImgui.ResetViewRoot();
