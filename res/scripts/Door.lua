@@ -445,46 +445,45 @@ local function ResetInteract()
 end
 
 local function UpdateTranslation(tValue)
-    print(#tValue)
-    print(tTargetPos.x, tTargetPos.y)
-
-    --local vecNewPos = fmath.vec3:new(tValue[1], tValue[2], tValue[3])
+    local vecNewPos = fmath.vec3:new(tValue[1], tValue[2], tValue[3])
+    print(vecNewPos.x, vecNewPos.y, vecNewPos.z)
+    self:SetWorldPosition(vecNewPos)
 end
 
 --Interaction behaviour
 function self:Interaction()
-
     oReceiver:SetInteract(false)
+
     if bIsOpen == true then
         bIsOpen = false
-        tween.Create("Tween:Door:translation", tTargetPos, tOriginPos, 2, nil, UpdateTranslation, ResetInteract)
+        tween.Create("Tween:Door:translation", tTargetPos, tOriginPos, 2, ease.Out.Back, UpdateTranslation, ResetInteract)
     else
         bIsOpen = true
-        tween.Create("Tween:Door:translation", tOriginPos, tTargetPos, 2, nil , UpdateTranslation, ResetInteract)
+        tween.Create("Tween:Door:translation", tOriginPos, tTargetPos, 2, ease.Out.Back , UpdateTranslation, ResetInteract)
     end
 end
---ease.In.Back
-function OnInit()
 
-    oTarget = self:FindChild("N3D_Target"):As(NodeTypes.NODE3D)
+function OnInit()
+    oTarget = self:GetNode("/SceneRoot/targets/door"):As(NodeTypes.NODE3D)
 
     local compContainer = self:FindChild("components")
     oReceiver = compContainer:FindChild("InteractReceiverComponent")
 
-    local vecOriginPos = self:GetPosition()
+    local vecOriginPos = self:GetWorldPosition()
     tOriginPos =
     {
-        x = vecOriginPos.x,
-        y = vecOriginPos.y,
-        z = vecOriginPos.z
+        vecOriginPos.x,
+        vecOriginPos.y,
+        vecOriginPos.z
     }
 
     local vecTargetPos = oTarget:GetWorldPosition()
+    
     tTargetPos = 
     {
-        x = vecTargetPos.x,
-        y = vecTargetPos.y,
-        z = vecTargetPos.z
+        vecTargetPos.x,
+        vecTargetPos.y,
+        vecTargetPos.z
     }
 end
 
