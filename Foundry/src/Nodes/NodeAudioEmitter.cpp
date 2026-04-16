@@ -1,4 +1,5 @@
 #include "Nodes/NodeAudioEmitter.h"
+#include "Serialization/SerializeObject.hpp"
 
 NodeAudioEmitter::NodeAudioEmitter(std::string const& name) : Node(name)
 {
@@ -71,6 +72,20 @@ glm::vec3 NodeAudioEmitter::GetSourceDirection()
 void NodeAudioEmitter::OnUpdate(double delta)
 {
 	Node::OnUpdate(delta);
+}
+
+void NodeAudioEmitter::Serialize(SerializedObject& datas) const
+{
+    Node::Serialize(datas);
+    datas.SetType("NodeAudioEmitter");
+    //datas.AddPublicElement("Transform", static_cast<ISerializable const*>(&m_transform));
+}
+
+
+void NodeAudioEmitter::Deserialize(SerializedObject const& datas)
+{
+    Node::Deserialize(datas);
+    //datas.GetPublicElement("Transform", static_cast<ISerializable*>(&m_transform));
 }
 
 ISerializable* NodeAudioEmitter::CreateInstance()

@@ -13,4 +13,4 @@ Proxy* Proxy::CreateNodeAudioEmitterProxy(std::string const& name)
 	return ptr;
 }
 
-REGISTER_PROXY(Proxy::ProxyBinding, NodeAudioEmitterProxy);
+//REGISTER_PROXY(Proxy::ProxyBinding, NodeAudioEmitterProxy);

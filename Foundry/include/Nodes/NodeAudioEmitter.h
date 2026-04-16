@@ -31,6 +31,9 @@ public:
 
 	virtual void OnUpdate(double delta) override;
 
+	virtual void Serialize(SerializedObject& datas) const override;
+	virtual void Deserialize(SerializedObject const& datas) override;
+
 	static ISerializable* CreateInstance();
 
 protected:

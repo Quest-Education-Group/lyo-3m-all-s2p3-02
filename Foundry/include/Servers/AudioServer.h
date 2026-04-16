@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-struct AudioChannel 
+class AudioChannel 
 {
 public:
 	std::string const& GetName() const { return name; };

@@ -1,4 +1,5 @@
 #include "Nodes/NodeAudioListener.h"
+#include "Serialization/SerializeObject.hpp"
 
 NodeAudioListener::NodeAudioListener(std::string const& name) : Node(name)
 {
@@ -47,6 +48,20 @@ glm::vec3 NodeAudioListener::GetListenerDirection()
 void NodeAudioListener::OnUpdate(double delta)
 {
 	Node::OnUpdate(delta);
+}
+
+void NodeAudioListener::Serialize(SerializedObject& datas) const
+{
+	Node::Serialize(datas);
+	datas.SetType("NodeAudioListener");
+	datas.AddPublicElement("listid", &m_listenerIndex);
+	//datas.AddPublicElement("ListenerIndex", static_cast<ISerializable const*>(&m_listenerIndex));
+}
+
+void NodeAudioListener::Deserialize(SerializedObject const& datas)
+{
+	Node::Deserialize(datas);
+	//datas.GetPublicElement("Transform", static_cast<ISerializable*>(&m_transform));
 }
 
 ISerializable* NodeAudioListener::CreateInstance()
