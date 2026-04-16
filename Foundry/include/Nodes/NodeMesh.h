@@ -12,6 +12,19 @@ enum class MeshGeometrySourceType : uint8
     FBX
 };
 
+class SerializedTexturesData : public ISerializable
+{
+public:
+    Ore::TextureMaterialType type;
+    std::filesystem::path path;
+
+    virtual void Serialize(SerializedObject& datas) const override;
+    virtual void Deserialize(SerializedObject const& datas) override;
+    inline static ISerializable* CreateInstance() { return std::make_unique<SerializedTexturesData>().release(); }
+};
+REGISTER_ISERIALIZABLE(SerializedTexturesData, SerializedTexturesData::CreateInstance);
+
+
 class NodeMesh : public NodeVisual
 {
 public:
@@ -54,6 +67,7 @@ private:
     PrimitivesType m_primitiveType = PrimitivesType::CUBE;
     std::filesystem::path m_fbxPath{};
 
+    std::vector<SerializedTexturesData> m_texturesPaths;
     std::filesystem::path m_diffuseTexturePath{};
 
     friend class NodeViewport;

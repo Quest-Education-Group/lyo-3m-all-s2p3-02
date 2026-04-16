@@ -157,7 +157,11 @@ void NodeMesh::Serialize(SerializedObject &datas) const
     datas.AddPublicElement("PrimitiveType", static_cast<ISerializable*>(&primitiveTypeClamped));
     datas.AddPublicElement("FbxPath", &fbxPath);
     datas.AddPublicElement("DiffuseTexturePath", &diffusePath);
-
+    datas.AddPublicArray("TexturePaths");
+    for (uint8 i = 0; i < m_texturesPaths.size();++i)
+    {
+        datas.AddPublicElementInArray("TexturePaths",static_cast<ISerializable const*>(&m_texturesPaths[0]));
+    }
     uint32 textureCount = 1;
     //if (textureCount == 0)
     //    textureCount = static_cast<uint32>(m_textures.size());
@@ -233,16 +237,29 @@ void NodeMesh::Deserialize(SerializedObject const& datas)
     bool isActive = true;
     datas.GetPublicElement("IsActive", &isActive);
     m_pMesh->SetActive(isActive);
-
-
+    std::vector<ISerializable*> tempList = datas.GetPublicArray<ISerializable*>("TexturePaths");
+    m_texturesPaths.clear();
+    for (uint8 i = 0; i < tempList.size(); i++)
+        m_texturesPaths.push_back(*static_cast<SerializedTexturesData*>(tempList[i]));
 
     if (!s_IsInEditor)
     {
         m_textures.clear();
-        if (!m_diffuseTexturePath.empty())
-            m_textures.push_back(std::make_shared<Ore::Texture>(m_diffuseTexturePath, Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
-        else
-            m_textures.push_back(std::make_shared<Ore::Texture>("res/textures/Default.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
+        bool hasDiffuse = false;
+        for (uint8 i = 0; i < tempList.size(); i++)
+        {
+            if (m_texturesPaths[i].type == Ore::TextureMaterialType::DIFFUSE)
+                hasDiffuse = true;
+            m_textures.push_back(std::make_shared<Ore::Texture>(m_texturesPaths[i].path, Ore::TextureType::TYPE_2D, m_texturesPaths[i].type));
+        }
+
+        if (hasDiffuse == false)
+        {
+            if (!m_diffuseTexturePath.empty())
+                m_textures.push_back(std::make_shared<Ore::Texture>(m_diffuseTexturePath, Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
+            else
+                m_textures.push_back(std::make_shared<Ore::Texture>("res/textures/Default.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
+        }
 
         m_pMesh->SetTextures(m_textures);
     }
@@ -268,4 +285,20 @@ uptr<Node> NodeMesh::Clone()
 	clone->Deserialize(datas);
 
 	return clone;
+}
+
+void SerializedTexturesData::Serialize(SerializedObject& datas) const
+{
+    datas.SetType("SerializedTexturesData");
+    datas.AddPublicElement("TextureType", &type);
+    std::string val = path.string();
+    datas.AddPublicElement("TexturePath", &val);
+}
+
+void SerializedTexturesData::Deserialize(SerializedObject const& datas)
+{
+    datas.GetPublicElement("TextureType", &type);
+    std::string spath = "";
+    datas.GetPublicElement("TexturePath", &spath);
+    path = spath;
 }

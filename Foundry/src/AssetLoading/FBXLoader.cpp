@@ -218,9 +218,9 @@ void FBXLoader::LoadEmbeddedTexture(std::string const& path, std::string& outPat
     file.close();
 }
 
+
 void FBXLoader::BuildMaterials(aiScene const* pScene, Material& outMat)
 {
-    outMat.textures.reserve(pScene->mNumMaterials);
     for (uint32 i = 0; i < pScene->mNumMaterials; ++i)
     {
         aiMaterial* pMat = pScene->mMaterials[i];
@@ -230,20 +230,31 @@ void FBXLoader::BuildMaterials(aiScene const* pScene, Material& outMat)
             aiString texturePath;
             if (pMat->GetTextureCount(t) == 0 || pMat->GetTexture(t, 0, &texturePath) != AI_SUCCESS)
             {
-                Logger::LogWithLevel(LogLevel::WARNING, std::string("No Textures In FBX FIle") + pScene->mName.C_Str());
                 continue;
             }
 
             std::string path = texturePath.C_Str();
-            if (texturePath.data[0] != '*')
+            if (texturePath.data[0] == '*')
             {
+                std::string fullPath = "";
+                LoadEmbeddedTexture(path, fullPath, pScene, i, static_cast<Ore::TextureMaterialType>(c));
+                if (fullPath != "")
+                {
+                    outMat.textures.push_back({});
+                    outMat.textures[i][static_cast<Ore::TextureMaterialType>(c)] = fullPath;
+                }
+                continue;
+            }
+            if (texturePath.data[0] == 'r')
+            {
+                outMat.textures.push_back({});
                 outMat.textures[i][static_cast<Ore::TextureMaterialType>(c)] = path;
                 continue;
             }
-            std::string fullPath = "";
-            LoadEmbeddedTexture(path, fullPath, pScene, i, static_cast<Ore::TextureMaterialType>(c));
-            if (fullPath != "")
-                outMat.textures[i][static_cast<Ore::TextureMaterialType>(c)] = fullPath;
+            std::filesystem::path tempPath = path;
+            std::string newPath = "res/textures/" + tempPath.filename().string();
+            outMat.textures.push_back({});
+            outMat.textures[i][static_cast<Ore::TextureMaterialType>(c)] = newPath;
         }
     }
 }

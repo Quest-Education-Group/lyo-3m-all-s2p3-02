@@ -33,16 +33,17 @@ Node& LoadScene(Node& node)
     uptr<Node> nViewport = Node::CreateNode<NodeViewport>("Viewport");
 
     uptr<Node> nCamera = Node::CreateNode<NodeCamera>("Camera");
-    static_cast<NodeCamera*>(nCamera.get())->SetLocalPosition({0.0,20,0.0});
+    static_cast<NodeCamera*>(nCamera.get())->SetLocalPosition({0.0,0.0f,5.0f});
+    static_cast<NodeCamera*>(nCamera.get())->AddLocalYaw(1.0f);
 
     //sptr<SceneData> Scene1 = AssetLoader::LoadSceneFromFile("res/fbx/Test_Anim_3.fbx", AssetLoader::FileType::FBX);
-    sptr<SceneData> Scene4 = AssetLoader::LoadSceneFromFile("res/Assets/Test_staff_room.fbx", AssetLoader::FileType::FBX);
+    sptr<SceneData> Scene4 = AssetLoader::LoadSceneFromFile("res/Assets/Comptoire_textures.fbx", AssetLoader::FileType::FBX);
     //sptr<SceneData> Scene2 = AssetLoader::LoadSceneFromFile("res/fbx/Test_Anim.fbx", AssetLoader::FileType::FBX);
     //sptr<SceneData> Scene3 = AssetLoader::LoadSceneFromFile("res/fbx/Test_Bones.fbx", AssetLoader::FileType::FBX);
 
     uptr<Node> pNode = AssetLoader::CreateNodesFromScene(*Scene4);
-
-    EditorSerializer::SaveNode("HubScene.nd",pNode);
+    static_cast<Node3D*>(pNode.get())->SetLocalPosition({ 0.0f,0.0f,0.f });
+    //EditorSerializer::SaveNode("HubScene.nd",pNode);
 
     nViewport->AddChild(nCamera);
     nViewport->AddChild(pNode);
