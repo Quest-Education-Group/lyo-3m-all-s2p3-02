@@ -32,11 +32,20 @@ void GameLoop::StartGame(SceneTree& defaultTree)
     LoopGame();
 }
 
+static int minTick = 1;
+static int maxTick = 0;
+static float tickSum = 0;
+static int elapsedFrame = 0;
+static float averageTicks;
+
 void GameLoop::LoopGame()
 {
     Clock<> clock;
     //while ();
     auto const&  window = static_cast<NodeWindow const&>(m_pDefaultTree->GetRoot());
+
+    int tick = 0;
+
     while (window.IsOpen())
     {
         TaskGraph graph;
@@ -47,14 +56,30 @@ void GameLoop::LoopGame()
             ActionMap::PollInputs(CurrentActionMap);
 
         m_accumulator += dt;
-        while (m_accumulator > PHYSICS_DT);
+        while (m_accumulator > PHYSICS_DT)
         {
             m_accumulator -= PHYSICS_DT;
             root.PhysicsUpdate(PHYSICS_DT);
             PhysicsServer::UpdatePhysicsWorld(PHYSICS_DT); // !! si update fait ici, il semble beaucoup trop rapide !!
+            tick++;
         }
 
-        //PhysicsServer::UpdatePhysicsWorld(dt);
+        if (tick > maxTick) maxTick = tick;
+        if (tick < minTick) minTick = tick;
+
+        tickSum += tick;
+        elapsedFrame++;
+
+        if (elapsedFrame == 10)
+        {
+            averageTicks = tickSum / 10;
+            elapsedFrame = 0;
+            tickSum = 0;
+        }
+
+        tick = 0;
+
+
         root.Update(dt);
         ScriptingEngine::Update(dt);
         UpdateServers();
@@ -69,6 +94,9 @@ void GameLoop::LoopGame()
 void GameLoop::EndGame()
 {
     m_pDefaultTree->OnGameEnded();
+    Logger::LogWithLevel(LogLevel::WARNING, "Minimum Physics Tick :", minTick);
+    Logger::LogWithLevel(LogLevel::WARNING, "Maximum Physics Tick :", maxTick);
+    Logger::LogWithLevel(LogLevel::WARNING, "Average Physics Tick :", averageTicks);
 }
 
 void GameLoop::InitServers()
