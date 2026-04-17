@@ -211,7 +211,7 @@ void FBXLoader::LoadEmbeddedTexture(std::string const& path, std::string& outPat
         return;
     }
     std::string textureName = "embedded_" + std::to_string(matIndex) + std::to_string(static_cast<uint32>(type)) + "." + ext;
-    std::string fullPath = "res/textures/" + textureName;
+    std::string fullPath = "res/Textures/" + textureName;
     std::ofstream file(fullPath, std::ios::binary);
     file.write((const char*)pText->pcData, pText->mWidth);
     outPath = fullPath;
@@ -252,7 +252,7 @@ void FBXLoader::BuildMaterials(aiScene const* pScene, Material& outMat)
                 continue;
             }
             std::filesystem::path tempPath = path;
-            std::string newPath = "res/textures/" + tempPath.filename().string();
+            std::string newPath = "res/Textures/" + tempPath.filename().string();
             outMat.textures.push_back({});
             outMat.textures[i][static_cast<Ore::TextureMaterialType>(c)] = newPath;
         }
