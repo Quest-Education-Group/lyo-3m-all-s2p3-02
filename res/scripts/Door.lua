@@ -53,7 +53,6 @@ function OnInit()
 end
 
 function OnUpdate(iDelta)
-    tween.Tick(iDelta)
 end
 
 function OnDestroy() end
