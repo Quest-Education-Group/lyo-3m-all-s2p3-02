@@ -5,11 +5,25 @@
 #include "NodeVisual.h"
 #include "GeometryFactory.h"
 
+struct SceneMesh;
 enum class MeshGeometrySourceType : uint8
 {
     PRIMITIVE,
     FBX
 };
+
+class SerializedTexturesData : public ISerializable
+{
+public:
+    Ore::TextureMaterialType type;
+    std::filesystem::path path;
+
+    virtual void Serialize(SerializedObject& datas) const override;
+    virtual void Deserialize(SerializedObject const& datas) override;
+    inline static ISerializable* CreateInstance() { return std::make_unique<SerializedTexturesData>().release(); }
+};
+REGISTER_ISERIALIZABLE(SerializedTexturesData, SerializedTexturesData::CreateInstance);
+
 
 class NodeMesh : public NodeVisual
 {
@@ -29,6 +43,7 @@ public:
     void SetActive(bool isActive) const;
     void SetPrimitive(PrimitivesType primitiveType);
     void SetFbxPath(std::filesystem::path const &fbxPath);
+    void SetFromSceneMesh(SceneMesh const & sceneMesh, std::filesystem::path const& fbxPath);
     MeshGeometrySourceType GetGeometrySourceType() const { return m_geometrySourceType; }
     PrimitivesType GetPrimitiveType() const { return m_primitiveType; }
     std::filesystem::path const &GetFbxPath() const { return m_fbxPath; }
@@ -41,6 +56,8 @@ public:
     static ISerializable *CreateInstance();
     uptr<Node> Clone() override;
 
+    std::vector<SerializedTexturesData> const& GetTexturePaths() const {return m_texturesPaths;}
+
 protected:
     void AttachScriptDeserialize(uptr<LuaScriptInstance>& script) override;
 
@@ -52,6 +69,7 @@ private:
     PrimitivesType m_primitiveType = PrimitivesType::CUBE;
     std::filesystem::path m_fbxPath{};
 
+    std::vector<SerializedTexturesData> m_texturesPaths;
     std::filesystem::path m_diffuseTexturePath{};
 
     friend class NodeViewport;
