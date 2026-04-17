@@ -56,6 +56,8 @@ public:
     static ISerializable *CreateInstance();
     uptr<Node> Clone() override;
 
+    std::vector<SerializedTexturesData> const& GetTexturePaths() const {return m_texturesPaths;}
+
 protected:
     void AttachScriptDeserialize(uptr<LuaScriptInstance>& script) override;
 

@@ -43,7 +43,7 @@ Node& LoadScene(Node& node)
 
     uptr<Node> pNode = AssetLoader::CreateNodesFromScene(*Scene4);
     static_cast<Node3D*>(pNode.get())->SetLocalPosition({ 0.0f,0.0f,0.f });
-    //EditorSerializer::SaveNode("HubScene.nd",pNode);
+    EditorSerializer::SaveNode("TestComptoire.nd",pNode);
 
     nViewport->AddChild(nCamera);
     nViewport->AddChild(pNode);
