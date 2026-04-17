@@ -30,6 +30,7 @@ local function InitializeActionMap()
     acmPlayer:CreateAction("MOVE_RIGHT", 1, 68)
     acmPlayer:CreateAction("ROTATE_LEFT", 1, 65)
     acmPlayer:CreateAction("ROTATE_RIGHT", 1, 69)
+    acmPlayer:CreateAction("JUMP", 1, 32)
     acmPlayer:CreateAction("LOOK", 3, 4080)
     acmPlayer:CreateAction("CHANGE_CURSOR_STATE", 1, 292)
     acmPlayer:CreateAction("INTERACT", 1, 70)
@@ -43,6 +44,7 @@ local function BindActions(oMovementComponent, oLookComponent, oInteractEmitterC
         acmPlayer:GetAction("MOVE_RIGHT").Event = oMovementComponent.MoveRight or function() print("PlayerBase: Move right callback missing") end
         acmPlayer:GetAction("ROTATE_LEFT").Event = oMovementComponent.RotateLeft or function() print("PlayerBase: Rotate left callback missing") end
         acmPlayer:GetAction("ROTATE_RIGHT").Event = oMovementComponent.RotateRight or function() print("PlayerBase: Rotate right callback missing") end
+        acmPlayer:GetAction("JUMP").Event = oMovementComponent.Jump or function() print("PlayerBase: Jump callback missing") end
     else
         print("PlayerBase: MovementComponent missing")
     end
