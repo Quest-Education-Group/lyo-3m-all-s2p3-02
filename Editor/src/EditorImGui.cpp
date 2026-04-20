@@ -114,10 +114,13 @@ void EditorImGui::Init()
 
 	ImGui::FileBrowser SaveBrowseWindow(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir | ImGuiFileBrowserFlags_ConfirmOnEnter);
 	ImGui::FileBrowser LoadBrowseWindow(ImGuiFileBrowserFlags_ConfirmOnEnter);
+	ImGui::FileBrowser ImportFbxBrowseWindow(ImGuiFileBrowserFlags_ConfirmOnEnter);
 	m_saveBrowser = SaveBrowseWindow;
 	m_loadBrowser = LoadBrowseWindow;
+	m_importFbxBrowser = ImportFbxBrowseWindow;
 	m_saveBrowser.SetDirectory("../Game/res");
 	m_loadBrowser.SetDirectory("../Game/res");
+	m_importFbxBrowser.SetDirectory("../Game/res");
 	m_assetBrowser.SetRoot("../");
 	m_assetBrowser.SetThumbnailSize(64.0f);
 	m_assetBrowser.SetTypeFilters({ ".png", ".jpg", ".fbx", ".obj", ".lua", ".json" });
@@ -154,6 +157,7 @@ void EditorImGui::Render()
 
 	ShowSaveAsSceneBrowsing();
 	ShowLoadSceneBrowsing();
+	ShowImportFbxBrowsing();
 	m_assetBrowser.Display();
 
 	ImGui::SetNextWindowPos(ImVec2(m_screenWidth - 120.0f, m_screenHeight - 40.0f));
@@ -192,6 +196,13 @@ void EditorImGui::DrawMenuBar()
 			{
 				m_showLoadPopup = true;
 			}
+
+			if (ImGui::MenuItem("Import FBX to .nd"))
+			{
+				m_showImportFbxPopup = true;
+			}
+
+			ImGui::Separator();
 
 			ImGui::Separator();
 
@@ -648,6 +659,35 @@ void EditorImGui::ShowLoadSceneBrowsing()
 
 		m_loadBrowser.ClearSelected();
 		m_loadBrowser.Close();
+	}
+}
+
+void EditorImGui::ShowImportFbxBrowsing()
+{
+	if (m_showImportFbxPopup)
+	{
+		m_importFbxBrowser.Open();
+		m_showImportFbxPopup = false;
+	}
+
+	m_importFbxBrowser.SetWindowSize(m_fileBrowsingSizeX, m_fileBrowsingSizeY);
+	m_importFbxBrowser.SetWindowPos(m_screenWidth / 2 - m_fileBrowsingSizeX / 2, m_screenHeight / 2 - m_fileBrowsingSizeY / 2);
+
+	m_importFbxBrowser.SetTitle("Import FBX and export .nd.json");
+	m_importFbxBrowser.SetTypeFilters({ ".fbx" });
+	m_importFbxBrowser.Display();
+
+	if (m_importFbxBrowser.HasSelected())
+	{
+		std::filesystem::path const selected = m_importFbxBrowser.GetSelected();
+		if (!selected.empty())
+		{
+			m_command.type = EditorCommand::Type::IMPORT_FBX_TO_ND;
+			m_command.stringParam1 = selected.string();
+		}
+
+		m_importFbxBrowser.ClearSelected();
+		m_importFbxBrowser.Close();
 	}
 }
 

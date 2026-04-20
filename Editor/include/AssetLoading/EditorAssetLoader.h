@@ -9,6 +9,8 @@
 #include <vector>
 #include <map>
 
+class Node;
+
 struct EditorTextureRef
 {
 	uint32 textureType = 0;
@@ -36,6 +38,7 @@ public:
 	};
 
 	static sptr<EditorSceneData> LoadSceneFromFile(std::string const& path, FileType type);
+	static uptr<Node> CreateNodesFromScene(EditorSceneData const& scene, std::string const& sourceFbxPath);
 
 	inline static std::map<std::string, sptr<EditorSceneData>> m_loadedScenes = {};
 };
