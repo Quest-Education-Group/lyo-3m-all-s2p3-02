@@ -7,6 +7,7 @@
 #include "Logger.hpp"
 #include "Program.h"
 #include "Shader.h"
+#include "UIElements/FTFontFace.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -103,6 +104,8 @@ int main()
     viewport.AddPass(&lightPass);
     float fact = 1.0f;
     float inf = 0.0f;
+
+    FTFontFace fontFace("res/fonts/Roboto-Medium.ttf");
 
     while (window.IsOpen())
     {
