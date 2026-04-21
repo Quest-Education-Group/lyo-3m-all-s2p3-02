@@ -74,7 +74,7 @@ namespace Ore
 				return;
 			}
 
-			if (advanceX + m_face->glyph->advance.x >= BitmapSize)
+			if (advanceX + m_face->glyph->bitmap.width >= BitmapSize)
 			{
 				advanceX = 0;
 				advanceY += maxGlyphHeight;
@@ -93,10 +93,7 @@ namespace Ore
 				GL_UNSIGNED_BYTE,
 				m_face->glyph->bitmap.buffer
 			);
-
-			if (glyphHeight > maxGlyphHeight) maxGlyphHeight = glyphHeight;
-			//maxGlyphHeight = std::max(glyphHeight, maxGlyphHeight);
-
+			maxGlyphHeight = std::max(glyphHeight, maxGlyphHeight);
 			// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
 			advanceX += m_face->glyph->advance.x >> 6;  // bitshift by 6 to get value in pixels (2^6 = 64)
 		}
