@@ -4,6 +4,9 @@
 #include "FontFace.h"
 
 #include <ft2build.h>
+
+#include "TextureObject.h"
+
 #include FT_FREETYPE_H  
 
 namespace Ore
@@ -16,14 +19,16 @@ namespace Ore
 		FTFontFace(FTFontFace&& other) noexcept;
 		~FTFontFace() override;
 
-		void SetSize(uint32 width, uint32 height);
-		void LoadChar();
+		void SetSize(uint32 width, uint32 height) override;
+		void LoadChar() override;
+		TextureObject GetTextureObject() {return m_texture;}
 
 	private:
-		inline static FT_Library s_ftLibrary;
-		inline static int32 s_refcount = 0;
+		static FT_Library s_ftLibrary;
+		static int32 s_refcount;
 		FT_Face m_face{};
 		uint32 m_bitmap = 0;
+		TextureObject m_texture;
 	};
 }
 

@@ -81,6 +81,7 @@ void Window::Open()
 
     glEnable(GL_DEPTH_TEST);
 #ifdef DEBUG_BUILD
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,true);
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(Ore::MessageCallback, 0);
 #endif

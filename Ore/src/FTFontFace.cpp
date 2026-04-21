@@ -1,7 +1,6 @@
 #include "UIElements/FTFontFace.h"
 #include "Logger.hpp"
 #include "TextureObject.h"
-#include "Buffer.h"
 
 #include <glad/glad.h>
 #include <filesystem>
@@ -9,6 +8,9 @@
 
 namespace Ore
 {
+	FT_Library FTFontFace::s_ftLibrary;
+	int32 FTFontFace::s_refcount = 0;
+
 	FTFontFace::FTFontFace(std::filesystem::path path)
 	{
 		if (s_refcount == 0 && FT_Init_FreeType(&s_ftLibrary))
@@ -25,7 +27,8 @@ namespace Ore
 			return;
 		}
 
-		LoadChar();
+		FTFontFace::SetSize(0, 80);
+		FTFontFace::LoadChar();
 		Logger::LogWithLevel(LogLevel::DEBUG, "Created font atlas for : ", path);
 	}
 
@@ -48,20 +51,18 @@ namespace Ore
 	void FTFontFace::LoadChar()
 	{
 		//generate a 1024*1024 textures
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glGenTextures(1, &m_bitmap);
 
-		TextureObject texture(m_bitmap, TextureType::TYPE_2D);
-		texture.GenerateTexture(DataType::UBYTE, 1024, 1024, GL_RED, GL_RED);
-		texture.Bind();
-		texture.AddParameters(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		texture.AddParameters(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		texture.AddParameters(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		texture.AddParameters(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		m_texture = TextureObject(m_bitmap, TextureType::TYPE_2D);
+		m_texture.Bind();
+		m_texture.GenerateTexture(DataType::UBYTE, 2048, 32, GL_RED, GL_RED);
+		m_texture.AddParameters(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		m_texture.AddParameters(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		m_texture.AddParameters(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		m_texture.AddParameters(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		uint32 advanceX = 0;
-		uint32 advanceY = 0;
-		for (uint8 c = 0; c < 128; c++)
+		int32 advanceX = 0;
+		for (uint8 c = 32; c < 128; c++)
 		{
 			if (FT_Load_Char(m_face, c, FT_LOAD_RENDER))
 			{
@@ -69,20 +70,22 @@ namespace Ore
 				return;
 			}
 
+			m_texture.Bind();
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glTexSubImage2D(
-				m_bitmap,
+				GL_TEXTURE_2D,
 				0,
 				advanceX,
-				advanceY,
-				m_face->glyph->bitmap.width,
+				0,
+				 m_face->glyph->bitmap.width,
 				m_face->glyph->bitmap.rows,
 				GL_RED,
 				GL_UNSIGNED_BYTE,
 				m_face->glyph->bitmap.buffer
 			);
 
-			advanceX = (advanceX + m_face->glyph->advance.x) % 1024;
-			if (advanceX >= 1024) advanceY += m_face->glyph->bitmap.rows;
+			// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+			advanceX += m_face->glyph->advance.x >> 6;  // bitshift by 6 to get value in pixels (2^6 = 64)
 		}
 
 		//GLuint buffID;

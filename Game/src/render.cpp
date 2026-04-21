@@ -33,11 +33,13 @@ int main()
     sptr<Geometry> cube     = std::make_shared<Geometry>(vertices, indices);
 
     sptr<Texture> diffuse   = std::make_shared<Texture>("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
-    sptr<Texture> specular  = std::make_shared<Texture>("res/textures/defaultSpecular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
+    sptr<Texture> specular  = std::make_shared<Texture>("res/textures/defaultSpecular.png", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
     sptr<Texture> normal    = std::make_shared<Texture>("res/textures/defaultNormal.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
+    FTFontFace fontFace("res/fonts/arial.ttf");
 
+    sptr<Texture> font = std::make_shared<Texture>(fontFace.GetTextureObject(), TextureMaterialType::DIFFUSE);
     std::vector<sptr<Texture>> textures;
-    textures.push_back(diffuse);
+    textures.push_back(font);
     textures.push_back(specular);
     textures.push_back(normal);
 
@@ -100,12 +102,12 @@ int main()
     GeometryPass geoPass(geometryProgram, camera.get());
     LightPass lightPass(lightProgram, lights, camera.get());
 
+
     viewport.AddPass(&geoPass);
     viewport.AddPass(&lightPass);
     float fact = 1.0f;
     float inf = 0.0f;
 
-    FTFontFace fontFace("res/fonts/Roboto-Medium.ttf");
 
     while (window.IsOpen())
     {
