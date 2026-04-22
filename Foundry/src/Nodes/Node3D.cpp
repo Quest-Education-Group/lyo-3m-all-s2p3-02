@@ -24,13 +24,16 @@ void Node3D::OnUpdate(double delta)
 	m_transform.Update();
 	UpdateWorldTransform();
 	UpdateLocalTransform();
+	m_prevPosition = m_transform.GetPosition();
 }
 
 void Node3D::Reparent(Node& newParent, bool keepGlobalTransform)
 {
+	glm::vec3 prevWorldPos = GetWorldPosition();
 	Node::Reparent(newParent, keepGlobalTransform);
 	m_worldDirty = true;
-
+	if(keepGlobalTransform)
+		SetWorldPosition(prevWorldPos);
 }
 
 void Node3D::CheckParentTransform()

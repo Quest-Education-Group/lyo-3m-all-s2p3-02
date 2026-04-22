@@ -58,6 +58,7 @@ void NodeRigidBody::OnUpdate(double delta)
 	if (m_pRigidBodyRP3D->isActive() == false) return;
 
 	Node3D* parent = static_cast<Node3D*>(m_pNode3DParent);
+	if (parent == nullptr) return;
 
 	if (m_pRigidBodyRP3D->getType() == rp3d::BodyType::DYNAMIC && !parent->IsPrioOverRigidBody())
 	{
@@ -80,9 +81,9 @@ void NodeRigidBody::OnUpdate(double delta)
 		}
 		else if (test)
 		{
-			SetIsPrioOverRigidBody(false);
 			test = false;
 		}
+			SetIsPrioOverRigidBody(false);
 		return;
 	}
 }

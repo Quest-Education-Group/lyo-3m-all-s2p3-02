@@ -19,6 +19,22 @@ function self:Interact()
     if not oBase or not oBase:Is(NodeTypes.NODE_RIGIDBODY) then return end
     oBase:Interaction()
 end
+--Function to implement in the parent script
+function self:GravityGunInteraction()
+    if not oBase or not oBase:Is(NodeTypes.NODE_RIGIDBODY) then return end
+    print("Name oBase : "..oBase:GetName())
+    oBase:GravityGunUse()
+end
+function self.GravityGunGrabb()
+    if not oBase or not oBase:Is(NodeTypes.NODE_RIGIDBODY) then return end
+    print("GravityGunGrabb | oBase : "..oBase:GetName())
+    oBase:GravityGunGrabb()
+end
+function self.GravityGunThrow()
+    if not oBase or not oBase:Is(NodeTypes.NODE_RIGIDBODY) then return end
+    print("GravityGunThrow |  oBase : "..oBase:GetName())
+    oBase:GravityGunThrow()
+end
 
 --Return the prompt to show when the raycast point to the node
 function self:GetPrompt()

@@ -7,7 +7,7 @@ local iJumpForce
 local oRB
 
 -- ─── Gravité custom ───────────────────────────────────────────────────────────
-local GRAVITY_UP      = -450.0   -- montée légère
+local GRAVITY_UP      = -450.0   -- montée légère (saut)
 local GRAVITY_DOWN    = -650.0   -- descente rapide
 local GRAVITY_FALLING = -950.0   -- chute libre sans avoir sauté
 
@@ -16,7 +16,7 @@ local bIsGrounded     = true
 local bIsMoving       = false
 local bJumpedThisFrame = false
 
-local GROUNDED_GRACE   = 0.2 -- secondes avant de considérer qu'on a quitté le sol
+local GROUNDED_GRACE   = 0.2 
 local fGroundedTimer   = GROUNDED_GRACE
 
 -- Coyote time
@@ -45,8 +45,7 @@ self.MoveBackward = function(icBackward)
     -- print("BACKARD")
     if not oRB then return end
     bIsMoving = true
-    -- oRB:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, 0, iMoveSpeed))
-    oRB:SetLocalPosition(fmath.vec3:new(-5,2,5))
+    oRB:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, 0, iMoveSpeed))
 end
 
 self.MoveLeft = function(icLeft)
@@ -63,6 +62,14 @@ self.MoveRight = function(icRight)
     bIsMoving = true
     oRB:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(iMoveSpeed, 0, 0))
 end
+self.DebugPos = function(icA)
+    -- print("RIGHT")
+    -- print("Forces : {".. oRB:GetTotalForce().x .. ", ".. oRB:GetTotalForce().y .. ", ".. oRB:GetTotalForce().z .. "}")
+    if not oRB then return end
+    if icA:IsPressed() then
+    oRB:SetLocalPosition(fmath.vec3:new(-5,2,5))
+    end
+end
 
 -- ─── Saut ─────────────────────────────────────────────────────────────────────
 
@@ -77,7 +84,8 @@ local function _TryJump()
     if fJumpBufferTimer > 0 then
         local vel = oRB:GetLinearVelocity()
         oRB:SetLinearVelocity(fmath.vec3:new(vel.x, 0, vel.z))
-        oRB:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, iJumpForce * oRB.gravity, 0))
+        oRB:SetAngularVelocity(fmath.vec3:new(0, 0, 0))
+        oRB:ApplyLocalForceAtCenterOfMass(fmath.vec3:new(0, iJumpForce, 0))
 
         fJumpBufferTimer = 0
         fCoyoteTimer     = 0
