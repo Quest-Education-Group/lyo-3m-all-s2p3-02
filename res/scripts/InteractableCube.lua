@@ -1,7 +1,7 @@
 -- Interaction behaviour
 
----@class noderigidbody
-self = self
+-- ---@class noderigidbody
+-- self = self
 
 local oPlayer
 local oRoot
@@ -12,21 +12,29 @@ function self:Interaction()
 
 end
 
-function self:GravityGunGrabb()
+function self.GetGrabbed()
     print("GRABB OBJ")
     oPlayer = oRoot:FindChild("Player"):As(NodeTypes.NODE_RIGIDBODY)
     if not oPlayer then
         print("--- Interactable Obj does not have a ref to Player --- ")
         return
     else
-        print("Player found, adding child ->")
+        print("Player found, adding child To -> ")
     end
-    print("P_Name :" .. oPlayer:GetName())
+    print("Player_Name :" .. oPlayer:GetName())
 
     self:Reparent(oPlayer, true)
+    self:SetBodyType(1)
     oPlayer.bIsHoldingObject = 1
     oPlayer.refHeldObject = self
-    print("Name sphere = " .. self:GetName())
+    print("\nName sphere = " .. self:GetName())
+    print("++++++++++++++")
+    print("Name RefHeldObj = " .. oPlayer.refHeldObject:GetName())
+    local vec = oPlayer.refHeldObject:GetPosition()
+    local vec2 = oPlayer.refHeldObject:GetWorldPosition()
+    print(oPlayer.refHeldObject:GetName() .. " LOCAL POS : {" .. vec.x .. ", " .. vec.y .. ", " .. vec.z .. "}")
+    print(oPlayer.refHeldObject:GetName() .. " WORLD POS : {" .. vec2.x .. ", " .. vec2.y .. ", " .. vec2.z .. "}")
+    print("++++++++++++++")
 
     -- local vec = self:GetPosition()
     -- print("pos before sphere : {" .. vec.x .. ", " .. vec.y .. ", " .. vec.z .. "}")
@@ -36,7 +44,7 @@ function self:GravityGunGrabb()
     bIsEquipped = true
 end
 
-function self:GravityGunThrow()
+function self.GetThrown()
     oPlayer = oRoot:FindChild("Player"):As(NodeTypes.NODE_RIGIDBODY)
     print("THROW OBJ")
     if not oPlayer then
@@ -46,11 +54,24 @@ function self:GravityGunThrow()
         print("Player found, adding child ->")
     end
     print("P_Name :" .. oPlayer:GetName())
-
+    local curPos = self:GetWorldPosition()
     self:Reparent(oRoot, true)
+    print("\nRESETING POS AFTER REPARENT TO : {" .. curPos.x .. ", " .. curPos.y .. ", " .. curPos.z .. "}")
+    self:SetWorldPosition(curPos)
+    self:SetBodyType(2)
+    self:SetIsGravityEnabled(true)
+
+    print("Name sphere = " .. self:GetName())
+    print("****************************")
+    print("Name RefHeldObj = " .. oPlayer.refHeldObject:GetName())
+    local vec = oPlayer.refHeldObject:GetPosition()
+    local vec2 = oPlayer.refHeldObject:GetWorldPosition()
+    print(oPlayer.refHeldObject:GetName() .. " LOCAL POS : {" .. vec.x .. ", " .. vec.y .. ", " .. vec.z .. "}")
+    print(oPlayer.refHeldObject:GetName() .. " WORLD POS : {" .. vec2.x .. ", " .. vec2.y .. ", " .. vec2.z .. "}")
+    print("****************************")
+    print("||")
     oPlayer.bIsHoldingObject = 0
     oPlayer.refHeldObject = nil
-    print("Name sphere = " .. self:GetName())
     -- local vec = self:GetPosition()
     -- print("pos before sphere : {" .. vec.x .. ", " .. vec.y .. ", " .. vec.z .. "}")
     -- local vec2 = self:GetPosition()
@@ -59,49 +80,46 @@ function self:GravityGunThrow()
     bIsEquipped = false
 end
 
+function CheckParent(node)
+
+    return 
+end
+
 function OnInit()
 
     self:SetBodyType(2)
 
-    self:SetIsGravityEnabled(false)
-    oRoot = self:GetParent();
+    self:SetIsGravityEnabled(true)
+    oRoot = self:GetParent()
+    while oRoot:GetName() ~= "SceneRoot" do
+    oRoot = oRoot:GetParent()
+end
+    print("=== INIT INTERCACTABLE CUBE, parent is : ".. oRoot:GetName())
+
     -- oPlayer = oRoot:FindChild("Player"):As(NodeTypes.NODE_RIGIDBODY)
-    if not oPlayer then
-        print("--- Interactable Obj did not find Player ref --- ")
-    else
-        print("--- Interactable Obj found Player ref successfully --- ")
-    end
+    -- if not oPlayer then
+    --     print("--- Interactable Obj did not find Player ref --- ")
+    -- else
+    --     print("--- Interactable Obj found Player ref successfully --- ")
+    -- end
 end
 
+local count = 0
 local i = 0
 function OnUpdate(dt)
-    -- if bA then
-    --     oPlayer = self:GetParent():GetParent():FindChild("Player"):As(NodeTypes.NODE_RIGIDBODY)
-    --     bA = false
-    -- end
-    --     if bB and i>3 then
-    --         -- self:SetBodyType(1)
-    --         bA = !bA
-    --         i = i + 1
-    --     else
-    --         bB = !bB
-    --     end 
-    --     end
-    -- self:SetIsGravityEnabled(true)
-    -- local vec = self:GetTotalForce()
-    -- local vecP = oPlayer:GetTotalForce()
-    -- print(self:GetName().." Forces : {" .. vec.x .. ", ".. vec.y .. ", ".. vec.z .. "}")
-    -- print(oPlayer:GetName().." LOCAL POS : {" .. vecP.x .. ", ".. vecP.y .. ", ".. vecP.z .. "}")
-    -- local vec = self:GetWorldPosition()
-    -- local vecP = oPlayer:GetPosition()
-    -- print(self:GetName().." LOCAL POS : {" .. vec.x .. ", ".. vec.y .. ", ".. vec.z .. "}")
-    -- print(oPlayer:GetName().." LOCAL POS : {" .. vecP.x .. ", ".. vecP.y .. ", ".. vecP.z .. "}")
-    -- local res = vecP - vec
-    -- print("        DIFF POS : {" .. res.x .. ", ".. res.y .. ", ".. res.z .. "}")
-    -- print("___________________")
-    -- print("pos sphere : {" .. vec.x .. ", ".. vec.y .. ", ".. vec.z .. "}")
+
+        -- DEBUG Pos toutes les 4000 frames
+    -- count = count + 1
+    -- if count > 4000 then
+    --     print( "======")
+    --         local vec = self:GetPosition()
     -- local vec2 = self:GetWorldPosition()
-    -- print("WORLD POS sphere : {" .. vec2.x .. ", ".. vec2.y .. ", ".. vec2.z .. "}")
+    --     print(self:GetName() .. " LOCAL POS : {" .. vec.x .. ", " .. vec.y .. ", " .. vec.z .. "}")
+    --     print(self:GetName() .. " WORLD POS : {" .. vec2.x .. ", " .. vec2.y .. ", " .. vec2.z .. "}")
+    --     print( "======")
+    --     -- print("Player Forward : {"..self:GetLocalForward().x..";"..self:GetLocalForward().y..";"..self:GetLocalForward().z.."}")
+    --     count = 0
+    -- end
 end
 
 function OnDestroy() end

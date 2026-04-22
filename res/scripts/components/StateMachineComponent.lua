@@ -81,8 +81,13 @@ function _RegisterPlayerStates()
     })
 
     RegisterState("RUN", {
-        OnEnter  = function() print("-> RUN") end,
+        OnEnter  = function() print("-> RUN")
+            -- oPlayer:SetLinearDamping(0)
+         end,
         OnUpdate = function(dt) end,
+        OnExit   = function() print("RUN ->")
+            -- oPlayer:SetLinearDamping(1)
+         end,        
     })
 
     RegisterState("JUMP", {

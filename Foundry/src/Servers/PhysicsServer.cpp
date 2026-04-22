@@ -66,7 +66,7 @@ void PhysicsServer::Initialize() // ajouter tous les params ?
 	settings.defaultSleepLinearVelocity = 0.02;             // Default is 0.02
 	settings.defaultSleepAngularVelocity = 3.0 * pi / 180;  // Default is 3.0 * (PI / 180.0)
 	settings.restitutionVelocityThreshold = 0.5;            // Default is 0.5
-	settings.defaultFrictionCoefficient = 0.3;              // Default is 0.3
+	settings.defaultFrictionCoefficient = 0.6;              // Default is 0.3
 	settings.defaultBounciness = 0.0f;                      // Default is 0.5f
 	settings.persistentContactDistanceThreshold = 0.03;     // Default is 0.03
 

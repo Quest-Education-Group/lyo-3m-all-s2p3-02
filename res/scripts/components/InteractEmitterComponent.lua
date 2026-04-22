@@ -22,6 +22,7 @@ local function CheckInteraction(origin, forward, distance)
     if not pEmitter then print("No emitter found with name 'Player'") return end
     vecForward = pEmitter:GetLocalForward()
     vecForward.z = vecForward.z * -1
+    vecForward.x = vecForward.x * pEmitter.gravity
    
     local oHit = physics.Raycast(origin or pEmitter.Pos, forward or vecForward, distance or iMaxDistance)
     
@@ -152,24 +153,26 @@ bUsingGGun = true
         print("*******  STARTING Interaction  *******")
         
         print("Player name : "..oPlayer:GetName())
-        print("Player pos : {"..oPlayer:GetWorldPosition().x..", "..oPlayer:GetWorldPosition().y..", "..oPlayer:GetWorldPosition().z.."}")
+        print("Player World pos : {"..oPlayer:GetWorldPosition().x..", "..oPlayer:GetWorldPosition().y..", "..oPlayer:GetWorldPosition().z.."}")
+        print("Player Local pos : {" ..oPlayer:GetPosition().x .. ", " .. oPlayer:GetPosition().y .. ", " .. oPlayer:GetPosition().z .. "}")
         print("Player pos TEST : {"..oPlayer.Pos.x..", "..oPlayer.Pos.y..", "..oPlayer.Pos.z.."}")
         -- if oPlayer.refHeldObject then
         -- print("Player is hodling obj with name : "..oPlayer.refHeldObject:GetName())
         -- else
         -- print("Player is hodling obj with name : NONE")
         -- end
-
         print("____ TRY  GRABB _____")
         if oPlayer.refHeldObject == nil then
             CheckInteraction(_, _, 15)
+        else
+            oCurrentEntity = oPlayer.refHeldObject            
         end
-            
+        
         if not oCurrentEntity then
-                print("No grabbable in sight")
-                return
-            end
-
+            print("No grabbable in sight")
+            return
+        end
+        
         oCompContainer = oCurrentEntity:FindChild("components")
         oIrcomp = oCompContainer:FindChild("InteractReceiverComponent")
 
@@ -178,12 +181,13 @@ bUsingGGun = true
             if oPlayer.bIsHoldingObject == 0 then
                 oIrcomp:GravityGunGrabb()
             else
-                oPlayer.refHeldObject:GravityGunThrow()
-                -- oIrcomp:GravityGunThrow()
+                oIrcomp:GravityGunThrow()
             end
         end
         print("Player name : " .. oPlayer:GetName())
-        print("Player pos : {" ..oPlayer:GetPosition().x .. ", " .. oPlayer:GetPosition().y .. ", " .. oPlayer:GetPosition().z .. "}")
+        print("Player World pos : {"..oPlayer:GetWorldPosition().x..", "..oPlayer:GetWorldPosition().y..", "..oPlayer:GetWorldPosition().z.."}")
+        print("Player Local pos : {" ..oPlayer:GetPosition().x .. ", " .. oPlayer:GetPosition().y .. ", " .. oPlayer:GetPosition().z .. "}")        
+        print("Player pos TEST : {"..oPlayer.Pos.x..", "..oPlayer.Pos.y..", "..oPlayer.Pos.z.."}")
         print("*******  ENDING Interaction  *******")
         print("")
 
@@ -193,8 +197,12 @@ end
 function self:Setup(pNewEmitter, iNewMaxDistance)
     pEmitter = pNewEmitter
     iMaxDistance = iNewMaxDistance
-    pRootNode = self:GetParent():GetParent():GetParent()
-    -- timer.Create("RaycastDelay", 1, 0, CheckInteraction)
+    -- pRootNode = self:GetParent():GetParent():GetParent()
+    pRootNode = self:GetParent()
+    while pRootNode:GetName() ~= "SceneRoot" do
+        pRootNode = pRootNode:GetParent()
+    end
+    timer.Create("RaycastDelay", 0.4, 0, CheckInteraction)
 end
 
 function OnInit() end
