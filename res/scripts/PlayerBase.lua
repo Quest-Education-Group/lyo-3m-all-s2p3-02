@@ -191,6 +191,7 @@ function OnUpdate(dt)
         oStateMachineComponent:OnUpdate(dt)
     end
     OnPhysicsUpdate(dt)
+    self.Pos = self:GetPosition()
 
     
     -- DEBUG Pos toutes les 4000 frames
