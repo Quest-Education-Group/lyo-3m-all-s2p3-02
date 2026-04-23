@@ -1,10 +1,28 @@
 local audioEm
 local audioEm2
 local audioListen
+local acmPlayer
 
 --local mixer
 local music
 local sfx
+
+local function InitializeActionMap()
+    acmPlayer = actionmap:new("PLAYER")
+    acmPlayer:CreateAction("VOLUME_UP", 1, EventInput.KEY_W)
+    acmPlayer:CreateAction("VOLUME_DOWN", 1, EventInput.KEY_X)
+end
+
+local function BindActions()
+    if audioserver then
+       acmPlayer:GetAction("VOLUME_UP").Event     = audioserver:SetMasterVolume(1.0) or
+           function() print("PlayerBase: VOLUME_UP callback missing") end
+       acmPlayer:GetAction("VOLUME_DOWN").Event   = audioserver:SetMasterVolume(0.01) or
+           function() print("PlayerBase: VOLUME_DOWN callback missing") end
+    else
+        print("PlayerBase: audioserver missing")
+	end
+end
 
 function OnInit()
 	--- Audio Server ---
@@ -46,7 +64,10 @@ function OnInit()
 	print("listener x:".. tostring(audioListen:GetListenerPosition().x));
 
 	-- ACTIONS
+	InitializeActionMap()
+    BindActions()
 
+	audioserver.SetMasterVolume(1)
 	--mixer:Shutdown();
 end
 
