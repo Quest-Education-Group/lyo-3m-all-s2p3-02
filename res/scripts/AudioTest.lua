@@ -1,40 +1,11 @@
 local audioEm
 local audioEm2
 local audioListen
-local acmPlayer
+local acmAudio
 
 --local mixer
 local music
 local sfx
-
-local function InitializeActionMap()
-    acmPlayer = actionmap:new("PLAYER")
-    acmPlayer:CreateAction("VOLUME_UP", 1, EventInput.KEY_W)
-    acmPlayer:CreateAction("VOLUME_DOWN", 1, EventInput.KEY_X)
-end
-
-self.AddVolume = function(icX)
-    if icX:IsPressed() then
-        audioserver.SetMasterVolume(1)
-    end
-end
-
-self.DownVolume = function(icW)
-    if icW:IsPressed() then
-        audioserver.SetMasterVolume(0)
-    end
-end
-
-local function BindActions()
-    if audioserver then
-       acmPlayer:GetAction("VOLUME_UP").Event     = self.AddVolume or
-           function() print("PlayerBase: VOLUME_UP callback missing") end
-       acmPlayer:GetAction("VOLUME_DOWN").Event   = self.DownVolume or
-           function() print("PlayerBase: VOLUME_DOWN callback missing") end
-    else
-        print("PlayerBase: audioserver missing")
-	end
-end
 
 function OnInit()
 	print("audio init !");
@@ -59,7 +30,7 @@ function OnInit()
 	audioEm2:SetSourcePosition(v); --allways after load
 
 	--audioEm->SetLoop(true);
-	audioEm2:SetLoop(true);
+	--audioEm2:SetLoop(true);
 
 	audioEm:Play();
 	audioEm2:Play();
@@ -74,8 +45,8 @@ function OnInit()
 	print("listener x:".. tostring(audioListen:GetListenerPosition().x));
 
 	-- ACTIONS
-	InitializeActionMap()
-    BindActions()
+
+	audioserver.SetMasterVolume(0.5)
 end
 
 function OnUpdate(dt) end
