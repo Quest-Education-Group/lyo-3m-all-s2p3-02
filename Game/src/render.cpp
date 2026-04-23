@@ -7,13 +7,17 @@
 #include "Logger.hpp"
 #include "Program.h"
 #include "Shader.h"
+#include "Passes/UIPass.h"
+#include "UIElements/Image.h"
+#include "UIElements/FTFontFace.h"
+#include "UIElements/Text.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace Ore;
 int main()
 {
-    Window window(1920, 1080, "ORE ORE OREORE ORE ORE OREORE OREORE", false, true);
+    Window window(1920, 1080, "HELLO", false, true);
     window.Open();
     Viewport viewport(0, 0, 1920, 1080, Color::SKY_BLUE);
     window.AddViewport(viewport);
@@ -22,7 +26,8 @@ int main()
     vertices.push_back({ glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f) });
     vertices.push_back({ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f) });
     vertices.push_back({ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f) });
-    vertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f) });
+    vertices.push_back({
+        glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f) });
 
     std::vector<uint32> indices = {
         0,1,2,
@@ -32,11 +37,15 @@ int main()
     sptr<Geometry> cube     = std::make_shared<Geometry>(vertices, indices);
 
     sptr<Texture> diffuse   = std::make_shared<Texture>("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
-    sptr<Texture> specular  = std::make_shared<Texture>("res/textures/defaultSpecular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
+    sptr<Texture> specular  = std::make_shared<Texture>("res/textures/defaultSpecular.png", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
     sptr<Texture> normal    = std::make_shared<Texture>("res/textures/defaultNormal.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
+    FTFontFace fontFace("res/fonts/Roboto-Medium.ttf", 50);
 
+    sptr<Texture> ui        = std::make_shared<Texture>("res/textures/bib.png", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
+
+    sptr<Texture> font = std::make_shared<Texture>(fontFace.GetTextureObject(), TextureMaterialType::DIFFUSE);
     std::vector<sptr<Texture>> textures;
-    textures.push_back(diffuse);
+    textures.push_back(font);
     textures.push_back(specular);
     textures.push_back(normal);
 
@@ -66,6 +75,7 @@ int main()
 
     Program geometryProgram;
     Program lightProgram;
+    Program UIProgram;
 
     Shader geoFrag(ShaderType::TYPE_FRAGMENT);
     geoFrag.Load("res/shaders/GBuffer.frag");
@@ -96,13 +106,49 @@ int main()
     lightProgram.SetUniform("gNormal", 1);
     lightProgram.SetUniform("gAlbedoSpec", 2);
 
+    Shader uiFrag(ShaderType::TYPE_FRAGMENT);
+    uiFrag.Load("res/shaders/UIPass.frag");
+    Shader uiVert(ShaderType::TYPE_VERTEX);
+    uiVert.Load("res/shaders/UIPass.vert");
+
+    UIProgram.AddShader(uiFrag);
+    UIProgram.AddShader(uiVert);
+    UIProgram.Load();
+
+    uiFrag.Unload();
+    uiVert.Unload();  
+
+
     GeometryPass geoPass(geometryProgram, camera.get());
     LightPass lightPass(lightProgram, lights, camera.get());
+    UIPass uiPass(UIProgram, camera.get());
+
 
     viewport.AddPass(&geoPass);
     viewport.AddPass(&lightPass);
-    float fact = 1.0f;
-    float inf = 0.0f;
+    viewport.AddPass(&uiPass);
+
+    //Image image(10, 100, 1000, 1000, diffuse);
+    Image image1(0, 0, 100, 100, diffuse);
+    Image image2(10, 1, 100, 100, ui);
+    Image image3(1, 10, 100, 100, ui);
+
+    sptr<FontFace> roboto = std::make_shared<FTFontFace>("res/fonts/FuzzyBubbles-Bold.ttf", 50);
+    Text text("The Quick Brown fox jumps over the lazy dog", roboto); 
+    text.x = 20;
+    text.y = 399;
+    text.width = 50;
+    text.height = 50;
+    text.scale = 1.0f;
+
+    sptr<FontFace> roboto2 = std::make_shared<FTFontFace>("res/fonts/Roboto-Medium.ttf", 18);
+    Text text2("Petit text", roboto2);
+    text2.x = 200;
+    text2.y = 500;
+    text2.width = 50;
+    text2.height = 50;
+    text2.scale = 1.0f;
+    text2.color = Color{0.0f, 1.0f, 0.0f, 1.0f};
 
     while (window.IsOpen())
     {
@@ -119,6 +165,12 @@ int main()
 
         //geoPass.AddMesh(mesh);
         geoPass.AddMesh(mesh);
+        //uiPass.AddUIElement(image);
+        //uiPass.AddUIElement(image1);
+        //uiPass.AddUIElement(image2);
+        //uiPass.AddUIElement(image3);
+        uiPass.AddUIElement(text2);
+        uiPass.AddUIElement(text);
         viewport.Present();
         window.Present();
     }
