@@ -68,12 +68,13 @@ void LightPass::Execute()
     glActiveTexture(GL_TEXTURE2);
     m_pGAlbedoSpec->Bind();
 
+    m_program.SetUniform("nbLights", static_cast<int32>(m_lights.size()));
     for (uint32 i = 0; i < m_lights.size(); ++i)
     {
         std::string const indexStr = std::to_string(i);
         Light& light = m_lights[i];
 
-        m_program.SetUniform("lights[" + indexStr + "].Position", light.position);
+        m_program.SetUniform("lights[" + indexStr + "].Direction", light.position);
         m_program.SetUniform("lights[" + indexStr + "].Color", glm::vec3{ light.color.r, light.color.g, light.color.b });
 
         m_program.SetUniform("lights[" + indexStr + "].Linear", light.linear);

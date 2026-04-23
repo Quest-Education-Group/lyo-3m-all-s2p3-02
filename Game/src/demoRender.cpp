@@ -22,40 +22,57 @@ enum class GeoType
 
 sptr<Ore::Geometry> GenerateCube()
 {
-    Ore::Vertex vertices[8] = 
-    {
-        {glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-        {glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-        {glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-        {glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+    float hx = 0.5f;
+    float hy = 0.5f;
+    float hz = 0.5f;
 
-        {glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-        {glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-        {glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-        {glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-    };
-    std::vector<uint32> indices = 
-    {
-        // front
-		0, 1, 2,
-		2, 3, 0,
-		// right
-		1, 5, 6,
-		6, 2, 1,
-		// back
-		7, 6, 5,
-		5, 4, 7,
-		// left
-		4, 0, 3,
-		3, 7, 4,
-		// bottom
-		4, 5, 1,
-		1, 0, 4,
-		// top
-		3, 2, 6,
-		6, 7, 3
-    };
+    std::vector<Ore::Vertex> vertices;
+    vertices.push_back({ { hx, -hy, -hz }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { hx,  hy, -hz }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ { hx,  hy,  hz }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ { hx, -hy,  hz }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } });
 
+	// -X
+	vertices.push_back({ { -hx, -hy,  hz }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { -hx,  hy,  hz }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ { -hx,  hy, -hz }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ { -hx, -hy, -hz }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } });
+
+	// +Y
+	vertices.push_back({ { -hx,  hy, -hz }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { -hx,  hy,  hz }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ {  hx,  hy,  hz }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ {  hx,  hy, -hz }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } });
+
+	// -Y
+	vertices.push_back({ { -hx, -hy,  hz }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { -hx, -hy, -hz }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ {  hx, -hy, -hz }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ {  hx, -hy,  hz }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } });
+
+	// +Z
+	vertices.push_back({ { -hx, -hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ {  hx, -hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } });
+	vertices.push_back({ {  hx,  hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ { -hx,  hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } });
+
+	// -Z
+	vertices.push_back({ {  hx, -hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { -hx, -hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } });
+	vertices.push_back({ { -hx,  hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ {  hx,  hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } });
+
+    std::vector<uint32> indices;
+    for (uint32 face = 0; face < 6; ++face)
+    {
+        const uint32 base = face * 4;
+        indices.push_back(base + 0);
+        indices.push_back(base + 1);
+        indices.push_back(base + 2);
+        indices.push_back(base + 0);
+        indices.push_back(base + 2);
+        indices.push_back(base + 3);
+    }
     sptr<Ore::Geometry> geo = make_shared<Ore::Geometry>(vertices, indices);
 
     return geo;
@@ -65,10 +82,10 @@ sptr<Ore::Geometry> GeneratePlane()
 {
     std::vector<Ore::Vertex> vertices = 
     {
-        {glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-        {glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-        {glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-        {glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}
+        {glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+        {glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+        {glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+        {glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)}
     };
 
     std::vector<uint32> indices = 
@@ -152,13 +169,13 @@ int main()
     leftLight.linear        = 0.2f;
     leftLight.quadratic     = 0.8f;
     leftLight.constant      = 0.0f;
-    leftLight.position      = {0.0f, 0.0f, 1.f};
+    leftLight.position      = {0.0f, 0.0f, -1.0f, 0.0f};
     
     Ore::Light rightLight;
     rightLight.linear       = 0.2f;
     rightLight.quadratic    = 0.8f;
     rightLight.constant     = 0.0f;
-    rightLight.position     = {0.0f, 0.0f, 1.f};
+    //rightLight.position     = {0.0f, 0.0f, 1.f};
     
     std::vector<Ore::Light> lights = {leftLight};
     

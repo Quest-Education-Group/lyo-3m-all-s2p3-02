@@ -14,7 +14,7 @@ using LightSpan =  std::span<struct Light>;
 
 struct Light
 {
-    glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
+    glm::vec4 position = glm::vec4(0.0f, 0.0f, 2.0f, 1.0f);
     
     float constant = 1.0f;
     float linear = 0.7f;
