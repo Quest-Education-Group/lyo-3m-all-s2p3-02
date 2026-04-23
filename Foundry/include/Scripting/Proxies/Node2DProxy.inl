@@ -48,18 +48,18 @@ BindProxy(Node2D::Proxy,
 		sol::meta_function::new_index, StoreUserData(),
 		sol::meta_function::index, LoadUserData(),
 		"SetScale", OVERLOAD(Proxy, void, glm::vec2 const&)(BIND(SetScale)),
-		"SetScale", OVERLOAD(Proxy, void, float, float)(BIND(SetScale)),
+		//"SetScale", OVERLOAD(Proxy, void, float, float)(BIND(SetScale)),
 		"GetScale", BIND(GetScale),
 
 		"SetRotation", BIND(SetRotation),
 		"GetRotation", BIND(GetRotation),
 
 		"SetPosition", OVERLOAD(Proxy, void, glm::vec2 const&)(BIND(SetPosition)),
-		"SetPosition", OVERLOAD(Proxy, void, float, float)(BIND(SetPosition)),
+		//"SetPosition", OVERLOAD(Proxy, void, float, float)(BIND(SetPosition)),
 		"GetPosition", BIND(GetPosition),
 
 		"SetShearing", OVERLOAD(Proxy, void, glm::vec2 const&)(BIND(SetShearing)),
-		"SetShearing", OVERLOAD(Proxy, void, float x, float y)(BIND(SetShearing)),
+		//"SetShearing", OVERLOAD(Proxy, void, float x, float y)(BIND(SetShearing)),
 		"GetShearing", BIND(GetScale),
 
 		"SetMirroringOnAxis", BIND(SetMirroringOnAxis),
@@ -68,9 +68,9 @@ BindProxy(Node2D::Proxy,
 		"IsStatic", BIND(IsStatic),
 
 		"SetWorldScale", OVERLOAD(Proxy, void, glm::vec3 const&)(BIND(SetWorldScale)),
-		"SetWorldScale", OVERLOAD(Proxy, void, float, float, float)(BIND(SetWorldScale)),
+		//"SetWorldScale", OVERLOAD(Proxy, void, float, float, float)(BIND(SetWorldScale)),
 		"SetWorldRotationAngle", BIND(SetWorldRotationAngle),
-		"SetWorldPosition", OVERLOAD(Proxy, void, glm::vec3 const&)(BIND(SetWorldPosition)),
-		"SetWorldPosition", OVERLOAD(Proxy, void, float, float, float)(BIND(SetWorldPosition))
+		"SetWorldPosition", OVERLOAD(Proxy, void, glm::vec3 const&)(BIND(SetWorldPosition))
+		//"SetWorldPosition", OVERLOAD(Proxy, void, float, float, float)(BIND(SetWorldPosition))
 	);
 );

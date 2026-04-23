@@ -10,22 +10,22 @@ public:
 	// =========== Forces and Torques ===========
 
 	void ApplyLocalForceAtCenterOfMass(const glm::vec3& force)								{ m_pNode->ApplyLocalForceAtCenterOfMass(force); }
-	void ApplyLocalForceAtCenterOfMass(float forceX, float forceY, float forceZ){ m_pNode->ApplyLocalForceAtCenterOfMass({forceX,forceY,forceZ}); }
+	//void ApplyLocalForceAtCenterOfMass(float forceX, float forceY, float forceZ){ m_pNode->ApplyLocalForceAtCenterOfMass({forceX,forceY,forceZ}); }
 
 	void ApplyLocalForceAtLocalPosition(const glm::vec3& force, const glm::vec3& point) { m_pNode->ApplyLocalForceAtLocalPosition(force, point); }
-	void ApplyLocalForceAtLocalPosition(float forceX, float forceY, float forceZ, float pointX, float pointY, float pointZ) { m_pNode->ApplyLocalForceAtLocalPosition({ forceX, forceY, forceZ }, { pointX, pointY, pointZ }); }
+	//void ApplyLocalForceAtLocalPosition(float forceX, float forceY, float forceZ, float pointX, float pointY, float pointZ) { m_pNode->ApplyLocalForceAtLocalPosition({ forceX, forceY, forceZ }, { pointX, pointY, pointZ }); }
 
 	void ApplyLocalForceAtWorldPosition(const glm::vec3& force, const glm::vec3& point)		{ m_pNode->ApplyLocalForceAtWorldPosition(force, point); }
-	void ApplyLocalForceAtWorldPosition(float forceX, float forceY, float forceZ, float pointX, float pointY, float pointZ) { m_pNode->ApplyLocalForceAtWorldPosition({ forceX, forceY, forceZ }, { pointX, pointY, pointZ }); }
+	//void ApplyLocalForceAtWorldPosition(float forceX, float forceY, float forceZ, float pointX, float pointY, float pointZ) { m_pNode->ApplyLocalForceAtWorldPosition({ forceX, forceY, forceZ }, { pointX, pointY, pointZ }); }
 
 	void ApplyWorldForceAtCenterOfMass(const glm::vec3& force)								{ m_pNode->ApplyWorldForceAtCenterOfMass(force); }
-	void ApplyWorldForceAtCenterOfMass(float forceX, float forceY, float forceZ) { m_pNode->ApplyWorldForceAtCenterOfMass({ forceX,forceY,forceZ }); }
+	//void ApplyWorldForceAtCenterOfMass(float forceX, float forceY, float forceZ) { m_pNode->ApplyWorldForceAtCenterOfMass({ forceX,forceY,forceZ }); }
 
 	void ApplyWorldForceAtLocalPosition(const glm::vec3& force, const glm::vec3& point)		{ m_pNode->ApplyWorldForceAtLocalPosition(force, point); }
-	void ApplyWorldForceAtLocalPosition(float forceX, float forceY, float forceZ, float pointX, float pointY, float pointZ) { m_pNode->ApplyWorldForceAtLocalPosition({ forceX, forceY, forceZ }, { pointX, pointY, pointZ }); }
+	//void ApplyWorldForceAtLocalPosition(float forceX, float forceY, float forceZ, float pointX, float pointY, float pointZ) { m_pNode->ApplyWorldForceAtLocalPosition({ forceX, forceY, forceZ }, { pointX, pointY, pointZ }); }
 
 	void ApplyWorldForceAtWorldPosition(const glm::vec3& force, const glm::vec3& point)		{ m_pNode->ApplyWorldForceAtWorldPosition(force, point); }
-	void ApplyWorldForceAtWorldPosition(float forceX, float forceY, float forceZ, float pointX, float pointY, float pointZ) { m_pNode->ApplyWorldForceAtWorldPosition({ forceX, forceY, forceZ }, { pointX, pointY, pointZ }); }
+	//void ApplyWorldForceAtWorldPosition(float forceX, float forceY, float forceZ, float pointX, float pointY, float pointZ) { m_pNode->ApplyWorldForceAtWorldPosition({ forceX, forceY, forceZ }, { pointX, pointY, pointZ }); }
 
 	void ApplyLocalTorque(const glm::vec3& torque)											{ m_pNode->ApplyLocalTorque(torque); }
 	void ApplyLocalTorque(float torqueX, float torqueY, float torqueZ)						{ m_pNode->ApplyLocalTorque({ torqueX, torqueY, torqueZ }); }
@@ -75,12 +75,12 @@ public:
 	float GetMassDensity() const															{ return m_pNode->GetMassDensity(); }
 
 	// specific
-	void  SetBounciness(int colliderIndex, float bounciness)								{ m_pNode->SetBounciness(colliderIndex, bounciness); }
-	float GetBounciness(int colliderIndex) const											{ return m_pNode->GetBounciness(colliderIndex); }
-	void  SetFrictionCoefficient(int colliderIndex, float friction)							{ m_pNode->SetFrictionCoefficient(colliderIndex, friction); }
-	float GetFrictionCoefficient(int colliderIndex) const									{ return m_pNode->GetFrictionCoefficient(colliderIndex); }
-	void  SetMassDensity(int colliderIndex, float density)									{ m_pNode->SetMassDensity(colliderIndex, density); }
-	float GetMassDensity(int colliderIndex) const											{ return m_pNode->GetMassDensity(colliderIndex); }
+	//void  SetBounciness(int colliderIndex, float bounciness)								{ m_pNode->SetBounciness(colliderIndex, bounciness); }
+	//float GetBounciness(int colliderIndex) const											{ return m_pNode->GetBounciness(colliderIndex); }
+	//void  SetFrictionCoefficient(int colliderIndex, float friction)							{ m_pNode->SetFrictionCoefficient(colliderIndex, friction); }
+	//float GetFrictionCoefficient(int colliderIndex) const									{ return m_pNode->GetFrictionCoefficient(colliderIndex); }
+	//void  SetMassDensity(int colliderIndex, float density)									{ m_pNode->SetMassDensity(colliderIndex, density); }
+	//float GetMassDensity(int colliderIndex) const											{ return m_pNode->GetMassDensity(colliderIndex); }
 
 	// =========== Sleeping and Gravity ===========
 
@@ -110,21 +110,21 @@ struct NodeRigidBody::Proxy::ProxyBinding
 			sol::meta_function::new_index, StoreUserData(),
 			sol::meta_function::index, LoadUserData(),
 			"ApplyLocalForceAtCenterOfMass", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&)		(BIND(ApplyLocalForceAtCenterOfMass)),
-			"ApplyLocalForceAtCenterOfMass", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(ApplyLocalForceAtCenterOfMass)),
+			//"ApplyLocalForceAtCenterOfMass", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(ApplyLocalForceAtCenterOfMass)),
 			"ApplyLocalForceAtLocalPosition", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&, const glm::vec3&)		(BIND(ApplyLocalForceAtLocalPosition)),
-			"ApplyLocalForceAtLocalPosition", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float, float, float, float)		(BIND(ApplyLocalForceAtLocalPosition)),
+			//"ApplyLocalForceAtLocalPosition", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float, float, float, float)		(BIND(ApplyLocalForceAtLocalPosition)),
 			"ApplyLocalForceAtWorldPosition", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&, const glm::vec3&)		(BIND(ApplyLocalForceAtWorldPosition)),
-			"ApplyLocalForceAtWorldPosition", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float, float, float, float)		(BIND(ApplyLocalForceAtWorldPosition)),
+			//"ApplyLocalForceAtWorldPosition", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float, float, float, float)		(BIND(ApplyLocalForceAtWorldPosition)),
 			"ApplyWorldForceAtCenterOfMass", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&)		(BIND(ApplyWorldForceAtCenterOfMass)),
-			"ApplyWorldForceAtCenterOfMass", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(ApplyWorldForceAtCenterOfMass)),
+			//"ApplyWorldForceAtCenterOfMass", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(ApplyWorldForceAtCenterOfMass)),
 			"ApplyWorldForceAtLocalPosition", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&, const glm::vec3&)		(BIND(ApplyWorldForceAtLocalPosition)),
-			"ApplyWorldForceAtLocalPosition", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float, float, float, float)		(BIND(ApplyWorldForceAtLocalPosition)),
+			//"ApplyWorldForceAtLocalPosition", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float, float, float, float)		(BIND(ApplyWorldForceAtLocalPosition)),
 			"ApplyWorldForceAtWorldPosition", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&, const glm::vec3&)		(BIND(ApplyWorldForceAtWorldPosition)),
-			"ApplyWorldForceAtWorldPosition", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float, float, float, float)		(BIND(ApplyWorldForceAtWorldPosition)),
+			//"ApplyWorldForceAtWorldPosition", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float, float, float, float)		(BIND(ApplyWorldForceAtWorldPosition)),
 			"ApplyLocalTorque", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&)		(BIND(ApplyLocalTorque)),
-			"ApplyLocalTorque", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(ApplyLocalTorque)),
+			//"ApplyLocalTorque", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(ApplyLocalTorque)),
 			"ApplyWorldTorque", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&)		(BIND(ApplyWorldTorque)),
-			"ApplyWorldTorque", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(ApplyWorldTorque)),
+			//"ApplyWorldTorque", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(ApplyWorldTorque)),
 
 			"GetLinearVelocity", BIND(GetLinearVelocity),
 			"GetAngularVelocity", BIND(GetAngularVelocity),
@@ -133,9 +133,9 @@ struct NodeRigidBody::Proxy::ProxyBinding
 			"GetTotalForce", BIND(GetTotalForce),
 
 			"SetLinearVelocity", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&)		(BIND(SetLinearVelocity)),
-			"SetLinearVelocity", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(SetLinearVelocity)),
+			//"SetLinearVelocity", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(SetLinearVelocity)),
 			"SetAngularVelocity", OVERLOAD(NodeRigidBody::Proxy, void, const glm::vec3&)		(BIND(SetAngularVelocity)),
-			"SetAngularVelocity", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(SetAngularVelocity)),
+			//"SetAngularVelocity", OVERLOAD(NodeRigidBody::Proxy, void, float, float, float)		(BIND(SetAngularVelocity)),
 			"SetLinearDamping", BIND(SetLinearDamping),
 			"SetAngularDamping", BIND(SetAngularDamping),
 			"LockLinearAxis", BIND(LockLinearAxis),
@@ -155,12 +155,12 @@ struct NodeRigidBody::Proxy::ProxyBinding
 			"SetMassDensity", OVERLOAD(NodeRigidBody::Proxy, void, float)		(BIND(SetMassDensity)),
 			"GetMassDensity", OVERLOAD_CONST(NodeRigidBody::Proxy, float)			(BIND(GetMassDensity)),
 
-			"SetBounciness", OVERLOAD(NodeRigidBody::Proxy, void, int, float)	(BIND(SetBounciness)),
-			"GetBounciness", OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetBounciness)),
-			"SetFrictionCoefficient", OVERLOAD(NodeRigidBody::Proxy, void, int, float)	(BIND(SetFrictionCoefficient)),
-			"GetFrictionCoefficient", OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetFrictionCoefficient)),
-			"SetMassDensity", OVERLOAD(NodeRigidBody::Proxy, void, int, float)	(BIND(SetMassDensity)),
-			"GetMassDensity", OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetMassDensity)),
+			//"SetBounciness", OVERLOAD(NodeRigidBody::Proxy, void, int, float)	(BIND(SetBounciness)),
+			//"GetBounciness", OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetBounciness)),
+			//"SetFrictionCoefficient", OVERLOAD(NodeRigidBody::Proxy, void, int, float)	(BIND(SetFrictionCoefficient)),
+			//"GetFrictionCoefficient", OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetFrictionCoefficient)),
+			//"SetMassDensity", OVERLOAD(NodeRigidBody::Proxy, void, int, float)	(BIND(SetMassDensity)),
+			//"GetMassDensity", OVERLOAD_CONST(NodeRigidBody::Proxy, float, int)	(BIND(GetMassDensity)),
 
 			"IsSleeping", BIND(IsSleeping),
 			"IsAllowedToSleep", BIND(IsAllowedToSleep),
