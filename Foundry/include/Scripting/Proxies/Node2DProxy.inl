@@ -42,6 +42,9 @@ private:
 BindProxy(Node2D::Proxy,
 	binder.BindClass<Node2D::Proxy>("node2d",
 		sol::base_classes, sol::bases<Node::Proxy>(),
+		sol::meta_function::garbage_collect, BIND(GCNodeProxy),
+		sol::meta_function::new_index, StoreUserData(),
+		sol::meta_function::index, LoadUserData(),
 		"SetScale", OVERLOAD(Proxy, void, glm::vec2 const&)(BIND(SetScale)),
 		"SetScale", OVERLOAD(Proxy, void, float, float)(BIND(SetScale)),
 		"GetScale", BIND(GetScale),
@@ -66,5 +69,3 @@ BindProxy(Node2D::Proxy,
 		"SetWorldRotationAngle", BIND(SetWorldRotationAngle),
 		"SetWorldPosition", BIND(SetWorldPosition));
 );
-
-REGISTER_PROXY(Node2D::Proxy::ProxyBinding, Node2DProxy);

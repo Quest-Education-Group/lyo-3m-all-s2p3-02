@@ -1,4 +1,3 @@
-
 class NodeBoxCollider::Proxy : public NodeCollider::Proxy
 {
 public:
@@ -20,12 +19,12 @@ struct NodeBoxCollider::Proxy::ProxyBinding
 		binder.BindFunction("CreateNodeBoxCollider", &NodeBoxCollider::Proxy::CreateNodeBoxColliderProxy);
 		binder.BindClass<NodeBoxCollider::Proxy>("nodeboxcollider",
 			sol::base_classes, sol::bases<Node::Proxy, Node3D::Proxy, NodeCollider::Proxy>(),
+			sol::meta_function::garbage_collect, BIND(GCNodeProxy),
+			sol::meta_function::new_index, StoreUserData(),
+			sol::meta_function::index, LoadUserData(),
 			"SetShape", BIND(SetShape));
 	};
 };
-
-REGISTER_PROXY(NodeBoxCollider::Proxy::ProxyBinding, NodeBoxColliderProxy);
-
 
 class NodeSphereCollider::Proxy : public NodeCollider::Proxy
 {
@@ -48,11 +47,13 @@ struct NodeSphereCollider::Proxy::ProxyBinding
 		binder.BindFunction("CreateNodeSphereCollider", &NodeSphereCollider::Proxy::CreateNodeSphereColliderProxy);
 		binder.BindClass<NodeSphereCollider::Proxy>("nodespherecollider",
 			sol::base_classes, sol::bases<Node::Proxy, Node3D::Proxy, NodeCollider::Proxy>(),
+			sol::meta_function::garbage_collect, BIND(GCNodeProxy),
+			sol::meta_function::new_index, StoreUserData(),
+			sol::meta_function::index, LoadUserData(),
 			"SetShape", BIND(SetShape));
 	};
 };
 
-REGISTER_PROXY(NodeSphereCollider::Proxy::ProxyBinding, NodeSphereColliderProxy);
 
 
 class NodeCapsuleCollider::Proxy : public NodeCollider::Proxy
@@ -77,8 +78,9 @@ struct NodeCapsuleCollider::Proxy::ProxyBinding
 		binder.BindFunction("CreateNodeCapsuleCollider", &NodeCapsuleCollider::Proxy::CreateNodeCapsuleColliderProxy);
 		binder.BindClass<NodeCapsuleCollider::Proxy>("nodecapsulecollider",
 			sol::base_classes, sol::bases<Node::Proxy, Node3D::Proxy, NodeCollider::Proxy>(),
+			sol::meta_function::garbage_collect, BIND(GCNodeProxy),
+			sol::meta_function::new_index, StoreUserData(),
+			sol::meta_function::index, LoadUserData(),
 			"SetShape", BIND(SetShape));
 	};
 };
-
-REGISTER_PROXY(NodeCapsuleCollider::Proxy::ProxyBinding, NodeCapsuleColliderProxy);

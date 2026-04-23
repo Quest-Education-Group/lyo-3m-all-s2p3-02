@@ -10,6 +10,8 @@
 
 #include "Scripting/Lua/LuaScriptInstance.hpp"
 
+using namespace Ore;
+
 uptr<Node> LoadScene()
 {
     sptr<Texture> normal = std::make_shared<Texture>("res/textures/NormalMap.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
@@ -34,8 +36,8 @@ uptr<Node> LoadScene()
 	mesh->SetLocalX(2);
     //mesh->SetWorldPosition({ 2, 0, 0});
 
-    uptr<LuaScriptInstance> scriptNode3D = std::make_unique<LuaScriptInstance>("res/scripts/TestNode3D.lua");
-    Node::AttachScript(scriptNode3D, *mesh);
+    //uptr<LuaScriptInstance> scriptNode3D = std::make_unique<LuaScriptInstance>("res/scripts/TestNode3D.lua");
+    //Node::AttachScript(scriptNode3D, *mesh);
 
     //uptr<NodeMesh> mesh2 = Node::CreateNode<NodeMesh>("Cube2");
     //mesh2->AddTextures(normal, specular);

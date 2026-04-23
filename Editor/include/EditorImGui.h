@@ -5,6 +5,7 @@
 
 #include <imgui.h>
 #include <imfilebrowser.h>
+#include <imguiAssetBrowser.h>
 #include <string>
 #include <Define.h>
 #include <Serialization/SerializeObject.hpp>
@@ -58,6 +59,7 @@ public:
 
 	void ResetViewRoot();
 	void ResetSelectedNode();
+	void NotifyNodeWillBeDeleted(Node* pNode);
 
 	EditorCommand& GetCommand() { return m_command; }
 	void SetCommand(EditorCommand const& command) { m_command = command; }
@@ -122,6 +124,7 @@ private:
 	bool m_showLoadPopup = false;
 	ImGui::FileBrowser m_saveBrowser;
 	ImGui::FileBrowser m_loadBrowser;
+	ImGui::AssetBrowser m_assetBrowser;
 	int m_fileBrowsingSizeX = 800;
 	int m_fileBrowsingSizeY = 450;
 

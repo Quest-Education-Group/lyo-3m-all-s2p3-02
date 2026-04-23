@@ -1,4 +1,3 @@
-
 class NodeRigidBody::Proxy : public Node3D::Proxy
 {
 public:
@@ -79,6 +78,8 @@ public:
 	void SetSleepingState(bool isSleeping)													{ m_pNode->SetSleepingState(isSleeping); }
 	void SetIsGravityEnabled(bool enabled)													{ m_pNode->SetIsGravityEnabled(enabled); }
 
+	Node3D::Proxy* GetNode3DParent()														{ return static_cast<Node3D::Proxy*>(&m_pNode->GetNode3DParent()->GetNodeProxy()); };
+
 private:
 	NodeRigidBody* m_pNode;
 };
@@ -91,6 +92,9 @@ struct NodeRigidBody::Proxy::ProxyBinding
 		binder.BindFunction("CreateNodeRigidBody", &NodeRigidBody::Proxy::CreateNodeRigidBodyProxy);
 		binder.BindClass<NodeRigidBody::Proxy>("noderigidbody",
 			sol::base_classes, sol::bases<Node::Proxy, Node3D::Proxy>(),
+			sol::meta_function::garbage_collect, BIND(GCNodeProxy),
+			sol::meta_function::new_index, StoreUserData(),
+			sol::meta_function::index, LoadUserData(),
 			"ApplyLocalForceAtCenterOfMass", BIND(ApplyLocalForceAtCenterOfMass),
 			"ApplyLocalForceAtLocalPosition", BIND(ApplyLocalForceAtLocalPosition),
 			"ApplyLocalForceAtWorldPosition", BIND(ApplyLocalForceAtWorldPosition),
@@ -139,9 +143,9 @@ struct NodeRigidBody::Proxy::ProxyBinding
 			"IsGravityEnabled", BIND(IsGravityEnabled),
 			"SetSleepingEnabled", BIND(SetSleepingEnabled),
 			"SetSleepingState", BIND(SetSleepingState),
-			"SetIsGravityEnabled", BIND(SetIsGravityEnabled)
+			"SetIsGravityEnabled", BIND(SetIsGravityEnabled),
+
+			"GetNode3DParent", BIND(GetNode3DParent)
 		);
 	};
 };
-
-REGISTER_PROXY(NodeRigidBody::Proxy::ProxyBinding, NodeRigidBodyProxy);

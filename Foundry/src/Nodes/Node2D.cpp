@@ -1,20 +1,44 @@
 #include "Nodes/Node2D.h"
+#include "Serialization/SerializeObject.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/quaternion.hpp"
 #include "glm/glm.hpp"
 
-
 Node2D::Node2D(std::string const &name) : Node(name)
 {
 	OnParentChange += [&](Node& node)
 	{
-			CheckParentTransform(node);
-			UpdateWorld();
+		CheckParentTransform(node);
+		m_localDirty = true;
+		UpdateWorld();
 	};
 }
 
 Node2D::~Node2D() {}
+
+void Node2D::Serialize(SerializedObject& datas) const
+{
+	Node::Serialize(datas);
+	datas.SetType("Node2D");
+	datas.AddPublicElement("Transform2D", static_cast<ISerializable const*>(&m_transform));
+}
+
+void Node2D::Deserialize(SerializedObject const& datas)
+{
+	Node::Deserialize(datas);
+	datas.GetPublicElement("Transform2D", static_cast<ISerializable*>(&m_transform));
+}
+
+void Node2D::AttachScriptDeserialize(uptr<LuaScriptInstance>& script)
+{
+	AttachScript<Node2D>(script, *this);
+}
+
+ISerializable* Node2D::CreateInstance()
+{
+	return CreateNode<Node2D>("Node2D").release();
+}
 
 void Node2D::SetScale(glm::vec2 const& _scale)
 {
@@ -208,3 +232,13 @@ void Node2D::OnUpdate(double const _delta)
 	UpdateLocal();
 }
 
+uptr<Node> Node2D::Clone()
+{
+	uptr<Node2D> clone = Node::CreateNode<Node2D>(GetName());
+
+	SerializedObject datas;
+	Serialize(datas);
+	clone->Deserialize(datas);
+
+	return clone;
+}

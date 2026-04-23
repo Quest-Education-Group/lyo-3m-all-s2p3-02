@@ -29,6 +29,7 @@ public:
 private:
     bool DrawDatas(json& publicDataJson);
     bool DrawLuaScriptPicker(json& publicDataJson);
+    bool DrawTexturePicker(json& publicDataJson);
 
 private:
     EditorImGui* m_pImguiEditor = nullptr;
@@ -48,9 +49,15 @@ private:
 
     bool m_showLuaBrowser = false;
     ImGui::FileBrowser m_luaBrowser;
+
+    bool m_showTextureBrowser = false;
+    ImGui::FileBrowser m_textureBrowser;
+
     int m_fileBrowsingSizeX = 800;
     int m_fileBrowsingSizeY = 450;
 
+    char m_newLuaScriptName[128] = "";
+    std::string m_createLuaError;
 };
 
 #endif //!EDITOR_INSPECTOR_NODE_PROPERTIES_H__

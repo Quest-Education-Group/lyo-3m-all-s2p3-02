@@ -1,5 +1,4 @@
-﻿
-#include "EditorImGui.h"
+﻿#include "EditorImGui.h"
 #include "Editor.h"
 #include "EditorRaylib3D.h"
 #include "Debug.h"
@@ -10,6 +9,49 @@
 namespace
 {
 	constexpr char kHierarchyNodePayloadId[] = "EDITOR_HIERARCHY_NODE";
+	bool TryExtractTrailingIndex(std::string const& name, std::string& outBaseName, int& outIndex)
+	{
+		outBaseName = name;
+		outIndex = 0;
+
+		if (name.size() < 3 || name.back() != ')')
+			return false;
+
+		size_t const openPos = name.find_last_of('(');
+		if (openPos == std::string::npos || openPos + 1 >= name.size() - 1)
+			return false;
+
+		for (size_t i = openPos + 1; i < name.size() - 1; ++i)
+		{
+			if (!std::isdigit(static_cast<unsigned char>(name[i])))
+				return false;
+		}
+
+		outBaseName = name.substr(0, openPos);
+		outIndex = std::stoi(name.substr(openPos + 1, name.size() - openPos - 2));
+		return true;
+	}
+
+	std::string BuildDuplicateName(Node& parent, std::string const& sourceName)
+	{
+		std::string baseName;
+		int trailingIndex = 0;
+		TryExtractTrailingIndex(sourceName, baseName, trailingIndex);
+
+		if (baseName.empty())
+			baseName = sourceName;
+
+		int index = std::max(1, trailingIndex + 1);
+		std::string candidate;
+
+		do
+		{
+			candidate = baseName + "(" + std::to_string(index) + ")";
+			++index;
+		} while (parent.FindChild(candidate).has_value());
+
+		return candidate;
+	}
 }
 
 std::string EditorImGui::NormalizeScenePath(std::string path, bool saveAsNode)
@@ -44,8 +86,28 @@ EditorImGui::~EditorImGui()
 void EditorImGui::Init()
 {
 	m_newNodeTypeSelector = Node::CreateNode<Node>("Node");
-	auto test = Node::CreateNode<Node>("Node3D");
-	m_newNodeTypeSelector->AddChild(test);
+	auto node3D = Node::CreateNode<Node>("Node3D");
+	auto rigibody = Node::CreateNode<Node>("NodeRigidBody");
+
+	auto collider = Node::CreateNode<Node>("NodeCollider - Abstract");
+	auto colliderbox = Node::CreateNode<Node>("NodeBoxCollider");
+	auto collidersphere = Node::CreateNode<Node>("NodeSphereCollider");
+	auto collidercapsule = Node::CreateNode<Node>("NodeCapsuleCollider");
+
+	auto nodeVisual = Node::CreateNode<Node>("NodeVisual - Abstract");
+	auto nodeMesh = Node::CreateNode<Node>("NodeMesh");
+
+	auto nodeCamera = Node::CreateNode<Node>("NodeCamera");
+
+	collider->AddChild(colliderbox);
+	collider->AddChild(collidersphere);
+	collider->AddChild(collidercapsule);
+	nodeVisual->AddChild(nodeMesh);
+	node3D->AddChild(nodeVisual);
+	node3D->AddChild(collider);
+	node3D->AddChild(rigibody);
+	node3D->AddChild(nodeCamera);
+	m_newNodeTypeSelector->AddChild(node3D);
 	EngineServer::FlushCommands();
 
 	ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
@@ -56,6 +118,10 @@ void EditorImGui::Init()
 	m_loadBrowser = LoadBrowseWindow;
 	m_saveBrowser.SetDirectory("../Game/res");
 	m_loadBrowser.SetDirectory("../Game/res");
+	m_assetBrowser.SetRoot("../");
+	m_assetBrowser.SetThumbnailSize(64.0f);
+	m_assetBrowser.SetTypeFilters({ ".png", ".jpg", ".fbx", ".obj", ".lua", ".json" });
+	m_assetBrowser.SetFlags(ImGui::AssetBrowserFlags_MultiSelect | ImGui::AssetBrowserFlags_AutoRefresh);
 
 	m_inspector.SetWindow(m_screenWidth, m_screenHeight);
 }
@@ -88,6 +154,7 @@ void EditorImGui::Render()
 
 	ShowSaveAsSceneBrowsing();
 	ShowLoadSceneBrowsing();
+	m_assetBrowser.Display();
 
 	ImGui::SetNextWindowPos(ImVec2(m_screenWidth - 120.0f, m_screenHeight - 40.0f));
 	ImGui::SetNextWindowSize(ImVec2(110, 30));
@@ -171,7 +238,6 @@ void EditorImGui::DrawMenuBar()
 		{
 			if (!m_play)
 			{
-				SaveSceneNoSpecialisation();
 				m_play = true;
 			}
 			else
@@ -181,12 +247,11 @@ void EditorImGui::DrawMenuBar()
 			}
 		}
 
-		if (m_haveFileSelected && m_scenePathBuffer.length() != 0 && m_play == true) {
-
+		if (m_play == true)
+		{
 			m_command.type = EditorCommand::Type::LUNCH_GAME;
-			m_command.stringParam1 = m_scenePathBuffer + ".json";
+			m_command.stringParam1.clear();
 			m_play = false;
-
 		}
 		ImGui::EndMainMenuBar();
 	}
@@ -356,9 +421,10 @@ void EditorImGui::DrawHierarchyNodeTree(Node& node)
 			if (!isSceneRoot)
 			{
 				auto clone = node.Clone();
-				if (node.GetParent())
+				if (Node* pParent = node.GetParent())
 				{
-					node.GetParent()->AddChild(clone);
+					clone->SetName(Node::BuildDuplicateName(*pParent, node.GetName()));
+					pParent->AddChild(clone);
 				}
 			}
 		}
@@ -552,21 +618,34 @@ void EditorImGui::ShowLoadSceneBrowsing()
 
 	if (m_loadBrowser.HasSelected())
 	{
-		std::string tmpbuffer = m_loadBrowser.GetSelected().string();
-		if (tmpbuffer.find(".sc")) {
-			m_scenePathBuffer = tmpbuffer;
+		std::filesystem::path const selected = m_loadBrowser.GetSelected();
+		std::string selectedLogicalPath;
+
+		if (selected.extension() == ".json")
+		{
+			std::filesystem::path const logical = selected.parent_path() / selected.stem();
+
+			if (logical.extension() == ".sc")
+			{
+				m_scenePathBuffer = logical.string();
+				selectedLogicalPath = m_scenePathBuffer;
+			}
+			else if (logical.extension() == ".nd")
+			{
+				m_nodeSavePathBuffer = logical.string();
+				selectedLogicalPath = m_nodeSavePathBuffer;
+			}
 		}
-		else if (tmpbuffer.find(".nd")) {
-			m_nodeSavePathBuffer = tmpbuffer;
-		}
-		if (m_scenePathBuffer.length() > 0 || m_nodeSavePathBuffer.length() > 0)
+
+		if (!selectedLogicalPath.empty())
 		{
 			m_haveFileSelected = true;
 			m_command.type = EditorCommand::Type::LOAD_SCENE;
-			m_command.stringParam1 = m_scenePathBuffer; // ici usitliser m_nodeSavePathBuffer
+			m_command.stringParam1 = selectedLogicalPath + ".json";
 			m_pSelectedNode = nullptr;
 			m_pViewRoot = m_pSceneRoot;
 		}
+
 		m_loadBrowser.ClearSelected();
 		m_loadBrowser.Close();
 	}
@@ -722,7 +801,6 @@ void EditorImGui::ApplyInspectorChanges(json& datas)
 	std::string oldName = m_pSelectedNode->GetName();
 	m_selectedNodeData.SetJson(cleanJson);
 
-	Node::SetStatusEditor(true);
 	m_pSelectedNode->Deserialize(m_selectedNodeData);
 	std::cout << "Name from m_sceneroor" << m_pSceneRoot->GetChild(0).GetName() << std::endl;
 
@@ -730,7 +808,6 @@ void EditorImGui::ApplyInspectorChanges(json& datas)
 	{
 		m_pRaylibEditor->UpdateElementName(oldName, m_pSelectedNode);
 	}
-	Node::SetStatusEditor(false);
 
 	//DEBUG("[EditorImGui] Applied inspector changes" << std::endl);
 }
@@ -831,4 +908,43 @@ bool EditorImGui::IsDescendant(Node const& potentialAncestor, Node const& node) 
 	}
 
 	return false;
+}
+
+void EditorImGui::NotifyNodeWillBeDeleted(Node* pNode)
+{
+	if (pNode == nullptr)
+	{
+		return;
+	}
+
+	Node* const fallbackViewRoot = (pNode->GetParent() != nullptr) ? pNode->GetParent() : m_pSceneRoot;
+
+	auto const isInsideDeletedSubtree = [pNode](Node* pCandidate) -> bool
+	{
+		Node* current = pCandidate;
+		while (current != nullptr)
+		{
+			if (current == pNode)
+			{
+				return true;
+			}
+			current = current->GetParent();
+		}
+		return false;
+	};
+
+	if (m_pSelectedNode != nullptr && isInsideDeletedSubtree(m_pSelectedNode))
+	{
+		m_pSelectedNode = nullptr;
+		m_pRaylibEditor->SetSelectedNode("");
+	}
+
+	if (m_pViewRoot != nullptr && isInsideDeletedSubtree(m_pViewRoot))
+	{
+		m_pViewRoot = fallbackViewRoot;
+		if (m_pViewRoot == nullptr)
+		{
+			m_pViewRoot = m_pSceneRoot;
+		}
+	}
 }

@@ -20,6 +20,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Game")
 project(FoundryProject)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
+add_compile_definitions(LUA)
 
 # Indication to the code that this is a debug build
 if (${IS_DEBUG_BUILD})
@@ -33,6 +34,6 @@ include_directories("Core/")
 
 add_subdirectory(Ore)
 add_subdirectory(Foundry)
-add_subdirectory(Editor)
-add_subdirectory(EditorExe)
+#add_subdirectory(Editor)
+#add_subdirectory(EditorExe)
 add_subdirectory(Game)
