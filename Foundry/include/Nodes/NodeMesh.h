@@ -52,6 +52,8 @@ public:
     void SetDiffuseTexturePath(std::filesystem::path const& path) { m_diffuseTexturePath = path; }
     std::filesystem::path const& GetDiffuseTexturePath() const { return m_diffuseTexturePath; }
 
+    uint32 GetMeshID() const {return m_meshIDInSceneFBX;}
+
     template <typename... Args>
     void AddTextures(Args... textures);
 

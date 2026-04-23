@@ -243,7 +243,9 @@ void NodeMesh::Deserialize(SerializedObject const& datas)
     {
         textureCount = 1;
     }
-    datas.GetPrivateElement("IdInFBX", &m_meshIDInSceneFBX);
+    if (!datas.TryGetPrivateElement("IdInFBX", &m_meshIDInSceneFBX)) {
+        m_meshIDInSceneFBX = 0;
+    }
     datas.GetPublicElement("FbxPath", &fbxPath);
     m_geometrySourceType = static_cast<MeshGeometrySourceType>(geometrySourceType);
     m_primitiveType = static_cast<PrimitivesType>(primitiveTypeClamped.value);

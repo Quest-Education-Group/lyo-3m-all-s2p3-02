@@ -500,24 +500,21 @@ void EditorRaylib3D::Instanciate3DMesh(Node *pNodeMesh3D)
 			return;
 		}
 
-		for (EditorSceneMeshData const &importedMesh : scene->meshes)
+		if (scene->meshes[pNodeMesh->GetMeshID()].geometry.m_vertices.empty() || scene->meshes[pNodeMesh->GetMeshID()].geometry.m_indices.empty())
+			return;
+
+		Mesh m_mesh = BuildRaylibMesh(scene->meshes[pNodeMesh->GetMeshID()].geometry);
+
+		DrawableSubMesh subMesh;
+		subMesh.mesh = std::make_unique<Mesh>(m_mesh);
+		subMesh.localMatrix = GlmToMatrix(scene->meshes[pNodeMesh->GetMeshID()].meshMatrix);
+
+		if (drawable.loadedFbxDiffusePath.empty() && !scene->meshes[pNodeMesh->GetMeshID()].textures.empty())
 		{
-			if (importedMesh.geometry.m_vertices.empty() || importedMesh.geometry.m_indices.empty())
-				continue;
-
-			Mesh m_mesh = BuildRaylibMesh(importedMesh.geometry);
-
-			DrawableSubMesh subMesh;
-			subMesh.mesh = std::make_unique<Mesh>(m_mesh);
-			subMesh.localMatrix = GlmToMatrix(importedMesh.meshMatrix);
-
-			if (drawable.loadedFbxDiffusePath.empty() && !importedMesh.textures.empty())
-			{
-				drawable.loadedFbxDiffusePath = importedMesh.textures[0].path;
-			}
-
-			drawable.meshes.push_back(std::move(subMesh));
+			drawable.loadedFbxDiffusePath = scene->meshes[pNodeMesh->GetMeshID()].textures[0].path;
 		}
+
+		drawable.meshes.push_back(std::move(subMesh));
 
 		if (drawable.meshes.empty())
 		{

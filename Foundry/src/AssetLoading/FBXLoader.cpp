@@ -118,7 +118,7 @@ sptr<SceneData> FBXLoader::LoadFile(std::string const& path)
     }
     SceneData uScene = {};
     uScene.path = path;
-    Material allTextures = {};
+    Material allTextures;
     std::map<std::string, glm::mat4> bonesTransforms;
     uint32 nodeCount = 0;
     BuildMaterials(pAScene, allTextures);
@@ -268,8 +268,8 @@ void FBXLoader::BuildMeshs(aiScene const* pScene, SceneData& outScene, Material&
         {
             LoadDefaultsTextures(sMesh);
         }
+        sMesh.ID = outScene.allMesh.size();
         outScene.allMesh.push_back(std::make_shared<SceneMesh>(sMesh));
-        sMesh.ID = outScene.allMesh.size() - 1;
     }
 }
 
@@ -319,6 +319,7 @@ void FBXLoader::LoadEmbeddedTexture(std::string const& path, std::string& outPat
 
 void FBXLoader::BuildMaterials(aiScene const* pScene, Material& outMat)
 {
+    outMat.textures.resize(pScene->mNumMaterials);
     for (uint32 i = 0; i < pScene->mNumMaterials; ++i)
     {
         aiMaterial* pMat = pScene->mMaterials[i];
@@ -338,20 +339,17 @@ void FBXLoader::BuildMaterials(aiScene const* pScene, Material& outMat)
                 LoadEmbeddedTexture(path, fullPath, pScene, i, static_cast<Ore::TextureMaterialType>(c));
                 if (fullPath != "")
                 {
-                    outMat.textures.push_back({});
                     outMat.textures[i][static_cast<Ore::TextureMaterialType>(c)] = fullPath;
                 }
                 continue;
             }
             if (texturePath.data[0] == 'r')
             {
-                outMat.textures.push_back({});
                 outMat.textures[i][static_cast<Ore::TextureMaterialType>(c)] = path;
                 continue;
             }
             std::filesystem::path tempPath = path;
             std::string newPath = "res/textures/" + tempPath.filename().string();
-            outMat.textures.push_back({});
             outMat.textures[i][static_cast<Ore::TextureMaterialType>(c)] = newPath;
         }
     }
