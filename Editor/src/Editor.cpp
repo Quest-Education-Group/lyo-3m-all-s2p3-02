@@ -148,6 +148,10 @@ void Editor::Update(float deltaTime)
 		}
 	}
 
+	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_O)) {
+		m_editorImgui.ShowLoadPopup();
+
+	}
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_N))
 	{
 		CreateNewScene();
@@ -256,7 +260,16 @@ void Editor::CreateNode(std::string const& type, std::string const& name, Node* 
 		DEBUG( "[Editor] Node '" << name << "' added to scene root" << std::endl);
 	}
 
-	m_editorRaylib.AddDrawableObject(name, static_cast<Node*>(outObject));
+	m_editorRaylib.AddDrawableObject(static_cast<Node*>(outObject));
+}
+
+void Editor::LoadDrawableObject(Node* pNode)
+{
+	m_editorRaylib.AddDrawableObject(pNode);
+	for (uint32 i = 0; i < pNode->GetChildCount(); i++)
+	{
+		LoadDrawableObject(&pNode->GetChild(i));
+	}
 }
 
 void Editor::RemoveDrawableRecursive(Node* pNode)
@@ -268,7 +281,7 @@ void Editor::RemoveDrawableRecursive(Node* pNode)
 		RemoveDrawableRecursive(&pNode->GetChild(i));
 	}
 
-	m_editorRaylib.RemoveDrawableElement(pNode->GetName());
+	m_editorRaylib.RemoveDrawableElement(pNode);
 }
 
 void Editor::DeleteNode(Node* pNode)
@@ -293,6 +306,7 @@ void Editor::LoadScene(std::string const& path)
 	{
 		LoadReturn tmp = EditorSerializer::LoadFromJson(path);
 		if (tmp.IsRoot) {
+			CreateNewScene();
 			m_sceneRoot = std::move(tmp.uptrNode);
 			m_editorImgui.SetSceneRoot(m_sceneRoot.get());
 			m_editorImgui.ResetViewRoot();
@@ -320,16 +334,6 @@ void Editor::LoadScene(std::string const& path)
 		std::cerr << "[Editor] Failed to load scene: " << e.what() << std::endl;
 	}
 }
-
-void Editor::LoadDrawableObject(Node* pNode)
-{
-	m_editorRaylib.AddDrawableObject(pNode->GetName(), pNode);
-	for (uint32 i = 0; i < pNode->GetChildCount(); i++)
-	{
-		LoadDrawableObject(&pNode->GetChild(i));
-	}
-}
-
 
 void Editor::StartFoundry(std::string const& scenePath)
 {
