@@ -7,13 +7,17 @@
 #include "Logger.hpp"
 #include "Program.h"
 #include "Shader.h"
+#include "Passes/UIPass.h"
+#include "UIElements/Image.h"
+#include "UIElements/FTFontFace.h"
+#include "UIElements/Text.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace Ore;
 int main()
 {
-    Window window(1920, 1080, "ORE ORE OREORE ORE ORE OREORE OREORE", false, true);
+    Window window(1920, 1080, "HELLO", false, true);
     window.Open();
     Viewport viewport(0, 0, 1920, 1080, Color::SKY_BLUE);
     window.AddViewport(viewport);
@@ -22,7 +26,8 @@ int main()
     vertices.push_back({ glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f) });
     vertices.push_back({ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f) });
     vertices.push_back({ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f) });
-    vertices.push_back({ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f) });
+    vertices.push_back({
+        glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f) });
 
     std::vector<uint32> indices = {
         0,1,2,
@@ -32,13 +37,16 @@ int main()
     sptr<Geometry> cube     = std::make_shared<Geometry>(vertices, indices);
 
     sptr<Texture> diffuse   = std::make_shared<Texture>("res/textures/diffuse.jpg", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
-    sptr<Texture> specular  = std::make_shared<Texture>("res/textures/defaultSpecular.jpg", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
+    sptr<Texture> specular  = std::make_shared<Texture>("res/textures/defaultSpecular.png", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
     sptr<Texture> normal    = std::make_shared<Texture>("res/textures/defaultNormal.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
+    sptr<Texture> ui        = std::make_shared<Texture>("res/textures/bib.png", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
+    sptr<Texture> opacity   = std::make_shared<Texture>("res/textures/opacity.png", TextureType::TYPE_2D, TextureMaterialType::OPACITY);
 
     std::vector<sptr<Texture>> textures;
     textures.push_back(diffuse);
     textures.push_back(specular);
     textures.push_back(normal);
+    textures.push_back(opacity);
 
     Mesh mesh(cube, textures, glm::scale(glm::mat4(1.0f), glm::vec3(1.f)));
     Mesh mesh1(cube, textures, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
@@ -66,6 +74,7 @@ int main()
 
     Program geometryProgram;
     Program lightProgram;
+    Program UIProgram;
 
     Shader geoFrag(ShaderType::TYPE_FRAGMENT);
     geoFrag.Load("res/shaders/GBuffer.frag");
@@ -96,11 +105,35 @@ int main()
     lightProgram.SetUniform("gNormal", 1);
     lightProgram.SetUniform("gAlbedoSpec", 2);
 
+    Shader uiFrag(ShaderType::TYPE_FRAGMENT);
+    uiFrag.Load("res/shaders/UIPass.frag");
+    Shader uiVert(ShaderType::TYPE_VERTEX);
+    uiVert.Load("res/shaders/UIPass.vert");
+
+    UIProgram.AddShader(uiFrag);
+    UIProgram.AddShader(uiVert);
+    UIProgram.Load();
+
+    uiFrag.Unload();
+    uiVert.Unload();
+
+    sptr<FontFace> font = std::make_shared<FTFontFace>("res/fonts/FuzzyBubbles-Bold.ttf", 20);
+    Text text("Bonjour le monde !", font);
+    text.color = Color::SKY_BLUE;
+    text.x = 200;
+    text.y = 300;
+    text.width = 20;
+    text.height = 20;
+
+
     GeometryPass geoPass(geometryProgram, camera.get());
     LightPass lightPass(lightProgram, lights, camera.get());
+    UIPass uiPass(UIProgram, camera.get());
+
 
     viewport.AddPass(&geoPass);
     viewport.AddPass(&lightPass);
+    viewport.AddPass(&uiPass);
     float fact = 1.0f;
     float inf = 0.0f;
 
@@ -119,6 +152,11 @@ int main()
 
         //geoPass.AddMesh(mesh);
         geoPass.AddMesh(mesh);
+        //uiPass.AddUIElement(image);
+        //uiPass.AddUIElement(image1);
+        //uiPass.AddUIElement(image2);
+        //uiPass.AddUIElement(image3);
+        uiPass.AddUIElement(text);
         viewport.Present();
         window.Present();
     }

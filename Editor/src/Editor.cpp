@@ -139,7 +139,7 @@ void Editor::Update(float deltaTime)
 	{
 		if (IsKeyDown(KEY_LEFT_SHIFT))
 		{
-			//m_editorImgui.ShowSaveAs();
+			m_editorImgui.ShowSaveAs(false);
 		}
 		else
 		{
@@ -147,6 +147,10 @@ void Editor::Update(float deltaTime)
 		}
 	}
 
+	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_O)) {
+		m_editorImgui.ShowLoadPopup();
+
+	}
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_N))
 	{
 		CreateNewScene();
@@ -254,7 +258,16 @@ void Editor::CreateNode(std::string const& type, std::string const& name, Node* 
 		DEBUG( "[Editor] Node '" << name << "' added to scene root" << std::endl);
 	}
 
-	m_editorRaylib.AddDrawableObject(name, static_cast<Node*>(outObject));
+	m_editorRaylib.AddDrawableObject(static_cast<Node*>(outObject));
+}
+
+void Editor::LoadDrawableObject(Node* pNode)
+{
+	m_editorRaylib.AddDrawableObject(pNode);
+	for (uint32 i = 0; i < pNode->GetChildCount(); i++)
+	{
+		LoadDrawableObject(&pNode->GetChild(i));
+	}
 }
 
 void Editor::RemoveDrawableRecursive(Node* pNode)
@@ -266,7 +279,7 @@ void Editor::RemoveDrawableRecursive(Node* pNode)
 		RemoveDrawableRecursive(&pNode->GetChild(i));
 	}
 
-	m_editorRaylib.RemoveDrawableElement(pNode->GetName());
+	m_editorRaylib.RemoveDrawableElement(pNode);
 }
 
 void Editor::DeleteNode(Node* pNode)
@@ -291,6 +304,7 @@ void Editor::LoadScene(std::string const& path)
 	{
 		LoadReturn tmp = EditorSerializer::LoadFromJson(path);
 		if (tmp.IsRoot) {
+			CreateNewScene();
 			m_sceneRoot = std::move(tmp.uptrNode);
 			m_editorImgui.SetSceneRoot(m_sceneRoot.get());
 			m_editorImgui.ResetViewRoot();
@@ -319,19 +333,36 @@ void Editor::LoadScene(std::string const& path)
 	}
 }
 
-void Editor::LoadDrawableObject(Node* pNode)
-{
-	m_editorRaylib.AddDrawableObject(pNode->GetName(), pNode);
-	for (uint32 i = 0; i < pNode->GetChildCount(); i++)
-	{
-		LoadDrawableObject(&pNode->GetChild(i));
-	}
-}
-
-
 void Editor::StartFoundry(std::string const& scenePath)
 {
 	(void)scenePath;
+	{
+		std::filesystem::path const sourceScriptsDir = "res/scripts";
+		std::filesystem::path const scriptStockDir = "ScriptStock";
+		std::error_code ec;
+
+		std::filesystem::create_directories(scriptStockDir, ec);
+		ec.clear();
+
+		if (std::filesystem::exists(sourceScriptsDir, ec) && std::filesystem::is_directory(sourceScriptsDir, ec))
+		{
+			std::filesystem::copy(
+				sourceScriptsDir,
+				scriptStockDir,
+				std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing,
+				ec);
+
+			if (ec)
+			{
+				std::cerr << "[Editor] Failed to sync res/scripts to ScriptStock: " << ec.message() << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << "[Editor] Scripts source folder not found: " << sourceScriptsDir << std::endl;
+		}
+	}
+
 
 	std::filesystem::path gameExePath;
 
