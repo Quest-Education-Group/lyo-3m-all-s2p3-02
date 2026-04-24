@@ -47,7 +47,7 @@ void TextureObject::GenerateTextureFromImage(DataType type, uint32& width, uint3
     stbi_image_free(data);
 }
 
-void TextureObject::GenerateTexture(DataType type, uint32 const& width, uint32 const& height, uint32 rgbType)
+void TextureObject::GenerateTexture(DataType type, uint32 const& width, uint32 const& height, uint32 rgbType, )
 {
     glTexImage2D((uint32)m_type, 0, rgbType, width, height, 0, GL_RGBA,(uint32)type, NULL);
 }
