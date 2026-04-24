@@ -83,10 +83,10 @@ sptr<Ore::Geometry> GeneratePlane()
 {
     std::vector<Ore::Vertex> vertices = 
     {
-        {glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-        {glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-        {glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-        {glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)}
+        {glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+        {glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+        {glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+        {glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}
     };
 
     std::vector<uint32> indices = 
@@ -227,11 +227,11 @@ int main()
 
     Ore::GeometryPass geoPass(geometryProgram, pCamera.get());
     Ore::LightPass lightPass(lightProgram, lights, pCamera.get());
-    Ore::ShadowPass shadowPass(shadowProgram, pCamera.get());
+    //Ore::ShadowPass shadowPass(shadowProgram, pCamera.get());
 
-    //viewport.AddPass(&geoPass);
-    //viewport.AddPass(&lightPass);
-    viewport.AddPass(&shadowPass);
+    viewport.AddPass(&geoPass);
+    viewport.AddPass(&lightPass);
+    //viewport.AddPass(&shadowPass);
 
     while(window.IsOpen())
     {
@@ -248,8 +248,8 @@ int main()
         geoPass.AddMesh(cube);
         geoPass.AddMesh(longBox);
 
-        shadowPass.AddMesh(cube);
-        shadowPass.AddLight(lights[0]);
+        //shadowPass.AddMesh(cube);
+        //shadowPass.AddLight(lights[0]);
 
         viewport.Present();
         window.Present();

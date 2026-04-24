@@ -40,7 +40,6 @@ void main()
             vec3 lightDir = normalize(-lights[i].Direction.xyz);
             float diff = max(dot(norm, lightDir), 0.0);
             lighting += lights[i].Color * diff;
-            //lighting = norm;
             continue;
         }
 
