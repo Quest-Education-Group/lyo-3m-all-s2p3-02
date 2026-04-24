@@ -28,7 +28,7 @@ public:
     Geometry(Geometry const& other);
     ~Geometry() = default;
 
-    void Draw() override;
+    void Draw() const override;
 
 protected:
     void AddPoints(std::span<Vertex const> vertices);

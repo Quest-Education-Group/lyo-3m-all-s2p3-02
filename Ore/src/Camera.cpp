@@ -53,3 +53,8 @@ void Camera::LookAt(glm::vec3 const& target)
     glm::vec3 camPos = { m_transform[0][3], m_transform[1][3], m_transform[2][3]};
     m_viewMatrix = glm::lookAt(camPos, target, Perspective.up);
 }
+
+void Camera::LookAt(glm::vec3 const& position, glm::vec3 const& target, glm::vec3 const& up)
+{
+    m_viewMatrix = glm::lookAt(position, target, up);
+}

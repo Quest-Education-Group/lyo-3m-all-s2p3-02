@@ -27,8 +27,7 @@ private:
 
     uptr<VertexArrayObject> m_quadVAO;
     uptr<Buffer<float>> m_quadVBO;
-    GLuint m_quadVAOId;
-    GLuint m_quadVBOId;
+    GLuint m_frameBufferId;
 
 };
 }

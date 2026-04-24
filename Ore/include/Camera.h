@@ -46,6 +46,7 @@ public:
     glm::vec3 GetPosition() const;
 
     void LookAt(glm::vec3 const& target);
+    void LookAt(glm::vec3 const& position, glm::vec3 const& target, glm::vec3 const& up);
     void UpdateCamera();
 
     void SetTransform(glm::mat4 const& transform);

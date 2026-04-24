@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "Passes/GeometryPass.h"
 #include "Passes/LightPass.h"
+#include "Passes/ShadowPass.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -181,6 +182,7 @@ int main()
     
     Ore::Program geometryProgram;
     Ore::Program lightProgram;
+    Ore::Program shadowProgram;
     
     Ore::Shader geoFrag(Ore::ShaderType::TYPE_FRAGMENT);
     Ore::Shader geoVert(Ore::ShaderType::TYPE_VERTEX);
@@ -211,11 +213,25 @@ int main()
     lightProgram.SetUniform("gNormal", 1);
     lightProgram.SetUniform("gAlbedoSpec", 2);
 
+    Ore::Shader shadowFrag(Ore::ShaderType::TYPE_FRAGMENT);
+    Ore::Shader shadowVert(Ore::ShaderType::TYPE_VERTEX);
+    shadowFrag.Load("res/shaders/ShadowPass.frag");
+    shadowVert.Load("res/shaders/ShadowPass.vert");
+
+    shadowProgram.AddShader(shadowFrag);
+    shadowProgram.AddShader(shadowVert);
+    shadowProgram.Load();
+
+    shadowFrag.Unload();
+    shadowVert.Unload();
+
     Ore::GeometryPass geoPass(geometryProgram, pCamera.get());
     Ore::LightPass lightPass(lightProgram, lights, pCamera.get());
+    Ore::ShadowPass shadowPass(shadowProgram, pCamera.get());
 
-    viewport.AddPass(&geoPass);
-    viewport.AddPass(&lightPass);
+    //viewport.AddPass(&geoPass);
+    //viewport.AddPass(&lightPass);
+    viewport.AddPass(&shadowPass);
 
     while(window.IsOpen())
     {
@@ -231,6 +247,9 @@ int main()
 
         geoPass.AddMesh(cube);
         geoPass.AddMesh(longBox);
+
+        shadowPass.AddMesh(cube);
+        shadowPass.AddLight(lights[0]);
 
         viewport.Present();
         window.Present();

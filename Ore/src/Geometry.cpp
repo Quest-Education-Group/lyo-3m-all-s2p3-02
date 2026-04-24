@@ -26,7 +26,7 @@ Geometry::Geometry(Geometry const& other)
     m_pVertexBuffer = std::make_unique<Buffer<Vertex>>(*other.m_pVertexBuffer);
 }
 
-void Geometry::Draw()
+void Geometry::Draw() const
 {
     m_pVao->Bind();
     glDrawElements(GL_TRIANGLES, m_indiceSize, GL_UNSIGNED_INT, 0);
