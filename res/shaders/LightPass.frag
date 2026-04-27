@@ -37,8 +37,12 @@ void main()
         if(lights[i].Direction.w <= 0.001)
         {
             vec3 lightDir = normalize(-lights[i].Direction.xyz);
-            float diff = max(dot(Normal, lightDir), 0.0);
-            lighting += Diffuse * lights[i].Color * diff;
+            vec3 diff = max(dot(Normal, lightDir), 0.0) * Diffuse * lights[i].Color;
+            vec3 halfwayDir = normalize(lightDir + viewDir);  
+            float spec = pow(max(dot(Normal, halfwayDir),0.0), 16.0);
+            vec3 specular = lights[i].Color * spec * Specular;
+
+            lighting += diff + specular;
             continue;
         }
 
