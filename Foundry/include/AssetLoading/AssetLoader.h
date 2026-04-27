@@ -30,8 +30,9 @@ private:
 	inline static std::unordered_map<std::string, sptr<Ore::Texture>> m_textureCache = {};
 	inline static std::unordered_map<Ore::TextureMaterialType, std::string> m_defaultTexturesPath = {
 		{Ore::TextureMaterialType::DIFFUSE, "res/textures/Default.png"},
-		{Ore::TextureMaterialType::NORMAL, "res/textures/normal.png"},
-		{Ore::TextureMaterialType::SPECULAR, "res/textures/specular.png"}
+		{Ore::TextureMaterialType::NORMAL, "res/textures/defaultNormal.png"},
+		{Ore::TextureMaterialType::OPACITY, "res/textures/defaultOpacity.png"},
+		{Ore::TextureMaterialType::SPECULAR, "res/textures/defaultSpecular.png"}
 	};
 };
 

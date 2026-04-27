@@ -87,6 +87,7 @@ void NodeMesh::SetFromEditorSceneMesh(EditorSceneMeshData const& sceneMesh, std:
     bool hasDiffuse = false;
     bool hasNormal = false;
     bool hasOpacity = false;
+    bool hasSpecular = false;
     for (uint8 i = 0; i < sceneMesh.textures.size(); ++i)
     {
         m_texturesPaths.push_back({});
@@ -98,11 +99,14 @@ void NodeMesh::SetFromEditorSceneMesh(EditorSceneMeshData const& sceneMesh, std:
             hasDiffuse = true;
             break;
         case Ore::TextureMaterialType::NORMAL:
-            hasDiffuse = true;
+            hasNormal = true;
             break;
-        //case Ore::TextureMaterialType::OPACITY:
-        //    hasDiffuse = true;
-        //    break;
+        case Ore::TextureMaterialType::OPACITY:
+            hasOpacity = true;
+            break;
+        case Ore::TextureMaterialType::SPECULAR:
+            hasSpecular = true;
+            break;
         default:
             break;
         }
@@ -123,18 +127,22 @@ void NodeMesh::SetFromEditorSceneMesh(EditorSceneMeshData const& sceneMesh, std:
         te.path = path;
         m_texturesPaths.push_back(te);
     }
-    //if (hasOpacity == false)
-    //{
-        //std::string path = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::OPACITY);
-        //SerializedTexturesData te = {};
-        //te.type = Ore::TextureMaterialType::OPACITY;
-        //te.path = path;
-        //m_texturesPaths.push_back(te);
-        //SerializedTexturesData te2 = {};
-        //te2.type = Ore::TextureMaterialType::SPECULAR;
-        //te2.path = path;
-        //m_texturesPaths.push_back(te2);
-    //}
+    if (hasOpacity == false)
+    {
+        std::string path = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::OPACITY);
+        SerializedTexturesData te = {};
+        te.type = Ore::TextureMaterialType::OPACITY;
+        te.path = path;
+        m_texturesPaths.push_back(te);
+    }
+    if (hasSpecular == false)
+    {
+        std::string path = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::SPECULAR);
+        SerializedTexturesData te2 = {};
+        te2.type = Ore::TextureMaterialType::SPECULAR;
+        te2.path = path;
+        m_texturesPaths.push_back(te2);
+    }
 
 }
 
@@ -143,6 +151,7 @@ void NodeMesh::SetTexturesPaths(SceneMesh const& sceneMesh)
     bool hasDiffuse = false;
     bool hasNormal  = false;
     bool hasOpacity = false;
+    bool hasSpecular = false;
 
     for (uint8 i = 0; i < m_textures.size(); ++i)
     {
@@ -152,11 +161,14 @@ void NodeMesh::SetTexturesPaths(SceneMesh const& sceneMesh)
             hasDiffuse = true;
             break;
         case Ore::TextureMaterialType::NORMAL:
-            hasDiffuse = true;
+            hasNormal = true;
             break;
-        //case Ore::TextureMaterialType::OPACITY:
-        //    hasDiffuse = true;
-        //    break;
+        case Ore::TextureMaterialType::OPACITY:
+            hasOpacity = true;
+            break;
+        case Ore::TextureMaterialType::SPECULAR:
+            hasSpecular = true;
+            break;
         default:
             break;
         }
@@ -184,15 +196,24 @@ void NodeMesh::SetTexturesPaths(SceneMesh const& sceneMesh)
         te.path = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::NORMAL);
         m_texturesPaths.push_back(te);
     }
-    //if (hasOpacity == false)
-    //{
-    //    sptr<Ore::Texture> text = AssetLoader::GetSharedTexture("res/textures/NormalMap.png", Ore::TextureMaterialType::NORMAL);
-    //    m_textures.push_back(text);
-    //    SerializedTexturesData te = {};
-    //    te.type = Ore::TextureMaterialType::NORMAL;
-    //    te.path = "res/textures/NormalMap.png";
-    //    m_texturesPaths.push_back(te);
-    //}
+    if (hasOpacity == false)
+    {
+        sptr<Ore::Texture> text = AssetLoader::GetSharedTexture(AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::OPACITY), Ore::TextureMaterialType::OPACITY);
+        m_textures.push_back(text);
+        SerializedTexturesData te = {};
+        te.type = Ore::TextureMaterialType::OPACITY;
+        te.path = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::OPACITY);
+        m_texturesPaths.push_back(te);
+    }
+    if (hasSpecular == false)
+    {
+        sptr<Ore::Texture> text = AssetLoader::GetSharedTexture(AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::SPECULAR), Ore::TextureMaterialType::SPECULAR);
+        m_textures.push_back(text);
+        SerializedTexturesData te = {};
+        te.type = Ore::TextureMaterialType::SPECULAR;
+        te.path = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::SPECULAR);
+        m_texturesPaths.push_back(te);
+    }
 }
 
 void NodeMesh::SetFromSceneMesh(SceneMesh const& sceneMesh, std::filesystem::path const& fbxPath)
@@ -262,16 +283,6 @@ void NodeMesh::SetFbxPath(std::filesystem::path const &fbxPath)
     {
         m_textures = importedMesh.meshTextures;
     }
-    // else if (!m_diffuseTexturePath.empty())
-    // {
-    //     m_textures.push_back(std::make_shared<Ore::Texture>(m_diffuseTexturePath, Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
-    // }
-    // else
-    // {
-    //     m_textures.push_back(std::make_shared<Ore::Texture>("res/textures/Default.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
-    // }
-
-    // SetDefaultTextures();
     m_pMesh->SetTextures(m_textures);
 }
 
@@ -306,8 +317,8 @@ void NodeMesh::Serialize(SerializedObject &datas) const
         case Ore::TextureMaterialType::NORMAL:
             datas.AddPublicElement("NormalTexturePath", &m_texturesPaths[i].path);
             break;
-        //case Ore::TextureMaterialType::OPACITY:
-            //datas.AddPublicElement("OpacityTexturePath", &m_texturesPaths[i].path);
+        case Ore::TextureMaterialType::OPACITY:
+            datas.AddPublicElement("OpacityTexturePath", &m_texturesPaths[i].path);
             break;
         }
     }
@@ -322,7 +333,7 @@ void NodeMesh::DeserializeTex(std::string& textPath, Ore::TextureMaterialType ty
 {
     if (!isSet)
     {
-        textPath = "res/textures/Default.png";
+        textPath = AssetLoader::GetDefaultTexturePath(type);
     }
     if (m_texturesPaths[id].path == "")
         m_texturesPaths[id].path = textPath;
@@ -364,24 +375,28 @@ void NodeMesh::DeserializeTextures(SerializedObject const& datas)
             if (!s_IsInEditor)
                 m_textures.push_back(AssetLoader::GetSharedTexture(normalPath, Ore::TextureMaterialType::NORMAL));
             break;
-        //case Ore::TextureMaterialType::SPECULAR:
-        //    if (opacityPath != "")
-        //    {
-        //        m_texturesPaths.erase(m_texturesPaths.begin() + i);
-        //        break;
-        //    }
-        //    textureSet = datas.TryGetPublicElement("OpacityTexturePath", &opacityPath);
-        //    DeserializeTex(opacityPath, Ore::TextureMaterialType::SPECULAR, textureSet, i);
-        //    break;
-        //case Ore::TextureMaterialType::OPACITY:
-        //    if (opacityPath != "")
-        //    {
-        //        m_texturesPaths.erase(m_texturesPaths.begin() + i);
-        //        break;
-        //    }
-        //    textureSet = datas.TryGetPublicElement("OpacityTexturePath", &opacityPath);
-        //    DeserializeTex(opacityPath, Ore::TextureMaterialType::OPACITY, textureSet, i);
-        //    break;
+        case Ore::TextureMaterialType::SPECULAR:
+            if (opacityPath != "")
+            {
+                m_texturesPaths.erase(m_texturesPaths.begin() + i);
+                break;
+            }
+            textureSet = datas.TryGetPublicElement("OpacityTexturePath", &opacityPath);
+            DeserializeTex(opacityPath, Ore::TextureMaterialType::SPECULAR, textureSet, i);
+            if (!s_IsInEditor)
+                m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::SPECULAR));
+            break;
+        case Ore::TextureMaterialType::OPACITY:
+            if (opacityPath != "")
+            {
+                m_texturesPaths.erase(m_texturesPaths.begin() + i);
+                break;
+            }
+            textureSet = datas.TryGetPublicElement("OpacityTexturePath", &opacityPath);
+            DeserializeTex(opacityPath, Ore::TextureMaterialType::OPACITY, textureSet, i);
+            if (!s_IsInEditor)
+                m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::OPACITY));
+            break;
 
         default:
             break;
@@ -405,21 +420,21 @@ void NodeMesh::DeserializeTextures(SerializedObject const& datas)
         if (!s_IsInEditor)
             m_textures.push_back(AssetLoader::GetSharedTexture(normalPath, Ore::TextureMaterialType::NORMAL));
     }
-    //if (opacityPath == "")
-    //{
-    //    diffusePath = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::OPACITY);
-    //    m_texturesPaths.push_back({});
-    //    m_texturesPaths[m_texturesPaths.size() - 1].path = opacityPath;
-    //    m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::OPACITY;
-    //    m_texturesPaths.push_back({});
-    //    m_texturesPaths[m_texturesPaths.size() - 1].path = opacityPath;
-    //    m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::SPECULAR;
-    //    if (!s_IsInEditor)
-    //    {
-    //        m_textures.push_back(std::make_shared<Ore::Texture>(opacityPath, Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::OPACITY));
-    //        m_textures.push_back(std::make_shared<Ore::Texture>(opacityPath, Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::SPECULAR));
-    //    }
-    //}
+    if (opacityPath == "")
+    {
+        opacityPath = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::OPACITY);
+        m_texturesPaths.push_back({});
+        m_texturesPaths[m_texturesPaths.size() - 1].path = opacityPath;
+        m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::OPACITY;
+        m_texturesPaths.push_back({});
+        m_texturesPaths[m_texturesPaths.size() - 1].path = opacityPath;
+        m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::SPECULAR;
+        if (!s_IsInEditor)
+        {
+            m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::OPACITY));
+            m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::SPECULAR));
+        }
+    }
     m_diffusePath = diffusePath;
     uint32 textureCount = 1;
     if (!datas.TryGetPrivateElement("TextureCount", &textureCount))
@@ -495,30 +510,7 @@ void NodeMesh::Deserialize(SerializedObject const& datas)
     bool isActive = true;
     datas.GetPublicElement("IsActive", &isActive);
     m_pMesh->SetActive(isActive);
-    // if (!s_IsInEditor)
-    // {
-    //     if (m_textures.size() == 0)
-    //     {
-    //         bool hasDiffuse = false;
-    //         for (uint8 i = 0; i < m_texturesPaths.size(); i++)
-    //         {
-    //             if (m_texturesPaths[i].type == Ore::TextureMaterialType::DIFFUSE)
-    //                 hasDiffuse = true;
-    //             m_textures.push_back(std::make_shared<Ore::Texture>(m_texturesPaths[i].path, Ore::TextureType::TYPE_2D, m_texturesPaths[i].type));
-    //         }
 
-    //         if (hasDiffuse == false)
-    //         {
-    //             if (!m_diffuseTexturePath.empty())
-    //                 m_textures.push_back(std::make_shared<Ore::Texture>(m_diffuseTexturePath, Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
-    //             else
-    //                 m_textures.push_back(std::make_shared<Ore::Texture>("res/textures/Default.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE));
-    //         }
-    //     }
-
-    //     SetDefaultTextures();
-    //     //m_pMesh->SetTextures(m_textures);
-    // }
     Update(1);
     m_pMesh->SetTransform(m_meshlocalTransform * m_transform.GetMatrix());
 }

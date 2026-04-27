@@ -49,6 +49,7 @@ private:
     ImGui::FileBrowser m_luaBrowser;
 
     bool m_showTextureBrowser = false;
+    std::vector<bool> m_displayWin = { false,false,false };
     ImGui::FileBrowser m_textureBrowser;
 
     bool m_showFbxBrowser = false;

@@ -599,6 +599,7 @@ bool InspectorNodeProperties::DrawTexturePicker(json& publicDataJson,uint8 texID
     if (browseClicked)
     {
         m_showTextureBrowser = true;
+        m_displayWin = { false,false,false };
     }
 
     if (clearClicked && !texturePath.empty())
@@ -611,19 +612,22 @@ bool InspectorNodeProperties::DrawTexturePicker(json& publicDataJson,uint8 texID
     {
         m_textureBrowser.Open();
         m_showTextureBrowser = false;
+        m_displayWin[texID] = true;
     }
 
-    m_textureBrowser.SetWindowSize(m_fileBrowsingSizeX, m_fileBrowsingSizeY);
-    m_textureBrowser.SetWindowPos(m_screenWidth / 2 - m_fileBrowsingSizeX / 2, m_screenHeight / 2 - m_fileBrowsingSizeY / 2);
-    m_textureBrowser.Display();
+    if (m_displayWin[texID]) {
+        m_textureBrowser.SetWindowSize(m_fileBrowsingSizeX, m_fileBrowsingSizeY);
+        m_textureBrowser.SetWindowPos(m_screenWidth / 2 - m_fileBrowsingSizeX / 2, m_screenHeight / 2 - m_fileBrowsingSizeY / 2);
+        m_textureBrowser.Display();
 
-    if (m_textureBrowser.HasSelected())
-    {
-        publicDataJson[texType + "TexturePath"] = NormalizeTexturePathForProject(m_textureBrowser.GetSelected());
-        wasModified = true;
-        m_textureBrowser.ClearSelected();
-        m_textureBrowser.Close();
-    }
+        if (m_textureBrowser.HasSelected())
+        {
+            publicDataJson[texType + "TexturePath"] = NormalizeTexturePathForProject(m_textureBrowser.GetSelected());
+            wasModified = true;
+            m_textureBrowser.ClearSelected();
+            m_textureBrowser.Close();
+        }
+   }
 
     return wasModified;
 }

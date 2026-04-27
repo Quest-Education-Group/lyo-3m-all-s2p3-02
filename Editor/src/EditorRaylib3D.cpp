@@ -925,7 +925,6 @@ void EditorRaylib3D::DrawViewPort()
 	rlDisableDepthMask();
 	rlPushMatrix();
 	rlTranslatef(0.0f, -0.01f, 0.0f);
-	DrawGrid(200, 1.0f);
 	rlPopMatrix();
 	rlEnableDepthMask();
 
