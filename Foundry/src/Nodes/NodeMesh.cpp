@@ -345,6 +345,7 @@ void NodeMesh::DeserializeTex(std::string& textPath, Ore::TextureMaterialType ty
 
 void NodeMesh::DeserializeTextures(SerializedObject const& datas)
 {
+    m_textures.clear();
     std::string diffusePath = "";
     std::string normalPath = "";
     std::string opacityPath = "";
@@ -374,17 +375,6 @@ void NodeMesh::DeserializeTextures(SerializedObject const& datas)
             DeserializeTex(normalPath, Ore::TextureMaterialType::NORMAL, textureSet, i);
             if (!s_IsInEditor)
                 m_textures.push_back(AssetLoader::GetSharedTexture(normalPath, Ore::TextureMaterialType::NORMAL));
-            break;
-        case Ore::TextureMaterialType::SPECULAR:
-            if (opacityPath != "")
-            {
-                m_texturesPaths.erase(m_texturesPaths.begin() + i);
-                break;
-            }
-            textureSet = datas.TryGetPublicElement("OpacityTexturePath", &opacityPath);
-            DeserializeTex(opacityPath, Ore::TextureMaterialType::SPECULAR, textureSet, i);
-            if (!s_IsInEditor)
-                m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::SPECULAR));
             break;
         case Ore::TextureMaterialType::OPACITY:
             if (opacityPath != "")
@@ -426,16 +416,19 @@ void NodeMesh::DeserializeTextures(SerializedObject const& datas)
         m_texturesPaths.push_back({});
         m_texturesPaths[m_texturesPaths.size() - 1].path = opacityPath;
         m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::OPACITY;
-        m_texturesPaths.push_back({});
-        m_texturesPaths[m_texturesPaths.size() - 1].path = opacityPath;
-        m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::SPECULAR;
+
         if (!s_IsInEditor)
-        {
             m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::OPACITY));
-            m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::SPECULAR));
-        }
     }
+    std::string spePath = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::SPECULAR);
+    m_texturesPaths.push_back({});
+    m_texturesPaths[m_texturesPaths.size() - 1].path = spePath;
+    m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::SPECULAR;
+    if (!s_IsInEditor)
+        m_textures.push_back(AssetLoader::GetSharedTexture(spePath, Ore::TextureMaterialType::SPECULAR));
+    
     m_diffusePath = diffusePath;
+
     uint32 textureCount = 1;
     if (!datas.TryGetPrivateElement("TextureCount", &textureCount))
     {
