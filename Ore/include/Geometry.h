@@ -16,6 +16,7 @@ struct Vertex
     glm::vec3 normal;
     glm::vec2 texCoords;
 
+    glm::vec3 tangent;
     glm::ivec4 boneIDS = { -1,-1,-1,-1 };
     glm::vec4 weights;
 };
@@ -29,6 +30,7 @@ public:
     ~Geometry() = default;
 
     void Draw() const override;
+    static void CalculateTangents(std::vector<Vertex>& vertices, std::vector<uint32> const& indices);
 
 protected:
     void AddPoints(std::span<Vertex const> vertices);
