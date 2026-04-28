@@ -1,16 +1,18 @@
 ---@type NodeRigidBody
 
-local iJumpBoost = 15
+local iJumpBoost = 150
 local oCollider
 
 local function LetsBounce(rb)
-    local vecBounce = vec3:new(0, iJumpBoost, 0)
-    rb:ApplyLocalForceAtCenterOfMass(vecBounce)
+    local vecBounce = fmath.vec3:new(0, iJumpBoost, 0)
+    rb:ApplyWorldForceAtCenterOfMass(vecBounce)
 end
 
 function OnInit()
     oCollider = self:FindChild("Collider"):As(NodeTypes.NODE_COLLIDER)
-    local id = oCollider:SubscribeOnContact(function(collider, rigidbody, state) -- Exemple Event 1
+
+    oCollider:SetBounciness(1)
+    local id = oCollider:SubscribeOnContact(function(collider, rigidbody, state)
         LetsBounce(rigidbody)
     end)
 end
