@@ -244,10 +244,13 @@ int main()
 
     Ore::GeometryPass geoPass(geometryProgram, pCamera.get());
     Ore::LightPass lightPass(lightProgram, lights, pCamera.get());
-    Ore::ShadowPass shadowPass(shadowProgram, pCamera.get());
+    //Ore::ShadowPass shadowPass(shadowProgram, pCamera.get());
+
+    sptr<Ore::ShadowPass> pShadowPass = std::make_unique<Ore::ShadowPass>(shadowProgram, pCamera.get());
+    lightPass.SetShadowPass(pShadowPass);
 
     viewport.AddPass(&geoPass);
-    viewport.AddPass(&shadowPass);
+    viewport.AddPass(pShadowPass.get());
     viewport.AddPass(&lightPass);
 
     while(window.IsOpen())
@@ -265,8 +268,8 @@ int main()
         geoPass.AddMesh(cube);
         geoPass.AddMesh(longBox);
 
-        shadowPass.AddMesh(cube);
-        shadowPass.AddLight(lights[0]);
+        pShadowPass->AddMesh(cube);
+        pShadowPass->AddLight(lights[0]);
 
         viewport.Present();
         window.Present();

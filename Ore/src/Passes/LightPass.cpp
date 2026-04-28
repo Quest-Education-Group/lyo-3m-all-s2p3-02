@@ -25,6 +25,11 @@ LightPass::LightPass(Program& program, LightSpan lights, Camera* pCamera) : Pass
     GenerateQuad();
 }
 
+void LightPass::SetShadowPass(sptr<ShadowPass> pShadowpass)
+{
+    m_pShadowPass = pShadowpass;
+}
+
 void LightPass::GenerateQuad()
 {
     std::vector<float> quadVertices =
