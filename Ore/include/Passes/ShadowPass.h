@@ -29,6 +29,9 @@ private:
     uptr<Buffer<float>> m_quadVBO;
     GLuint m_frameBufferId;
 
+    TextureObject m_shadowMap;
+    glm::mat4 m_lightSpaceMatrix;
+
 };
 }
 #endif

@@ -3,6 +3,7 @@
 #include "Logger.hpp"
 
 #include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace Ore;
 LightPass::LightPass(Program& program,LightSpan lights) : Pass(program)
@@ -83,9 +84,18 @@ void LightPass::Execute()
         float const maxBrightness = std::fmaxf(std::fmaxf(light.color.r, light.color.g), light.color.b);
         float radius = (-light.linear + std::sqrt(light.linear * light.linear - 4 * light.quadratic * (light.constant - (256.0f / 5.0f) * maxBrightness)))
             / (2.0f * light.quadratic);
-        m_program.SetUniform("lights[" + indexStr + "].Radius", radius);
-    }
 
+        m_program.SetUniform("lights[" + indexStr + "].Radius", radius);
+
+        glm::vec3 dir = glm::vec3(light.position);
+        glm::vec3 lightInvDir = dir;
+        glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+        glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
+        glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
+
+        m_program.SetUniform("lightSpaceMatrix", depthMVP);
+    }
+       
     m_program.SetUniform("viewPos", m_pCamera->GetPosition());
     RenderQuad();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

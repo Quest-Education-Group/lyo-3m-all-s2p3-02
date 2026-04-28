@@ -232,11 +232,11 @@ int main()
 
     Ore::GeometryPass geoPass(geometryProgram, pCamera.get());
     Ore::LightPass lightPass(lightProgram, lights, pCamera.get());
-    //Ore::ShadowPass shadowPass(shadowProgram, pCamera.get());
+    Ore::ShadowPass shadowPass(shadowProgram, pCamera.get());
 
     viewport.AddPass(&geoPass);
+    viewport.AddPass(&shadowPass);
     viewport.AddPass(&lightPass);
-    //viewport.AddPass(&shadowPass);
 
     while(window.IsOpen())
     {
@@ -253,8 +253,8 @@ int main()
         geoPass.AddMesh(cube);
         geoPass.AddMesh(longBox);
 
-        //shadowPass.AddMesh(cube);
-        //shadowPass.AddLight(lights[0]);
+        shadowPass.AddMesh(cube);
+        shadowPass.AddLight(lights[0]);
 
         viewport.Present();
         window.Present();

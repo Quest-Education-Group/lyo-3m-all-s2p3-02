@@ -5,6 +5,7 @@
 #include "Color.h"
 #include "VertexArrayObject.h"
 #include "Buffer.h"
+#include "ShadowPass.h"
 
 #include <span>
 
@@ -30,6 +31,7 @@ public:
     ~LightPass() = default;
 
     void SetLights(LightSpan const& lights);
+    void SetShadowPass(ShadowPass const& shadowpass);
     void Execute() override;
 
 private:
@@ -42,6 +44,7 @@ private:
     uptr<Buffer<float>> m_quadVBO;
     GLuint m_quadVAOId;
     GLuint m_quadVBOId;
+    ShadowPass m_shadowPass;
 };
 }
 #endif

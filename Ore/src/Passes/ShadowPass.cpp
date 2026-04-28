@@ -58,8 +58,7 @@ void ShadowPass::Execute()
 
     m_program.Use();
     m_program.SetUniform("viewProj", m_pCamera->GetViewProjMatrix());
-    //m_program.SetUniform("view", viewMatrix);
-    //
+
     Camera::OrthographicSettings orth 
     {
         -10.0f, -10.0f, 
@@ -78,16 +77,15 @@ void ShadowPass::Execute()
         lightPOV.UpdateCamera();
         m_program.Use();
 
-        //m_program.SetUniform("lightSpaceMatrix", lightPOV.GetViewProjMatrix());
         glViewport(0,0,1024,1024);
         glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
         glClear(GL_DEPTH_BUFFER_BIT);
         glm::vec3 lightInvDir = dir;
         glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
         glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
-        glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
+        m_lightSpaceMatrix = depthProjectionMatrix * depthViewMatrix;
 
-        m_program.SetUniform("lightSpaceMatrix", depthMVP);
+        m_program.SetUniform("lightSpaceMatrix", m_lightSpaceMatrix);
         
         for(Mesh const& mesh : m_meshes)
         {

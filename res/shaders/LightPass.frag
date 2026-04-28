@@ -6,6 +6,7 @@ in vec2 TexCoords;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
+uniform sampler2D shadowMap;
 
 struct Light {
     vec3 Color;
@@ -21,6 +22,21 @@ uniform Light lights[NR_LIGHTS];
 uniform vec3 viewPos;
 uniform int nbLights;
 
+uniform mat4 lightSpaceMatrix;
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
+
 void main()
 {             
     // retrieve data from gbuffer
@@ -28,6 +44,7 @@ void main()
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
+    vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
     
     // then calculate lighting as usual
     vec3 lighting  = Diffuse * vec3(0.1f); // hard-coded ambient component
@@ -41,8 +58,9 @@ void main()
             vec3 halfwayDir = normalize(lightDir + viewDir);  
             float spec = pow(max(dot(Normal, halfwayDir),0.0), 16.0);
             vec3 specular = lights[i].Color * spec * Specular;
+            float shadow = ShadowCalculation(FragPosLightSpace);
 
-            lighting += diff + specular;
+            lighting += (1.0 - shadow) * (diff + specular)
             continue;
         }
 
@@ -53,7 +71,7 @@ void main()
         {
             // diffuse
             vec3 lightDir = normalize(Position - FragPos);
-            vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * lights[i].Color;
+            vec3 diffuse = max(dot(Normal, lightDir), 0.) * Diffuse * lights[i].Color;
             // specular
             vec3 halfwayDir = normalize(lightDir + viewDir);  
             float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
