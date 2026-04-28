@@ -1,17 +1,27 @@
 ---@type NodeRigidBody
 
 local self = self
-local oActivatorComponent
+local oCompContainer
 local oReceiverComponent
+
 local bIsCollected = false
 
 local function ResetInteraction()
     oReceiverComponent:SetInteract(true)
 end
 
-function self:Interaction()
-    --Collect the key()
-    oActivatorComponent:DoAction()
+self.Interaction = function(pEmitter)
+    assert(pEmitter ~= nil, "L'emitter est nil")
+
+    if bIsCollected == true then
+        return 
+    end
+
+    local oInventoryComponent = pEmitter:GetNode("components/InventoryComponent")
+    oInventoryComponent:AddItem("KeyCard")
+    bIsCollected = true
+    oReceiverComponent:SetInteract(false)
+    --self:Destroy() 
 end
 
 function self:GetPrompt()
@@ -19,11 +29,8 @@ function self:GetPrompt()
 end
 
 function OnInit()
-    local oCompContainer = self:FindChild("components")
+    oCompContainer = self:FindChild("components")
     oReceiverComponent = oCompContainer:FindChild("InteractReceiverComponent")
-    oActivatorComponent = self:GetNode("/SceneRoot/RB_Door/components/ActivableComponent")
-
-    if not oActivatorComponent then return end
 end
 
 function OnUpdate(iDelta) end
