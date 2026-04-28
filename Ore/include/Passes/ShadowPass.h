@@ -3,10 +3,10 @@
 
 #include "Pass.h"
 #include "Mesh.h"
-#include "LightPass.h"
 
 namespace Ore
 {
+struct Light;
 class ShadowPass : public Pass 
 {
 public:
@@ -32,6 +32,7 @@ private:
     TextureObject m_shadowMap;
     glm::mat4 m_lightSpaceMatrix;
 
+friend class LightPass;
 };
 }
 #endif

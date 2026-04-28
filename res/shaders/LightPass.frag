@@ -61,7 +61,7 @@ void main()
             vec3 specular = lights[i].Color * spec * Specular;
             float shadow = ShadowCalculation(FragPosLightSpace);
 
-            lighting += (1.0 - shadow) * (diff + specular)
+            lighting += (1.0 - shadow) * (diff + specular);
             continue;
         }
 

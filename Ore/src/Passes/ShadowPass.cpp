@@ -1,5 +1,6 @@
 #include "Passes/ShadowPass.h"
 #include "Logger.hpp"
+#include "Passes/LightPass.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>

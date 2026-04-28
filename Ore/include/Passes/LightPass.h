@@ -5,12 +5,12 @@
 #include "Color.h"
 #include "VertexArrayObject.h"
 #include "Buffer.h"
-#include "ShadowPass.h"
 
 #include <span>
 
 namespace Ore
 {
+class ShadowPass;
 using LightSpan =  std::span<struct Light>;
 
 struct Light
@@ -31,7 +31,7 @@ public:
     ~LightPass() = default;
 
     void SetLights(LightSpan const& lights);
-    void SetShadowPass(ShadowPass const& shadowpass);
+    void SetShadowPass(sptr<ShadowPass> pShadowpass);
     void Execute() override;
 
 private:
@@ -44,7 +44,7 @@ private:
     uptr<Buffer<float>> m_quadVBO;
     GLuint m_quadVAOId;
     GLuint m_quadVBOId;
-    ShadowPass m_shadowPass;
+    sptr<ShadowPass> m_pShadowPass;
 };
 }
 #endif
