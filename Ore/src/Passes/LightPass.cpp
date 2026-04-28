@@ -64,8 +64,9 @@ void LightPass::Execute()
 {
     if (m_pCamera == nullptr) return;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+    glViewport(0, 0, m_screenWidth, m_screenHeight);
     m_program.Use();
 
     glActiveTexture(GL_TEXTURE0);
@@ -76,11 +77,11 @@ void LightPass::Execute()
     m_pGAlbedoSpec->Bind();
     glActiveTexture(GL_TEXTURE3);
     m_pGSkybox->Bind();
+    glActiveTexture(GL_TEXTURE4);
+    m_pShadowPass->m_shadowMap.Bind();
 
     m_program.SetUniform("nbLights", static_cast<int32>(m_lights.size()));
     m_program.SetUniform("lightSpaceMatrix", m_pShadowPass->m_lightSpaceMatrix);
-    glActiveTexture(GL_TEXTURE4);
-    m_pShadowPass->m_shadowMap.Bind();
     m_program.SetUniform("shadowMap", 4);
 
     for (uint32 i = 0; i < m_lights.size(); ++i)
