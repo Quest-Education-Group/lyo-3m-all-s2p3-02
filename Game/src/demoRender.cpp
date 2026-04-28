@@ -229,6 +229,7 @@ int main()
     lightProgram.SetUniform("gPosition", 0);
     lightProgram.SetUniform("gNormal", 1);
     lightProgram.SetUniform("gAlbedoSpec", 2);
+    lightProgram.SetUniform("gSkybox", 3);
 
     Ore::Shader shadowFrag(Ore::ShaderType::TYPE_FRAGMENT);
     Ore::Shader shadowVert(Ore::ShaderType::TYPE_VERTEX);

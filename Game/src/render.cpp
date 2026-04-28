@@ -161,7 +161,7 @@ int main()
 
     viewport.AddPass(&geoPass);
     viewport.AddPass(&skyboxPass);
-    viewport.AddPass(&lightPass);
+    //viewport.AddPass(&lightPass);
     viewport.AddPass(&uiPass);
 
     float fact = 1.0f;

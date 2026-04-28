@@ -6,8 +6,8 @@ in vec2 TexCoords;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
-uniform sampler2D shadowMap;
 uniform sampler2D gSkybox;
+uniform sampler2D shadowMap;
 
 struct Light {
     vec3 Color;
@@ -59,9 +59,9 @@ void main()
             vec3 halfwayDir = normalize(lightDir + viewDir);  
             float spec = pow(max(dot(Normal, halfwayDir),0.0), 16.0);
             vec3 specular = lights[i].Color * spec * Specular;
-            float shadow = ShadowCalculation(FragPosLightSpace);
+            //float shadow = ShadowCalculation(FragPosLightSpace);
 
-            lighting += (1.0 - shadow) * (diff + specular);
+            //lighting += (1.0 - shadow) * (diff + specular);
             continue;
         }
 
@@ -85,6 +85,6 @@ void main()
         }
     }
 
-    FragColor = texture(gSkybox, TexCoords) * (1 - Specular) + vec4(lighting, Specular);
-    //FragColor = vec4(lighting, 1.0);
+    //FragColor = texture(gSkybox, TexCoords) * (1 - Specular) + vec4(lighting, Specular);
+    FragColor = vec4(texture(shadowMap, FragPosLightSpace.xy).z, 0.0, 0.0, 1.0);
 }
