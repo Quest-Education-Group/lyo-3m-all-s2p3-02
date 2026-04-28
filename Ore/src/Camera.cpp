@@ -3,8 +3,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <array>
 
-#include <Logger.hpp>
-
 using namespace Ore;
 std::array<glm::vec3, 8> Camera::GetFrustum() const
 {
@@ -17,6 +15,15 @@ glm::mat4 const& Camera::GetViewProjMatrix() const
     return m_viewProjMat;
 }
 
+glm::mat4 const&  Camera::GetViewMatrix() const
+{
+    return m_viewMatrix;
+}
+glm::mat4 const&  Camera::GetProjMatrix() const
+{
+    return m_projMatrix;
+}
+
 glm::vec3 Camera::GetPosition() const
 {
     return { m_transform[0][3], m_transform[1][3], m_transform[2][3]};
@@ -24,14 +31,13 @@ glm::vec3 Camera::GetPosition() const
 
 void Camera::UpdateCamera()
 {
-    glm::mat4 projMatrix;
     switch(m_projectionType)
     {
     case ProjectionType::PERSPECTIVE:
-        projMatrix = glm::perspective(Perspective.fov,Perspective.aspectRatio, Perspective.nearPlane, Perspective.farPlane);
+        m_projMatrix = glm::perspective(Perspective.fov,Perspective.aspectRatio, Perspective.nearPlane, Perspective.farPlane);
         break;
     case ProjectionType::ORTHOGRAPHIC:
-        projMatrix = glm::mat4({
+        m_projMatrix = glm::mat4({
             2.0f / Orthographic.right,  0.0f,                       0.0f,   0.0f,
             0.0f,                       -2.0f / Orthographic.top,   0.0f,   0.0f,
             -1.0f,                      1.0f,                       1.0f,   0.0f,
@@ -40,7 +46,7 @@ void Camera::UpdateCamera()
         break;
     }
 
-    m_viewProjMat = projMatrix * m_viewMatrix;
+    m_viewProjMat = m_projMatrix * m_viewMatrix;
 }
 
 void Camera::SetTransform(glm::mat4 const& transform)

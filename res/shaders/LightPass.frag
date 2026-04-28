@@ -7,6 +7,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 uniform sampler2D shadowMap;
+uniform sampler2D gSkybox;
 
 struct Light {
     vec3 Color;
@@ -82,6 +83,8 @@ void main()
             specular *= attenuation;
             lighting += diffuse + specular;
         }
-    }    
-    FragColor = vec4(lighting, 1.0);
+    }
+
+    FragColor = texture(gSkybox, TexCoords) * (1 - Specular) + vec4(lighting, Specular);
+    //FragColor = vec4(lighting, 1.0);
 }

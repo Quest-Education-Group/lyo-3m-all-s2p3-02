@@ -68,6 +68,8 @@ void LightPass::Execute()
     m_pGNormal->Bind();
     glActiveTexture(GL_TEXTURE2);
     m_pGAlbedoSpec->Bind();
+    glActiveTexture(GL_TEXTURE3);
+    m_pGSkybox->Bind();
 
     m_program.SetUniform("nbLights", static_cast<int32>(m_lights.size()));
     for (uint32 i = 0; i < m_lights.size(); ++i)

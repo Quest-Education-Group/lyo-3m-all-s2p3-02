@@ -43,6 +43,8 @@ public:
 
     std::array<glm::vec3, 8> GetFrustum() const;
     glm::mat4 const& GetViewProjMatrix() const;
+    glm::mat4 const& GetViewMatrix() const;
+    glm::mat4 const& GetProjMatrix() const;
     glm::vec3 GetPosition() const;
 
     void LookAt(glm::vec3 const& target);
@@ -56,6 +58,7 @@ public:
 private:
     glm::mat4 m_transform {1.0f};
     glm::mat4 m_viewMatrix {1.0f};
+    glm::mat4 m_projMatrix {1.0f};
     glm::mat4 m_viewProjMat {1.0f};
 
     ProjectionType m_projectionType = ProjectionType::PERSPECTIVE;

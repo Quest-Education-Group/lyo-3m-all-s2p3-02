@@ -99,9 +99,6 @@ void Window::Open()
 void Window::Clear()
 {
     glfwMakeContextCurrent(m_pWindow);
-	Color blue = Color::DARK_BLUE;
-	glClearColor(blue.r, blue.g, blue.b, blue.a);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::Present()
