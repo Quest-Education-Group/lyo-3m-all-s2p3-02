@@ -1,4 +1,5 @@
 #include "Passes/SkyboxPass.h"
+#include "Logger.hpp"
 
 namespace Ore
 {
@@ -34,77 +35,84 @@ namespace Ore
 
     void SkyboxPass::Execute()
     {
+    	if (m_pCamera == nullptr) return;
 
+    	glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+    	glBindTexture(GL_TEXTURE_CUBE_MAP, m_pCubeMap->m_cubeMap);
+
+    	glDepthMask(GL_FALSE);
+    	m_program.Use();
+
+    	glm::mat4 view = glm::mat4(glm::mat3(m_pCamera->GetViewMatrix()));
+    	m_program.SetUniform("view", view);
+    	m_program.SetUniform("proj", m_pCamera->GetProjMatrix());
+
+
+    	m_pVertexArray->Bind();
+
+    	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0);
+
+    	glDepthMask(GL_TRUE);
+    	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    constexpr std::array<Vertex, 24> SkyboxPass::GenerateCubeVertices()
+    constexpr std::vector<Vertex> SkyboxPass::GenerateCubeVertices()
     {
-        return{
-			// FRONT
-			Vertex
-        	{{ -.5f, -.5f, -.5f }, { 0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},	// 0
-			{{ -.5f,  .5f, -.5f }, { 0.0f, 0.0f, -1.0f},{0.0f, 0.0f}}, 	// 1
-			{{  .5f,  .5f, -.5f }, { 0.0f, 0.0f, -1.0f},{1.0f, 0.0f}},	// 2
-			{{  .5f, -.5f, -.5f }, { 0.0f, 0.0f, -1.0f},{1.0f, 1.0f}},	// 3
+    	float hx = 0.5f;
+    	float hy = 0.5f;
+    	float hz = 0.5f;
 
-			// BACK
-			{{ -.5f, -.5f,  .5f },  { 0.0f, 0.0f, 1.0f},{1.0f, 1.0f}},	// 4
-			{{  .5f, -.5f,  .5f },  { 0.0f, 0.0f, 1.0f},{0.0f, 1.0f}},	// 5
-			{{  .5f,  .5f,  .5f },  { 0.0f, 0.0f, 1.0f},{0.0f, 0.0f}},	// 6
-			{{ -.5f,  .5f,  .5f },  { 0.0f, 0.0f, 1.0f},{1.0f, 0.0f}},	// 7
+    	std::vector<Ore::Vertex> vertices;
+    	vertices.push_back({ { hx, -hy, -hz }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } });
+		vertices.push_back({ { hx,  hy, -hz }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } });
+		vertices.push_back({ { hx,  hy,  hz }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } });
+		vertices.push_back({ { hx, -hy,  hz }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } });
 
-			// LEFT
-			 {{ -.5f, -.5f,  .5f }, { -1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},	// 8
-			 {{ -.5f,  .5f,  .5f }, { -1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},	// 9
-			 {{ -.5f,  .5f, -.5f }, { -1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},	// 10
-			 {{ -.5f, -.5f, -.5f }, { -1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},	// 11
+		// -X
+		vertices.push_back({ { -hx, -hy,  hz }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } });
+		vertices.push_back({ { -hx,  hy,  hz }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } });
+		vertices.push_back({ { -hx,  hy, -hz }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } });
+		vertices.push_back({ { -hx, -hy, -hz }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } });
 
-			 // RIGHT
-			 {{  .5f, -.5f, -.5f } , { 1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},	// 12
-			 {{  .5f,  .5f, -.5f } , { 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},	// 13
-			 {{  .5f,  .5f,  .5f } , { 1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},	// 14
-			 {{  .5f, -.5f,  .5f } , { 1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},	// 15
+		// +Y
+		vertices.push_back({ { -hx,  hy, -hz }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } });
+		vertices.push_back({ { -hx,  hy,  hz }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } });
+		vertices.push_back({ {  hx,  hy,  hz }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } });
+		vertices.push_back({ {  hx,  hy, -hz }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } });
 
-			 // TOP
-			 {{ -.5f,  .5f, -.5f }, { 0.0f, 1.0f, 0.f},  {0.0f, 1.0f}},	// 16
-			 {{ -.5f,  .5f,  .5f }, { 0.0f, 1.0f, 0.f},  {0.0f, 0.0f}},	// 17
-			 {{  .5f,  .5f,  .5f }, { 0.0f, 1.0f, 0.f},  {1.0f, 0.0f}},	// 18
-			 {{  .5f,  .5f, -.5f }, { 0.0f, 1.0f, 0.f}, {1.0f, 1.0f}},	// 19
+		// -Y
+		vertices.push_back({ { -hx, -hy,  hz }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } });
+		vertices.push_back({ { -hx, -hy, -hz }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } });
+		vertices.push_back({ {  hx, -hy, -hz }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } });
+		vertices.push_back({ {  hx, -hy,  hz }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } });
 
-			 // BOTTOM
-			 {{ -.5f, -.5f,  .5f }, { 0.0f,-1.0f,0.f }, {0.0f, 1.0f}},	// 20
-			 {{ -.5f, -.5f, -.5f }, { 0.0f,-1.0f,0.f }, {0.0f, 0.0f}},	// 21
-			 {{  .5f, -.5f, -.5f }, { 0.0f,-1.0f,0.f }, {1.0f, 0.0f}},	// 22
-			 {{  .5f, -.5f,  .5f }, {0.0f,-1.0f,0.f },  {1.0f, 1.0f}},	// 23
-		};
+		// +Z
+		vertices.push_back({ { -hx, -hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } });
+		vertices.push_back({ {  hx, -hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } });
+		vertices.push_back({ {  hx,  hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } });
+		vertices.push_back({ { -hx,  hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } });
+
+		// -Z
+		vertices.push_back({ {  hx, -hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } });
+		vertices.push_back({ { -hx, -hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } });
+		vertices.push_back({ { -hx,  hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } });
+		vertices.push_back({ {  hx,  hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } });
+    	return vertices;
     }
 
-    constexpr std::array<uint8, 36> SkyboxPass::GenerateCubeIndices()
+    constexpr std::vector<uint8> SkyboxPass::GenerateCubeIndices()
     {
-    	return {
-    		// FRONT
-    		0, 1, 2,
-			0, 2, 3,
-
-			// BACK
-			4, 5, 6,
-			4, 6, 7,
-
-			// LEFT
-			8, 9, 10,
-			8, 10, 11,
-
-			// RIGHT
-			12, 13, 14,
-			12, 14, 15,
-
-			// TOP
-			16, 17, 18,
-			16, 18, 19,
-
-			// BOTTOM
-			20, 21, 22,
-			20, 22, 23
-		};
+    	std::vector<uint8> indices;
+    	for (uint32 face = 0; face < 6; ++face)
+    	{
+    		const uint32 base = face * 4;
+    		indices.push_back(base + 0);
+    		indices.push_back(base + 1);
+    		indices.push_back(base + 2);
+    		indices.push_back(base + 0);
+    		indices.push_back(base + 2);
+    		indices.push_back(base + 3);
+    	}
+    	return indices;
     }
 }

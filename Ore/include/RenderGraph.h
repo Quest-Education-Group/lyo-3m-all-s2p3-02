@@ -34,6 +34,7 @@ private:
     sptr<TextureObject> m_pGPosition;
     sptr<TextureObject> m_pGNormal;
     sptr<TextureObject> m_pGAlbedoSpec;
+    sptr<TextureObject> m_pGSkybox;
 };
 }
 #endif

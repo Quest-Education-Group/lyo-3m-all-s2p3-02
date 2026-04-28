@@ -11,21 +11,24 @@ namespace Ore
 {
 class SkyboxPass : public Pass
 {
+public:
     SkyboxPass(Program& program) : Pass(program) {};
     SkyboxPass(Program& program, Camera* camera);
 
-    void Execute() override;
     void SetCubeMap(sptr<Cubemap> const& cubemap) { m_pCubeMap = cubemap; }
-
 private:
-    constexpr std::array<Vertex, 24> GenerateCubeVertices();
-    constexpr std::array<uint8, 36> GenerateCubeIndices();
+    void Execute() override;
+
+    constexpr std::vector<Vertex> GenerateCubeVertices();
+    constexpr std::vector<uint8> GenerateCubeIndices();
 
 private:
     sptr<Cubemap>               m_pCubeMap;
     uptr<VertexArrayObject>     m_pVertexArray;
     uptr<Buffer<uint8>>         m_pIndicesBuffer;
     uptr<Buffer<Vertex>>        m_pVertexBuffer;
+    GLuint m_frameBufferId;
+
 };
 }
 #endif

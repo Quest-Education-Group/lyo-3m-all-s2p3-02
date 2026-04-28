@@ -20,6 +20,8 @@ namespace Ore
 
     private:
         GLuint m_cubeMap;
+
+        friend class SkyboxPass;
     };
 }
     #endif

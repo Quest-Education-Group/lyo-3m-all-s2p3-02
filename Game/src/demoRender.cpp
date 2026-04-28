@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "Passes/GeometryPass.h"
 #include "Passes/LightPass.h"
+#include "Cubemap.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -141,6 +142,17 @@ int main()
     
     Ore::Mesh cube(pCube, white, cubeMatrix);
     Ore::Mesh longBox(pCube, white, longBoxMatrix);
+
+    Ore::Cubemap cubemap {
+            {
+                "res/textures/skybox/back.jpg",
+                "res/textures/skybox/bottom.jpg",
+                "res/textures/skybox/front.jpg",
+                "res/textures/skybox/left.jpg",
+                "res/textures/skybox/right.jpg",
+                "res/textures/skybox/top.jpg",
+            }
+    };
 
     sptr<Ore::Camera> pCamera = std::make_shared<Ore::Camera>(); 
     pCamera->Perspective.aspectRatio = static_cast<float>(SCR_WIDTH)/static_cast<float>(SCR_HEIGHT);
