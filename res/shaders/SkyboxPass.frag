@@ -13,5 +13,5 @@ void main()
 {
     //gAlbedoSpec.rgb = texture(skybox, TexCoords).rgb;
     //gAlbedoSpec.a = 1.0f;
-    gSkybox = texture(skybox, TexCoords);
+    gSkybox = texture(skybox, -TexCoords);
 }

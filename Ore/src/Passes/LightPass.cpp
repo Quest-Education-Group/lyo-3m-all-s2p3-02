@@ -67,6 +67,8 @@ void LightPass::Execute()
     m_pGNormal->Bind();
     glActiveTexture(GL_TEXTURE2);
     m_pGAlbedoSpec->Bind();
+    glActiveTexture(GL_TEXTURE3);
+    m_pGSkybox->Bind();
 
     for (uint32 i = 0; i < m_lights.size(); ++i)
     {

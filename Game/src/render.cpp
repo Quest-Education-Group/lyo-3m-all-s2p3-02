@@ -56,12 +56,12 @@ int main()
     sptr<Cubemap> cubemap = std::make_shared<Cubemap>();
     cubemap->Load(
 {
-            "res/textures/skybox/back.jpg",
-            "res/textures/skybox/bottom.jpg",
-            "res/textures/skybox/front.jpg",
-            "res/textures/skybox/left.jpg",
             "res/textures/skybox/right.jpg",
+            "res/textures/skybox/left.jpg",
+            "res/textures/skybox/bottom.jpg",
             "res/textures/skybox/top.jpg",
+            "res/textures/skybox/front.jpg",
+            "res/textures/skybox/back.jpg",
         }
     );
 
@@ -167,6 +167,7 @@ int main()
     float fact = 1.0f;
     float inf = 0.0f;
 
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     while (window.IsOpen())
     {
         window.Clear();
@@ -175,7 +176,10 @@ int main()
         //inf += 0.0016f * fact;
         //glm::mat4 meshTransform = glm::translate(mesh.GetTransform(), glm::vec3(0.0016f * fact, 0.0f, 0.0f));
         //mesh.SetTransform(meshTransform);
-        //camera->SetRoll(roll ++);
+        transform = glm::rotate(transform, glm::radians(0.16f), glm::vec3(0.0f, 1.0f, 0.0f));
+        camera->SetTransform(transform);
+        camera->UpdateCamera();
+
         //Logger::LogWithLevel(LogLevel::ERROR, yaw);
         //camera->SetPosition(camPos);
         //lights[0].position += glm::vec3(1.0f, 0.0f, 0.0f);
