@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "Passes/GeometryPass.h"
 #include "Passes/LightPass.h"
+#include "Passes/ShadowPass.h"
 #include "Cubemap.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -23,39 +24,59 @@ enum class GeoType
 
 sptr<Ore::Geometry> GenerateCube()
 {
-    Ore::Vertex vertices[8] = 
-    {
-        {glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-        {glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-        {glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-        {glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+    float hx = 0.5f;
+    float hy = 0.5f;
+    float hz = 0.5f;
 
-        {glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-        {glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-        {glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-        {glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-    };
-    std::vector<uint32> indices = 
+    std::vector<Ore::Vertex> vertices;
+    vertices.push_back({ { hx, -hy, -hz }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { hx,  hy, -hz }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ { hx,  hy,  hz }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ { hx, -hy,  hz }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } });
+
+	// -X
+	vertices.push_back({ { -hx, -hy,  hz }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { -hx,  hy,  hz }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ { -hx,  hy, -hz }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ { -hx, -hy, -hz }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } });
+
+	// +Y
+	vertices.push_back({ { -hx,  hy, -hz }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { -hx,  hy,  hz }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ {  hx,  hy,  hz }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ {  hx,  hy, -hz }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } });
+
+	// -Y
+	vertices.push_back({ { -hx, -hy,  hz }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { -hx, -hy, -hz }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ {  hx, -hy, -hz }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ {  hx, -hy,  hz }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } });
+
+	// +Z
+	vertices.push_back({ { -hx, -hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ {  hx, -hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } });
+	vertices.push_back({ {  hx,  hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ { -hx,  hy,  hz }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } });
+
+	// -Z
+	vertices.push_back({ {  hx, -hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { -hx, -hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } });
+	vertices.push_back({ { -hx,  hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ {  hx,  hy, -hz }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } });
+
+    std::vector<uint32> indices;
+    for (uint32 face = 0; face < 6; ++face)
     {
-        // front
-		0, 1, 2,
-		2, 3, 0,
-		// right
-		1, 5, 6,
-		6, 2, 1,
-		// back
-		7, 6, 5,
-		5, 4, 7,
-		// left
-		4, 0, 3,
-		3, 7, 4,
-		// bottom
-		4, 5, 1,
-		1, 0, 4,
-		// top
-		3, 2, 6,
-		6, 7, 3
-    };
+        const uint32 base = face * 4;
+        indices.push_back(base + 0);
+        indices.push_back(base + 1);
+        indices.push_back(base + 2);
+        indices.push_back(base + 0);
+        indices.push_back(base + 2);
+        indices.push_back(base + 3);
+    }
+    
+    Ore::Geometry::CalculateTangents(vertices, indices);
 
     sptr<Ore::Geometry> geo = make_shared<Ore::Geometry>(vertices, indices);
 
@@ -77,6 +98,8 @@ sptr<Ore::Geometry> GeneratePlane()
         0,1,2,
         0,2,3
     };
+
+    Ore::Geometry::CalculateTangents(vertices, indices);
 
     sptr<Ore::Geometry> geo = make_shared<Ore::Geometry>(vertices, indices);
 
@@ -112,7 +135,7 @@ int main()
     sptr<Ore::Texture> pGreen   = std::make_shared<Ore::Texture>("res/textures/green.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE);
     sptr<Ore::Texture> pWhite   = std::make_shared<Ore::Texture>("res/textures/white.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE);
     sptr<Ore::Texture> pRed   = std::make_shared<Ore::Texture>("res/textures/red.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::DIFFUSE);
-    sptr<Ore::Texture> pSpecular  = std::make_shared<Ore::Texture>("res/textures/defaultSpecular.jpg", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::SPECULAR);
+    sptr<Ore::Texture> pSpecular  = std::make_shared<Ore::Texture>("res/textures/defaultSpecular.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::SPECULAR);
     sptr<Ore::Texture> pNormal    = std::make_shared<Ore::Texture>("res/textures/defaultNormal.png", Ore::TextureType::TYPE_2D, Ore::TextureMaterialType::NORMAL);
 
     sptr<Ore::Texture> textures[3] = {pDiffuse, pSpecular, pNormal};
@@ -122,14 +145,14 @@ int main()
 
 
     Ore::Mesh BackWall(pPlane, white, glm::mat4(1.0f));
-    Ore::Mesh RightWall(pPlane, green, glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, 0.5f)) * 
-            glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-    Ore::Mesh LeftWall(pPlane, red, glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.5f)) * 
+    Ore::Mesh RightWall(pPlane, green, glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.5f)) * 
+            glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    Ore::Mesh LeftWall(pPlane, red, glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, 0.5f)) * 
             glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
     Ore::Mesh floor(pPlane, white, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.5f)) * 
-            glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-    Ore::Mesh ceiling(pPlane, white, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, 0.5f)) * 
             glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f)));
+    Ore::Mesh ceiling(pPlane, white, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, 0.5f)) * 
+            glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 
 
     glm::mat4 cubeMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-0.3f, 0.35f, 0.6f));
@@ -164,18 +187,19 @@ int main()
     leftLight.linear        = 0.2f;
     leftLight.quadratic     = 0.8f;
     leftLight.constant      = 0.0f;
-    leftLight.position      = {0.0f, 0.0f, 1.f};
+    leftLight.position      = {0.3f, 0.3f, 0.0f, 0.0f};
     
     Ore::Light rightLight;
     rightLight.linear       = 0.2f;
     rightLight.quadratic    = 0.8f;
     rightLight.constant     = 0.0f;
-    rightLight.position     = {0.0f, 0.0f, 1.f};
+    //rightLight.position     = {0.0f, 0.0f, 1.f};
     
     std::vector<Ore::Light> lights = {leftLight};
     
     Ore::Program geometryProgram;
     Ore::Program lightProgram;
+    Ore::Program shadowProgram;
     
     Ore::Shader geoFrag(Ore::ShaderType::TYPE_FRAGMENT);
     Ore::Shader geoVert(Ore::ShaderType::TYPE_VERTEX);
@@ -205,11 +229,29 @@ int main()
     lightProgram.SetUniform("gPosition", 0);
     lightProgram.SetUniform("gNormal", 1);
     lightProgram.SetUniform("gAlbedoSpec", 2);
+    lightProgram.SetUniform("gSkybox", 3);
+
+    Ore::Shader shadowFrag(Ore::ShaderType::TYPE_FRAGMENT);
+    Ore::Shader shadowVert(Ore::ShaderType::TYPE_VERTEX);
+    shadowFrag.Load("res/shaders/ShadowPass.frag");
+    shadowVert.Load("res/shaders/ShadowPass.vert");
+
+    shadowProgram.AddShader(shadowFrag);
+    shadowProgram.AddShader(shadowVert);
+    shadowProgram.Load();
+
+    shadowFrag.Unload();
+    shadowVert.Unload();
 
     Ore::GeometryPass geoPass(geometryProgram, pCamera.get());
     Ore::LightPass lightPass(lightProgram, lights, pCamera.get());
+    //Ore::ShadowPass shadowPass(shadowProgram, pCamera.get());
+
+    sptr<Ore::ShadowPass> pShadowPass = std::make_unique<Ore::ShadowPass>(shadowProgram, pCamera.get());
+    lightPass.SetShadowPass(pShadowPass);
 
     viewport.AddPass(&geoPass);
+    viewport.AddPass(pShadowPass.get());
     viewport.AddPass(&lightPass);
 
     while(window.IsOpen())
@@ -225,7 +267,11 @@ int main()
         geoPass.AddMesh(ceiling);
 
         geoPass.AddMesh(cube);
-        geoPass.AddMesh(longBox);
+        //geoPass.AddMesh(longBox);
+
+        pShadowPass->AddMesh(cube);
+    	//pShadowPass->AddMesh(longBox);
+        pShadowPass->AddLight(lights[0]);
 
         viewport.Present();
         window.Present();

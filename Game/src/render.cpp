@@ -75,14 +75,14 @@ int main()
     for (int i = 0; i < 1; ++i)
     {
         float xPos = 0.0f;
-        float yPos = 0.0f;
-        float zPos = -1.0f;
+        float yPos = 3.0f;
+        float zPos = 1.0f;
         Light light;
         light.quadratic = 0.5f;
         light.linear = 0.4f;
         light.constant = 0.0f;
         //light.color = Color::BLUE;
-        light.position = { xPos, yPos, zPos };
+        light.position = { xPos, yPos, zPos, 0.0f};
         lights.push_back(light);
     }
 
@@ -161,7 +161,7 @@ int main()
 
     viewport.AddPass(&geoPass);
     viewport.AddPass(&skyboxPass);
-    viewport.AddPass(&lightPass);
+    //viewport.AddPass(&lightPass);
     viewport.AddPass(&uiPass);
 
     float fact = 1.0f;

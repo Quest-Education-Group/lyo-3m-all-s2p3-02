@@ -1,8 +1,10 @@
 #include "Passes/LightPass.h"
 #include "TextureObject.h"
 #include "Logger.hpp"
+#include "Passes/ShadowPass.h"
 
 #include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace Ore;
 LightPass::LightPass(Program& program,LightSpan lights) : Pass(program)
@@ -21,6 +23,11 @@ LightPass::LightPass(Program& program, LightSpan lights, Camera* pCamera) : Pass
 
     SetLights(lights);
     GenerateQuad();
+}
+
+void LightPass::SetShadowPass(sptr<ShadowPass> pShadowpass)
+{
+    m_pShadowPass = pShadowpass;
 }
 
 void LightPass::GenerateQuad()
@@ -57,8 +64,9 @@ void LightPass::Execute()
 {
     if (m_pCamera == nullptr) return;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+    glViewport(0, 0, m_screenWidth, m_screenHeight);
     m_program.Use();
 
     glActiveTexture(GL_TEXTURE0);
@@ -69,13 +77,19 @@ void LightPass::Execute()
     m_pGAlbedoSpec->Bind();
     glActiveTexture(GL_TEXTURE3);
     m_pGSkybox->Bind();
+    glActiveTexture(GL_TEXTURE4);
+    m_pShadowPass->m_shadowMap.Bind();
+
+    m_program.SetUniform("nbLights", static_cast<int32>(m_lights.size()));
+    m_program.SetUniform("lightSpaceMatrix", m_pShadowPass->m_lightSpaceMatrix);
+    m_program.SetUniform("shadowMap", 4);
 
     for (uint32 i = 0; i < m_lights.size(); ++i)
     {
         std::string const indexStr = std::to_string(i);
         Light& light = m_lights[i];
 
-        m_program.SetUniform("lights[" + indexStr + "].Position", light.position);
+        m_program.SetUniform("lights[" + indexStr + "].Direction", light.position);
         m_program.SetUniform("lights[" + indexStr + "].Color", glm::vec3{ light.color.r, light.color.g, light.color.b });
 
         m_program.SetUniform("lights[" + indexStr + "].Linear", light.linear);
@@ -84,9 +98,10 @@ void LightPass::Execute()
         float const maxBrightness = std::fmaxf(std::fmaxf(light.color.r, light.color.g), light.color.b);
         float radius = (-light.linear + std::sqrt(light.linear * light.linear - 4 * light.quadratic * (light.constant - (256.0f / 5.0f) * maxBrightness)))
             / (2.0f * light.quadratic);
+
         m_program.SetUniform("lights[" + indexStr + "].Radius", radius);
     }
-
+       
     m_program.SetUniform("viewPos", m_pCamera->GetPosition());
     RenderQuad();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
