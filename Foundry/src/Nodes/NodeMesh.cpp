@@ -54,7 +54,7 @@ NodeMesh::NodeMesh(std::string const &name) : NodeVisual(name)
 void NodeMesh::OnUpdate(double delta)
 {
     NodeVisual::OnUpdate(delta);
-    m_pMesh->SetTransform( m_worldTransform * m_meshlocalTransform);
+    m_pMesh->SetTransform(m_worldTransform);
 
     if (IsVisible() && m_pViewport)
         m_pViewport->AddMesh(*this);
@@ -216,7 +216,7 @@ void NodeMesh::SetTexturesPaths(SceneMesh const& sceneMesh)
     }
 }
 
-void NodeMesh::SetFromSceneMesh(SceneMesh const& sceneMesh, std::filesystem::path const& fbxPath)
+void NodeMesh::SetFromSceneMesh(SceneMesh const& sceneMesh, std::filesystem::path const& fbxPath, bool usePos)
 {
     m_geometrySourceType = MeshGeometrySourceType::FBX;
     sptr<Ore::Geometry> geo = std::make_shared<Ore::Geometry>(sceneMesh.vertices, sceneMesh.indices);
@@ -228,11 +228,14 @@ void NodeMesh::SetFromSceneMesh(SceneMesh const& sceneMesh, std::filesystem::pat
     glm::vec3 translation;
     glm::vec3 skew;
     glm::vec4 perspective;
-    if (glm::decompose(sceneMesh.meshMatrix, scale, rotation, translation, skew, perspective))
+    if (usePos)
     {
-        SetWorldPosition(translation);
-        SetWorldScale(scale);
-        SetWorldRotationQuaternion(rotation);
+        if (glm::decompose(sceneMesh.meshMatrix, scale, rotation, translation, skew, perspective))
+        {
+            SetWorldPosition(translation);
+            SetWorldScale(scale);
+            SetWorldRotationQuaternion(rotation);
+        }
     }
     bool hasNormal = false;
     SetTexturesPaths(sceneMesh);
@@ -349,6 +352,7 @@ void NodeMesh::DeserializeTextures(SerializedObject const& datas)
     std::string normalPath = "";
     std::string opacityPath = "";
     bool textureSet = false;
+    m_textures.clear();
     for (uint8 i = 0; i < m_texturesPaths.size();++i)
     {
         switch (m_texturesPaths[i].type)
@@ -374,17 +378,6 @@ void NodeMesh::DeserializeTextures(SerializedObject const& datas)
             DeserializeTex(normalPath, Ore::TextureMaterialType::NORMAL, textureSet, i);
             if (!s_IsInEditor)
                 m_textures.push_back(AssetLoader::GetSharedTexture(normalPath, Ore::TextureMaterialType::NORMAL));
-            break;
-        case Ore::TextureMaterialType::SPECULAR:
-            if (opacityPath != "")
-            {
-                m_texturesPaths.erase(m_texturesPaths.begin() + i);
-                break;
-            }
-            textureSet = datas.TryGetPublicElement("OpacityTexturePath", &opacityPath);
-            DeserializeTex(opacityPath, Ore::TextureMaterialType::SPECULAR, textureSet, i);
-            if (!s_IsInEditor)
-                m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::SPECULAR));
             break;
         case Ore::TextureMaterialType::OPACITY:
             if (opacityPath != "")
@@ -426,15 +419,16 @@ void NodeMesh::DeserializeTextures(SerializedObject const& datas)
         m_texturesPaths.push_back({});
         m_texturesPaths[m_texturesPaths.size() - 1].path = opacityPath;
         m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::OPACITY;
-        m_texturesPaths.push_back({});
-        m_texturesPaths[m_texturesPaths.size() - 1].path = opacityPath;
-        m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::SPECULAR;
         if (!s_IsInEditor)
-        {
             m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::OPACITY));
-            m_textures.push_back(AssetLoader::GetSharedTexture(opacityPath, Ore::TextureMaterialType::SPECULAR));
-        }
     }
+    m_texturesPaths.push_back({});
+    std::string specPath = AssetLoader::GetDefaultTexturePath(Ore::TextureMaterialType::SPECULAR);
+    m_texturesPaths[m_texturesPaths.size() - 1].path = specPath;
+    m_texturesPaths[m_texturesPaths.size() - 1].type = Ore::TextureMaterialType::SPECULAR;
+    if (!s_IsInEditor)
+        m_textures.push_back(AssetLoader::GetSharedTexture(specPath, Ore::TextureMaterialType::SPECULAR));
+
     m_diffusePath = diffusePath;
     uint32 textureCount = 1;
     if (!datas.TryGetPrivateElement("TextureCount", &textureCount))
@@ -502,7 +496,7 @@ void NodeMesh::Deserialize(SerializedObject const& datas)
     else
     {
         if (!s_IsInEditor)
-            SetFromSceneMesh(*AssetLoader::LoadSceneFromFile(m_fbxPath.string(), AssetLoader::FileType::FBX)->allMesh[m_meshIDInSceneFBX], m_fbxPath);
+            SetFromSceneMesh(*AssetLoader::LoadSceneFromFile(m_fbxPath.string(), AssetLoader::FileType::FBX)->allMesh[m_meshIDInSceneFBX], m_fbxPath,false);
         else
             SetFromEditorSceneMesh(EditorAssetLoader::LoadSceneFromFile(m_fbxPath.string(), EditorAssetLoader::FileType::FBX)->meshes[m_meshIDInSceneFBX], m_fbxPath);
     }
@@ -512,7 +506,7 @@ void NodeMesh::Deserialize(SerializedObject const& datas)
     m_pMesh->SetActive(isActive);
 
     Update(1);
-    m_pMesh->SetTransform(m_meshlocalTransform * m_transform.GetMatrix());
+    m_pMesh->SetTransform(GetWorldMatrix());
 }
 
 void NodeMesh::AttachScriptDeserialize(uptr<LuaScriptInstance>& script)
