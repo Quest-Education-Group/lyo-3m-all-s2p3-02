@@ -121,8 +121,8 @@ self.Jump = function(icJump)
 end
 
 local function TryJump()
-    -- if fJumpBufferTimer > 0 then -- CETTE LIGNE PERMET LES SAUTS SUCCESSIFS 
-    if fCoyoteTimer > 0 and fJumpBufferTimer > 0 then 
+    if fJumpBufferTimer > 0 then -- CETTE LIGNE PERMET LES SAUTS SUCCESSIFS 
+    -- if fCoyoteTimer > 0 and fJumpBufferTimer > 0 then 
         local vel = oRB:GetLinearVelocity()
         oRB:SetLinearVelocity(fmath.vec3:new(vel.x, 0, vel.z))
         oRB:SetAngularVelocity(fmath.vec3:new(0, 0, 0))
@@ -247,7 +247,7 @@ function self:Setup(oNewRigidBody, iNewMoveSpeed, iNewJumpForce)
 
     oRB        = oNewRigidBody
     MOVE_SPEED = iNewMoveSpeed or 8000
-    JUMP_FORCE = iNewJumpForce or 4000000
+    JUMP_FORCE = iNewJumpForce or 600000
 
     print("MovementComponent Initialized")
 end

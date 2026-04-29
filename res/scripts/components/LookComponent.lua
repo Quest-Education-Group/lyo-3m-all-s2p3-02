@@ -7,7 +7,7 @@ local oCameraRoot
 
 local csCurrentCursorState = CursorState.LOCKED
 local iMouseSensitivityY = 800
-local iMouseSensitivityX = 800
+local iMouseSensitivityX = 5000
 local iMinPitch = -fmath.Pi / 4
 local iMaxPitch = fmath.Pi / 4
 local iCurPitch = 0.0
@@ -32,14 +32,7 @@ self.HandleMouseLook = function(icMouse)
 
     oRB:ApplyWorldTorque(fmath.vec3:new(0, vDeltaMouse.x * iMouseSensitivityX * oRB.gravity, 0))
     vLastMousePos = vecMouse;
-    
-    -- local iMouseInput = vecMouse.y * iMouseSensitivityY
-    -- local iNewPitch = fmath.Clamp(iCurPitch + iMouseInput, iMinPitch, iMaxPitch)
-    -- local iDelta = iNewPitch - iCurPitch
-    -- iCurPitch = iCurPitch + iDelta
-    -- oCameraRoot:AddLocalPitch(iDelta)
-    
-    -- oRB:ApplyWorldTorque(fmath.vec3:new(0, -vecMouse.x * iMouseSensitivityY * 1500 * fCurDt * oRB.gravity, 0))
+
 end
 
 local iLastChange = 0

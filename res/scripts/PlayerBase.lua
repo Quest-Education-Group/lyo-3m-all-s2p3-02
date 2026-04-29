@@ -186,7 +186,7 @@ function CheckIfGrounded()
         local hit = physics.Raycast(self:GetPosition(), fmath.vec3:new(0, -1 * self.gravity, 0), 1.001)
         if hit then
             oMovementComponent:SetGrounded(true)
-            -- print("_______ GROUNDED _________")
+            print("_______ GROUNDED _________")
         else
             oMovementComponent:SetGrounded(false)
             -- print("+++++++ NOT GROUNDED +++++++++")

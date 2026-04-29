@@ -9,7 +9,5 @@ end
 
 
 function OnUpdate()
-    local vecForward = self:GetLocalForward()
-    print("VecForward UPDATE cam = ".. vecForward.x..", ".. vecForward.y..", ".. vecForward.z)
-    self.VecForward = self:GetLocalForward()
+
 end

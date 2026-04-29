@@ -6,9 +6,9 @@
 local oGravityComponent
 local oPlayer
 local pRootNode
-local bIsEquipped = false
-local bA = false
-local bB = false
+
+-- local iThrowingForce = 6000
+
 function self:Interaction()
 
 end
@@ -53,7 +53,7 @@ function self.GetGrabbed()
     bIsEquipped = true
 end
 
-function self.GetThrown()
+function self.GetThrown(iThrowForce)
     oPlayer = pRootNode:FindChild("Player"):As(NodeTypes.NODE_RIGIDBODY)
     print("THROW OBJ")
     if not oPlayer then
@@ -76,11 +76,20 @@ function self.GetThrown()
     self:SetBounciness(1)
     print("Bounciness = ".. self:GetBounciness())
 
+    local oCameraRoot = oPlayer:FindChild("CameraRoot"):As(NodeTypes.NODE3D)
+    local oCamera = oCameraRoot:FindChild("Camera"):As(NodeTypes.NODE_CAMERA)
+    if not oCamera then
+        print("PB CAM interactable cube")
+        return
+    end
     local vecForward = oPlayer:GetLocalForward()
+    vecForward.y = oCameraRoot:GetLocalForward().y
     vecForward.z = vecForward.z * -1
+    -- local vecForward = oPlayer:GetLocalForward()
+    -- vecForward.z = vecForward.z * -1
     vecForward.x = vecForward.x * oPlayer.gravity
 
-    local throwForce = vecForward * 8000
+    local throwForce = vecForward *6000
     self:ApplyWorldForceAtCenterOfMass(throwForce)
 
     print("Name sphere = " .. self:GetName())
