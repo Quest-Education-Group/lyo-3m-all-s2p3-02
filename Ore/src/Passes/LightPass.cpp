@@ -77,12 +77,16 @@ void LightPass::Execute()
     m_pGAlbedoSpec->Bind();
     glActiveTexture(GL_TEXTURE3);
     m_pGSkybox->Bind();
-    glActiveTexture(GL_TEXTURE4);
-    m_pShadowPass->m_shadowMap.Bind();
 
-    m_program.SetUniform("nbLights", static_cast<int32>(m_lights.size()));
-    m_program.SetUniform("lightSpaceMatrix", m_pShadowPass->m_lightSpaceMatrix);
-    m_program.SetUniform("shadowMap", 4);
+    if (m_pShadowPass != nullptr)
+    {
+        glActiveTexture(GL_TEXTURE4);
+        m_pShadowPass->m_shadowMap.Bind();
+
+        m_program.SetUniform("nbLights", static_cast<int32>(m_lights.size()));
+        m_program.SetUniform("lightSpaceMatrix", m_pShadowPass->m_lightSpaceMatrix);
+        m_program.SetUniform("shadowMap", 4);
+    }
 
     for (uint32 i = 0; i < m_lights.size(); ++i)
     {
