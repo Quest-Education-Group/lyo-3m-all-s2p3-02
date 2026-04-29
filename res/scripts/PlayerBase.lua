@@ -11,19 +11,10 @@ local oInteractEmitterComponent
 local oStateMachineComponent
 local oGravityGunComponent
 
-local bRotating = false
+self.bRotating = false
 self.Pos = fmath.vec3:new()
-local refHeldObject
 
-self.bIsHoldingObject = 0
-self.gravity = 1
-
-self.SetHoldingObj = function(value)
-    self.bIsHoldingObject = value
-end
-self.GetHoldingObj = function()
-    return self.bIsHoldingObject
-end
+self.gravity = 1 -- doit devenir un vecteur & component
 
 local function InitializeRigidbody(iBodyType, iMass, bGravityEnabled, tAngularAxisLock, iLinearDamping, iAngularDamping)
     self:SetBodyType(iBodyType or 2)
@@ -58,27 +49,6 @@ local function InitializeActionMap()
     acmPlayer:CreateAction("DEBUG_POS", 1, EventInput.KEY_A)
 end
 
--- self.TestSetPos =  function(icGkey)
---     print("------- Setting Pos")
---     self:SetLocalPosition(fmath.vec3:new(-5,2,5))
---     print("------- Pos Set")
--- end
--- function self.TestSetPos(icGkey)
---     print("------- Setting Pos")
---     self:SetLocalPosition(fmath.vec3:new(-5,2,5))
---     print("------- Pos Set")
--- end
-self.GravityGun = function(icLeftCLick)
-    if not oRB then return end
-    print("--- GRABBING OBJECT ---")
-    if icLeftCLick:IsPressed() then
-        local vecForward = pEmitter:GetLocalForward()
-        vecForward.z = vecForward.z * -1
-        local oHit = physics.Raycast(pEmitter:GetPosition(), vecForward, 15)
-    end
-end
-
-
 local function BindActions(oMovementComponent, oLookComponent, oInteractEmitterComponent, oGravityGunComponent)
     if oMovementComponent then
         acmPlayer:GetAction("MOVE_FORWARD").Event  = oMovementComponent.MoveForward or
@@ -97,20 +67,9 @@ local function BindActions(oMovementComponent, oLookComponent, oInteractEmitterC
             function() print("PlayerBase: DEBUG_POS callback missing") end
         acmPlayer:GetAction("JUMP").Event          = oMovementComponent.Jump or
             function() print("PlayerBase: Jump callback missing") end
-
-        -- -- JUMP : buffer enregistré dans MovementComponent, saut effectif dans PhysicsUpdate
-        -- acmPlayer:GetAction("JUMP").Event = function()
-        --     oMovementComponent:Jump()
-        -- end
     else
         print("PlayerBase: MovementComponent missing")
     end
-
-
-    -- acmPlayer:GetAction("TEST_SETPOS").Event  = self.TestSetPos or
-    --         function() print("BUG TEST SET POS") end
-    -- acmPlayer:GetAction("GRAVITY_GUN").Event  = self.GravityGun or
-    --     function() print("______________BUG TEST GRAVITY_GUN") end
 
     if oLookComponent then
         acmPlayer:GetAction("LOOK").Event                = oLookComponent.HandleMouseLook or
@@ -210,7 +169,7 @@ function OnUpdate(dt)
 
     CheckIfGrounded()
     CheckGravityField(dt)
-    if bRotating then
+    if self.bRotating then
         OnGravityFieldChange(dt)
     end
 end
@@ -227,7 +186,7 @@ function CheckIfGrounded()
         local hit = physics.Raycast(self:GetPosition(), fmath.vec3:new(0, -1 * self.gravity, 0), 1.001)
         if hit then
             oMovementComponent:SetGrounded(true)
-            -- print("_______ GROUNDED _________")
+            print("_______ GROUNDED _________")
         else
             oMovementComponent:SetGrounded(false)
             -- print("+++++++ NOT GROUNDED +++++++++")
@@ -236,39 +195,22 @@ function CheckIfGrounded()
 end
 
 function CheckGravityField(dt)
-    if self.gravity > 0 then
-        if self:GetPosition().y >= 10 then
-            self.gravity = self.gravity * -1
-            bRotating = true
-            self.bIsRotating = false
-        end
-    else
-        if self:GetPosition().y < 10 then
-            self.gravity = self.gravity * -1
-            bRotating = true
-            self.bIsRotating = false
-        end
-    end
 end
 
 self.bIsRotating = false
 local worldRoll = 0
-local lerpFactor = 0
-local bTest = false
-function OnGravityFieldChange(dt)
+function OnGravityFieldChange(iDeltaTime)
     -- self:LockAngularAxis(true, true, true)
-    bTest = not bTest
-    -- if not bTest then return end
+
     local roll = self:GetLocalRoll()
     print(" --- ROTATING --- !" .. roll)
 
-    self:AddLocalRotation(fmath.vec3:new(0, 0, dt * 1.5 * fmath.Pi))
+    self:AddLocalRotation(fmath.vec3:new(0, 0, iDeltaTime * 1.5 * fmath.Pi))
 
-    worldRoll = worldRoll + dt * 1.5 * fmath.Pi
+    worldRoll = worldRoll + iDeltaTime * 1.5 * fmath.Pi
     print("Player World Roll = " .. worldRoll)
 
-    if worldRoll >= 3.13 or worldRoll <= -3.13
-    then
+    if worldRoll >= 3.13 or worldRoll <= -3.13 then
         if self.gravity == -1 then
             self:SetLocalRotationDeg(fmath.vec3:new(0, 0, 180))
         else
@@ -279,7 +221,7 @@ function OnGravityFieldChange(dt)
         -- self:LockAngularAxis(true, false, true)
         print("We have rotated !")
         worldRoll = 0
-        bRotating = false
+        self.bRotating = false
         self.bIsRotating = false
     end
 end
