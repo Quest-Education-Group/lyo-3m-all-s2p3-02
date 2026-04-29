@@ -18,7 +18,11 @@ public:
 private:
     virtual void Execute() override {};
     virtual void SetGBuffer(uint32 gbuffer) override {m_gBuffer = gbuffer;}
-    virtual void SetTextures(sptr<TextureObject> gPosition, sptr<TextureObject> gNormal, sptr<TextureObject> gAlbedoSpec);
+    virtual void SetTextures(
+        sptr<TextureObject> gPosition,
+        sptr<TextureObject> gNormal,
+        sptr<TextureObject> gAlbedoSpec,
+        sptr<TextureObject> gSkybox);
     virtual void SetScreenSize(uint32 width, uint32 height) {m_screenWidth = width, m_screenHeight = height;}
 
 protected:
@@ -33,6 +37,7 @@ protected:
     sptr<TextureObject> m_pGPosition;
     sptr<TextureObject> m_pGNormal;
     sptr<TextureObject> m_pGAlbedoSpec;
+    sptr<TextureObject> m_pGSkybox;
 
 friend class RenderGraph;
 };

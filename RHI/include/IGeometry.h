@@ -6,7 +6,7 @@ namespace Ore
 class IGeometry 
 {
 public:
-    virtual void Draw() = 0;
+    virtual void Draw() const = 0;
 };
 }
 #endif //!RHI_IGEOMETRY__H_

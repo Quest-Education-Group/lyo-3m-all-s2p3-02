@@ -20,6 +20,7 @@ public:
 
     void SetActive(bool const isActive) {m_isActive = isActive;}
     bool GetIsActive() const {return m_isActive;}
+    Geometry const& GetGeometry() const {return *m_pGeometry;}
     void SetTransform(glm::mat4 const& transform) { m_transform = transform; }
     void SetGeometry(sptr<Geometry> const& geometry) { m_pGeometry = geometry; }
     void SetTextures(TextureSpan const textures) { m_textures = textures; }

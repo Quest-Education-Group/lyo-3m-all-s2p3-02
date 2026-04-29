@@ -69,9 +69,9 @@ void UIPass::Execute()
     m_program.SetUniform("resolution", glm::vec2(m_screenWidth, m_screenHeight));
 
     int32 i = 0;
-    for(UIElement const& element : m_elements)
+    for(auto element : m_elements)
     {
-        element.Draw(m_program, i);
+        element.get().Draw(m_program, i);
     }
 
     m_pVertexArray->Bind();

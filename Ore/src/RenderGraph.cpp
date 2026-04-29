@@ -11,7 +11,7 @@ RenderGraph::RenderGraph(Viewport& viewport) : m_viewport(viewport)
 {
     glGenFramebuffers(1, &m_gBuffer);
 
-    uint32 gPosition, gNormal, gAlbedoSpec;
+    uint32 gPosition, gNormal, gAlbedoSpec, gSkybox;
     glGenTextures(1, &gPosition);
     m_pGPosition = std::make_shared<TextureObject>(gPosition, TextureType::TYPE_2D);
 
@@ -20,6 +20,9 @@ RenderGraph::RenderGraph(Viewport& viewport) : m_viewport(viewport)
 
     glGenTextures(1, &gAlbedoSpec);
     m_pGAlbedoSpec = std::make_shared<TextureObject>(gAlbedoSpec, TextureType::TYPE_2D);
+
+    glGenTextures(1, &gSkybox);
+    m_pGSkybox = std::make_shared<TextureObject>(gSkybox, TextureType::TYPE_2D);
 
     glGenRenderbuffers(1, &m_rboDepth);
     RenderGraph::CreateGBuffer(viewport.GetWidth(), viewport.GetHeight());
@@ -60,8 +63,16 @@ void RenderGraph::CreateGBuffer(uint32 const screenWidth, uint32 const screenHei
     m_pGAlbedoSpec->AddParameters(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_pGAlbedoSpec->AttachToFrameBuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2);
 
-    uint32 attachments[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
-    glDrawBuffers(3, attachments);
+    m_pGSkybox->Bind();
+
+    m_pGSkybox->GenerateTexture(DataType::UBYTE, screenWidth, screenHeight, GL_RGBA);
+    m_pGSkybox->AddParameters(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_pGSkybox->AddParameters(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_pGSkybox->AttachToFrameBuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3);
+
+
+    uint32 attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+    glDrawBuffers(4, attachments);
 
     glBindRenderbuffer(GL_RENDERBUFFER, m_rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
@@ -76,7 +87,7 @@ void RenderGraph::CreateGBuffer(uint32 const screenWidth, uint32 const screenHei
 void RenderGraph::AddPass(Pass* pPass)
 {
     pPass->SetGBuffer(m_gBuffer);
-    pPass->SetTextures(m_pGPosition, m_pGNormal, m_pGAlbedoSpec);
+    pPass->SetTextures(m_pGPosition, m_pGNormal, m_pGAlbedoSpec, m_pGSkybox);
     pPass->SetScreenSize(m_viewport.GetWidth(), m_viewport.GetHeight());
     m_passes.push_back(pPass);
 }
@@ -84,6 +95,9 @@ void RenderGraph::AddPass(Pass* pPass)
 void RenderGraph::Execute()
 {
     //TODO Scissor for background color
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(Pass* pPass : m_passes)
         pPass->Execute();

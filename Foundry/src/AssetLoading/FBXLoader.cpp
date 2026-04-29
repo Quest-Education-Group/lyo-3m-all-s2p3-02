@@ -131,7 +131,7 @@ sptr<SceneData> FBXLoader::LoadFile(std::string const& path)
     BuildMeshs(pAScene, uScene, allTextures, bonesTransforms);
 
     BuildAnimations(pAScene, uScene, bonesTransforms);
-    BuildLights(pAScene, uScene);
+    //BuildLights(pAScene, uScene);
     return std::make_shared<SceneData>(uScene);;
 }
 
@@ -372,7 +372,7 @@ void FBXLoader::BuildLights(aiScene const* pScene, SceneData& outScene)
     for (uint32 i = 0; i < pScene->mNumLights; ++i)
     {
         Ore::Light l = {};
-        l.position = { pScene->mLights[i]->mPosition.x,pScene->mLights[i]->mPosition.y,pScene->mLights[i]->mPosition.z },
+//        l.position = { pScene->mLights[i]->mPosition.x,pScene->mLights[i]->mPosition.y,pScene->mLights[i]->mPosition.z },
             l.constant = pScene->mLights[i]->mAttenuationConstant;
         l.quadratic = pScene->mLights[i]->mAttenuationQuadratic;
         l.linear = pScene->mLights[i]->mAttenuationLinear;

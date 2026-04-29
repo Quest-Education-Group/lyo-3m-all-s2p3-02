@@ -2,12 +2,14 @@
 #include "Passes/GeometryPass.h"
 #include "Passes/AnimatedPass.h"
 #include "Passes/LightPass.h"
+#include "Passes/UIPass.h"
+#include "Passes/SkyboxPass.h"
 #include "Mesh.h"
 #include "Window.h"
 #include "Logger.hpp"
 #include "Program.h"
 #include "Shader.h"
-#include "Passes/UIPass.h"
+#include "Cubemap.h"
 #include "UIElements/Image.h"
 #include "UIElements/FTFontFace.h"
 #include "UIElements/Text.h"
@@ -19,7 +21,7 @@ int main()
 {
     Window window(1920, 1080, "HELLO", false, true);
     window.Open();
-    Viewport viewport(0, 0, 1920, 1080, Color::SKY_BLUE);
+    Viewport viewport(0, 0, 1920, 1080, Color(0.0f, 0.0f, 0.0f, 0.0f));
     window.AddViewport(viewport);
 
     std::vector<Vertex> vertices;
@@ -40,7 +42,7 @@ int main()
     sptr<Texture> specular  = std::make_shared<Texture>("res/textures/defaultSpecular.png", TextureType::TYPE_2D, TextureMaterialType::SPECULAR);
     sptr<Texture> normal    = std::make_shared<Texture>("res/textures/defaultNormal.png", TextureType::TYPE_2D, TextureMaterialType::NORMAL);
     sptr<Texture> ui        = std::make_shared<Texture>("res/textures/bib.png", TextureType::TYPE_2D, TextureMaterialType::DIFFUSE);
-    sptr<Texture> opacity   = std::make_shared<Texture>("res/textures/opacity.png", TextureType::TYPE_2D, TextureMaterialType::OPACITY);
+    sptr<Texture> opacity   = std::make_shared<Texture>("res/textures/white.png", TextureType::TYPE_2D, TextureMaterialType::OPACITY);
 
     std::vector<sptr<Texture>> textures;
     textures.push_back(diffuse);
@@ -50,6 +52,18 @@ int main()
 
     Mesh mesh(cube, textures, glm::scale(glm::mat4(1.0f), glm::vec3(1.f)));
     Mesh mesh1(cube, textures, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+
+    sptr<Cubemap> cubemap = std::make_shared<Cubemap>();
+    cubemap->Load(
+{
+            "res/textures/skybox/right.jpg",
+            "res/textures/skybox/left.jpg",
+            "res/textures/skybox/bottom.jpg",
+            "res/textures/skybox/top.jpg",
+            "res/textures/skybox/front.jpg",
+            "res/textures/skybox/back.jpg",
+        }
+    );
 
     sptr<Camera> camera = std::make_shared<Camera>();
     camera->Perspective.aspectRatio = 1920.0f/1080.0f;
@@ -61,20 +75,21 @@ int main()
     for (int i = 0; i < 1; ++i)
     {
         float xPos = 0.0f;
-        float yPos = 0.0f;
-        float zPos = -1.0f;
+        float yPos = 3.0f;
+        float zPos = 1.0f;
         Light light;
         light.quadratic = 0.5f;
         light.linear = 0.4f;
         light.constant = 0.0f;
         //light.color = Color::BLUE;
-        light.position = { xPos, yPos, zPos };
+        light.position = { xPos, yPos, zPos, 0.0f};
         lights.push_back(light);
     }
 
     Program geometryProgram;
     Program lightProgram;
     Program UIProgram;
+    Program skyboxProgram;
 
     Shader geoFrag(ShaderType::TYPE_FRAGMENT);
     geoFrag.Load("res/shaders/GBuffer.frag");
@@ -104,6 +119,7 @@ int main()
     lightProgram.SetUniform("gPosition", 0);
     lightProgram.SetUniform("gNormal", 1);
     lightProgram.SetUniform("gAlbedoSpec", 2);
+    lightProgram.SetUniform("gSkybox", 3);
 
     Shader uiFrag(ShaderType::TYPE_FRAGMENT);
     uiFrag.Load("res/shaders/UIPass.frag");
@@ -117,6 +133,18 @@ int main()
     uiFrag.Unload();
     uiVert.Unload();
 
+    Shader skyboxFrag(ShaderType::TYPE_FRAGMENT);
+    skyboxFrag.Load("res/shaders/SkyboxPass.frag");
+    Shader skyboxVert(ShaderType::TYPE_VERTEX);
+    skyboxVert.Load("res/shaders/SkyboxPass.vert");
+
+    skyboxProgram.AddShader(skyboxFrag);
+    skyboxProgram.AddShader(skyboxVert);
+    skyboxProgram.Load();
+
+    skyboxFrag.Unload();
+    skyboxVert.Unload();
+
     sptr<FontFace> font = std::make_shared<FTFontFace>("res/fonts/FuzzyBubbles-Bold.ttf", 20);
     Text text("Bonjour le monde !", font);
     text.color = Color::SKY_BLUE;
@@ -129,14 +157,17 @@ int main()
     GeometryPass geoPass(geometryProgram, camera.get());
     LightPass lightPass(lightProgram, lights, camera.get());
     UIPass uiPass(UIProgram, camera.get());
-
+    SkyboxPass skyboxPass(skyboxProgram, camera.get());
 
     viewport.AddPass(&geoPass);
+    viewport.AddPass(&skyboxPass);
     viewport.AddPass(&lightPass);
     viewport.AddPass(&uiPass);
+
     float fact = 1.0f;
     float inf = 0.0f;
 
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     while (window.IsOpen())
     {
         window.Clear();
@@ -145,12 +176,16 @@ int main()
         //inf += 0.0016f * fact;
         //glm::mat4 meshTransform = glm::translate(mesh.GetTransform(), glm::vec3(0.0016f * fact, 0.0f, 0.0f));
         //mesh.SetTransform(meshTransform);
-        //camera->SetRoll(roll ++);
+        transform = glm::rotate(transform, glm::radians(0.16f), glm::vec3(0.0f, 1.0f, 0.0f));
+        camera->SetTransform(transform);
+        camera->UpdateCamera();
+
         //Logger::LogWithLevel(LogLevel::ERROR, yaw);
         //camera->SetPosition(camPos);
         //lights[0].position += glm::vec3(1.0f, 0.0f, 0.0f);
 
         //geoPass.AddMesh(mesh);
+        skyboxPass.SetCubeMap(cubemap);
         geoPass.AddMesh(mesh);
         //uiPass.AddUIElement(image);
         //uiPass.AddUIElement(image1);
